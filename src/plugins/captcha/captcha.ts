@@ -16,6 +16,10 @@ export async function startCaptcha<T>(
     myFunc: (captchaToken: string) => Promise<Service.RequestResult<T>>
 ): Promise<Service.RequestResult<T>> {
     try {
+        if (!window.grecaptcha && !window.initGeetest4) {
+            setMsg('Google reCaptcha 和 Geetest 都加载失败了，麻烦你发个工单吧', Type.Warning)
+            throw new Error("人机验证加载失败");
+        }
         if (window.grecaptcha) {
             const recaptchaResult = await startRecaptcha(myFunc);
             if (recaptchaResult.code === -1100) {
