@@ -29,6 +29,11 @@ export async function startCaptcha<T>(
             }
             return recaptchaResult;
         }
+            // @ts-ignore
+        if (window["initGeetest"] === undefined) {
+            setMsg('不知道为什么, Geetest加载失败。麻烦你发个工单吧', Type.Warning)
+            throw new Error("Geetest加载失败");
+        }
         return await startGeeTest(myFunc);
     } catch (error) {
         setMsg("人机验证大失败", Type.Error);
@@ -97,7 +102,7 @@ async function startGeeTest<T>(myFunc: (captchaToken: string) => Promise<Service
 export const arknigthsGameCaptcha = (account: string, data: ApiGame.CaptchaInfo) => {
     // @ts-ignore
     if (window["initGeetest"] === undefined) {
-        console.log("没有初始化Geetest")
+        setMsg('不知道为什么，Geetest加载失败。麻烦你发个工单吧', Type.Warning)
         return
     }
     setMsg('加载验证码中...', Type.Info)

@@ -15,7 +15,6 @@
                 </p>
                 <div class="divider mt-0">个人信息</div>
                 <StatusMessage />
-
             </div>
             <IndexStatus />
             <div class="text-2xl font-bold">我的托管（{{ userQuota.data.value?.slots.filter((slot) => slot.gameAccount !==
