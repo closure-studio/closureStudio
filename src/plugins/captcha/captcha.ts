@@ -16,6 +16,10 @@ export async function startCaptcha<T>(
     myFunc: (captchaToken: string) => Promise<Service.RequestResult<T>>
 ): Promise<Service.RequestResult<T>> {
     try {
+        if (!window.grecaptcha && !window.initGeetest4) {
+            setMsg('Google reCaptcha 和 Geetest 都加载失败了，麻烦你发个工单吧', Type.Warning)
+            throw new Error("人机验证加载失败");
+        }
         if (window.grecaptcha) {
             const recaptchaResult = await startRecaptcha(myFunc);
             if (recaptchaResult.code === -1100) {
@@ -28,6 +32,11 @@ export async function startCaptcha<T>(
                 return geetestResult;
             }
             return recaptchaResult;
+        }
+            // @ts-ignore
+        if (window["initGeetest"] === undefined) {
+            setMsg('不知道为什么, Geetest加载失败。麻烦你发个工单吧', Type.Warning)
+            throw new Error("Geetest加载失败");
         }
         return await startGeeTest(myFunc);
     } catch (error) {
@@ -97,7 +106,7 @@ async function startGeeTest<T>(myFunc: (captchaToken: string) => Promise<Service
 export const arknigthsGameCaptcha = (account: string, data: ApiGame.CaptchaInfo) => {
     // @ts-ignore
     if (window["initGeetest"] === undefined) {
-        console.log("没有初始化Geetest")
+        setMsg('不知道为什么，Geetest加载失败。麻烦你发个工单吧', Type.Warning)
         return
     }
     setMsg('加载验证码中...', Type.Info)
