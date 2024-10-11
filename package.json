@@ -10,6 +10,7 @@
     "test:unit": "jest"
   },
   "dependencies": {
+    "@sentry/vue": "^8.34.0",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/typography": "^0.5.15",
     "@tiptap/pm": "^2.8.0",
@@ -51,11 +52,11 @@
     "autoprefixer": "^10.4.20",
     "jest": "^29.7.0",
     "postcss": "^8.4.47",
+    "sass": "^1.79.4",
     "tailwindcss": "^3.4.13",
     "ts-jest": "^29.2.5",
     "typescript": "^5.6.2",
     "vite": "^5.4.8",
-    "vue-tsc": "^2.1.6",
-    "sass": "^1.79.4"
+    "vue-tsc": "^2.1.6"
   }
 }
