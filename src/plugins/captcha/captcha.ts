@@ -1,6 +1,7 @@
 import { Type } from "../../components/toast/enum";
 import { doUpdateCaptcha } from "../axios";
 import { setMsg } from "../common";
+import * as Sentry from "@sentry/vue";
 
 const googleRecaptchaSiteKey = "6LfrMU0mAAAAADoo9vRBTLwrt5mU0HvykuR3l8uN"
 
@@ -41,6 +42,7 @@ export async function startCaptcha<T>(
         return await startGeeTest(myFunc);
     } catch (error) {
         setMsg("人机验证大失败", Type.Error);
+        Sentry.captureException(error);
         throw error;
     }
 }
