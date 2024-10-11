@@ -49,17 +49,11 @@ export async function startCaptcha<T>(
 
 
 async function startRecaptcha<T>(myFunc: (captchaToken: string) => Promise<Service.RequestResult<T>>): Promise<Service.RequestResult<T>> {
-    try {
-        const token = await window.grecaptcha.execute(googleRecaptchaSiteKey, { action: "submit" });
-        if (!token) {
-            throw new Error("reCAPTCHA token is empty");
-        }
-        return await myFunc(token);
-    } catch (error) {
-        // 更详细的错误处理
-        console.error("Failed to execute reCAPTCHA:", error);
-        throw new Error(`Failed to execute reCAPTCHA: ${(error as Error).message}`);
+    const token = await window.grecaptcha.execute(googleRecaptchaSiteKey, { action: "submit" });
+    if (!token) {
+        throw new Error("reCAPTCHA token is empty");
     }
+    return await myFunc(token);
 }
 
 async function startGeeTest<T>(myFunc: (captchaToken: string) => Promise<Service.RequestResult<T>>): Promise<Service.RequestResult<T>> {
