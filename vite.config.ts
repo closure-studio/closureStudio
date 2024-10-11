@@ -74,6 +74,9 @@ export default defineConfig({
     }), visualizer() as any, sentryVitePlugin({
         org: "closure-studio",
         project: "closure-studio"
+    }), sentryVitePlugin({
+        org: "closure-studio",
+        project: "closure-studio"
     })],
     build: {
         rollupOptions: {
