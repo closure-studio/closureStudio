@@ -10,6 +10,7 @@
     "test:unit": "jest"
   },
   "dependencies": {
+    "@sentry/vite-plugin": "^2.22.5",
     "@sentry/vue": "^8.34.0",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/typography": "^0.5.15",
