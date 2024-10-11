@@ -45,8 +45,6 @@ Sentry.init({
 app.component("layout", BaseLayout);
 app.use(VueClickAway).use(router).use(pinia).mount("#app");
 
-myUndefinedFunction();
-
 if (import.meta.env.MODE !== "development") {
   initSW();
 }
