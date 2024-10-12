@@ -47,7 +47,7 @@
               <span class="text-2xl font-bold">你是可露希尔旗舰店<a class="text-info">{{ levels[gameList.length] }}级</a>会员</span>
               <div class="text-xl">可在平台内添加托管 {{ 3 - gameList.length }} 个游戏账号</div>
               <div class="grid grid-cols-2 gap-4 mt-2">
-                <GameAccount v-for="(v, k) in gameList" :key="k" :game="v" />
+                <GameAccount v-for="(v, k) in gameList" :key="k" :gameAccount="v.game_config.account" />
               </div>
               <div class="divider my-2" />
               <span class="text-info text-lg">托管额度已全部使用，无法添加更多账号；<br />若想增加额度，请<b

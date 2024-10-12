@@ -1,17 +1,14 @@
 import { ref } from "vue";
 import NewSSRNotice from "../../components/dialog/NewSSRNotice.vue";
 import { Type } from "../../components/toast/enum";
-import { userStore } from "../../store/user";
-import { fetchGameList } from "../axios";
-import { setMsg } from "../common";
-import showDialog from "../dialog/dialog";
-import { userQuota } from "../quota/userQuota";
-import { router } from "../router";
-import { globalSSR, setIsLoading, updateGameList } from "./data";
+import { setMsg } from "../../plugins/common";
+import showDialog from "../../plugins/dialog/dialog";
+import { router } from "../../plugins/router";
+import { userStore } from "../user";
+import { updateCaptcha, updateGameList } from "./games";
+import { myState } from "./myState";
 
-const isStarted = ref(false);
-
-const startSSE = async () => {
+export const startSSE = async () => {
   const user = userStore();
   if (!user) {
     setMsg("userStore 未初始化", Type.Warning);
@@ -67,7 +64,7 @@ const startSSE = async () => {
       if (!event.data) return;
       const data = JSON.parse(event.data) as ApiGame.Game[];
       updateGameList(data);
-      userQuota.value.queryMe();
+      updateCaptcha(data);
     });
     event.addEventListener("log", (event) => {
       if (!event.data) return;
@@ -81,14 +78,14 @@ const startSSE = async () => {
     });
 
     event.addEventListener("ssr", (event) => {
-      globalSSR.value = JSON.parse(event.data) ?? [];
+      myState.globalSSR = JSON.parse(event.data) ?? [];
       const lastReadTs = Number(localStorage.getItem("lastReadTs")) || 0;
-      globalSSR.value = globalSSR.value.filter(
+      myState.globalSSR = myState.globalSSR.filter(
         (item) => item.createdAt > lastReadTs
       );
-      if (globalSSR.value.length > 0) {
+      if (myState.globalSSR.length > 0) {
         setMsg("可露希尔又双叒叕抽到 6 星干员啦!!!", Type.Info);
-        showDialog(NewSSRNotice, { users: globalSSR.value });
+        showDialog(NewSSRNotice, { users: myState.globalSSR });
       }
     });
 
@@ -98,73 +95,3 @@ const startSSE = async () => {
     return false; // 连接失败，返回 false
   }
 };
-
-
-const startAxios = () => {
-  const user = userStore();
-  if (!user) {
-    setMsg("userStore 未初始化", Type.Warning);
-    return false;
-  }
-  if (user.isLogin === false) {
-    setMsg("请先登录", Type.Warning);
-    return false;
-  }
-  // 检查 token 是否过期
-  if (user.user.Info && user.user.Info.exp < Math.floor(Date.now() / 1000)) {
-    setMsg("登录已过期，请重新登录", Type.Warning);
-    user.logout();
-    router.push("/");
-    return false;
-  }
-
-  // 定义轮询的间隔时间（毫秒）
-  const intervalTime = 5000; // 10秒
-
-  // 轮询函数
-  const poll = async () => {
-    try {
-      // 通过 Promise.all 同时发起两个请求
-      const [response, queryMeResp] = await Promise.all([
-        fetchGameList(), // 请求游戏列表
-        userQuota.value.queryMe() // 请求用户配额数据
-      ]);
-      // 处理 fetchGameList 的结果
-      if (response && response.code === 1 && response.data) {
-        updateGameList(response.data);
-      }
-      // 处理 queryMe 的结果
-      if (queryMeResp) {
-        userQuota.value.data.value = queryMeResp;
-      }
-    } catch (error) {
-      console.error("Error during polling:", error);
-    } finally {
-      setIsLoading(false);
-      // 在 poll 完成后，等待指定时间再进行下一次轮询
-      setTimeout(poll, intervalTime);
-    }
-  };
-
-  poll();
-  return true;
-};
-
-const queryGamesInfo = async () => {
-  // const sseResult = await startSSE();
-  // if (sseResult) {
-  //   setMsg("链接到服务器成功", Type.Success);
-  //   return;
-  // }
-  // setMsg("链接到服务器失败，将使用轮询模式", Type.Warning);
-  // startAxios();
-  if (isStarted.value) {
-    return;
-  }
-  isStarted.value = true;
-  startSSE();
-  startAxios();
-};
-
-export { queryGamesInfo };
-

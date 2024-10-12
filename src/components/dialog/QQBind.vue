@@ -33,21 +33,24 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import { fetchQQBindCode } from "../../plugins/axios";
-import { userQuota } from "../../plugins/quota/userQuota";
 import { NOTIFY } from "../../plugins/config";
 import { setMsg, sleep } from "../../plugins/common";
 import { Type } from "../toast/enum";
 import { Icon } from "@iconify/vue";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
+import { myState } from "../../store/myState/myState";
 
 const props = defineProps<DialogComponentProps>();
 const { dialogClose } = props;
 const qqCode = ref("");
 const isLoading = ref(true);
-const quota = userQuota.value.data.value;
 let intervalId: number | null = null;
+
+const userQuota = computed(() => {
+    return myState.userQuota;
+});
 
 onMounted(() => {
     fetchQQBindCode();
@@ -81,8 +84,8 @@ const copyQQCode = async () => {
 };
 
 const getQQBindCode = () => {
-    if (quota?.idServerQQ) {
-        qqCode.value = quota.idServerQQ;
+    if (userQuota?.value?.idServerQQ) {
+        qqCode.value = userQuota.value.idServerQQ;
         return;
     }
     fetchQQBindCode()

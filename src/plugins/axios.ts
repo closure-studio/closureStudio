@@ -187,7 +187,7 @@ const fetchGameConf = (account: string, platform: string) =>
 const apiGeetestSet = (account: string, platform: number, params: any) =>
   post(`Game/Captcha/${account}/${platform}`, params); // Geetest
 
-const fetchSytemConfig = () => get<ApiSystem.Config>("system/config");
+const fetchSystemConfig = () => get<ApiSystem.Config>("system/config");
 const fetchSytemList = () => get<ApiSystem.Hall[]>("system/apCostList");
 
 const doGameLogin = (token: string, account: string) =>
@@ -273,7 +273,7 @@ const buildCodeFromRegisterResp = (resp: any): number => {
 export {
   Auth_Info, Auth_Login, Auth_Login_Admin, Auth_Refresh, Auth_Register,
   Auth_ResetPassword, Auth_Send_SMS, Auth_Verify, DelQuotaGameAdmin, doAddGame, doDelGame, doFindAccount, doGameLogin, doUpdateCaptcha, doUpdateGameConf, doUpdateGamePasswd, fetchGameDetails, fetchGameList,
-  fetchGameListBySSE, fetchGameLogs, fetchGameLogsAdmin, fetchQQBindCode, fetchSytemConfig,
+  fetchGameListBySSE, fetchGameLogs, fetchGameLogsAdmin, fetchQQBindCode, fetchSystemConfig,
   fetchSytemList, fetchUserSlots, fetchUserSlotsAdmin, load, QueryUser, SendCodeOnRegister, SendSMS,
   UpdateUserPermission
 };

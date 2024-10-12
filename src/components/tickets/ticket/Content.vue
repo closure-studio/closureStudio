@@ -194,29 +194,26 @@ const props = withDefaults(defineProps<Props>(), {
     getTickets: () => { },
 });
 import { nextTick, ref, watch } from "vue";
-import { getRealGameAccount, setMsg } from "../../../plugins/common";
+import VueMarkdown from 'vue-markdown-render';
 import {
+    Auth_Login_Admin,
     QueryUser,
     SendSMS,
     UpdateTicketById,
-    fetchUserSlotsAdmin,
-    fetchGameLogsAdmin,
-    DelQuotaGameAdmin,
     doDelGame,
-    Auth_Login_Admin,
+    fetchGameLogsAdmin,
+    fetchUserSlotsAdmin
 } from "../../../plugins/axios";
-import { userStore } from "../../../store/user";
-import { Type } from "../../toast/enum";
-import Tags from "./Tags.vue";
-import { getSMSSlot } from "../../../plugins/quota/userQuota";
-import { checkIsMobile } from "../../../utils/regex";
-import { formatTime } from "../../../plugins/common";
-import QA from "./QA.vue";
-import Permission from "../../permission/Permission.vue";
-import VueMarkdown from 'vue-markdown-render'
+import { formatTime, getRealGameAccount, setMsg } from "../../../plugins/common";
 import showDialog from "../../../plugins/dialog/dialog";
+import { getSMSSlot } from "../../../store/myState/quota";
+import { userStore } from "../../../store/user";
+import { checkIsMobile } from "../../../utils/regex";
 import SwitchUserByAdmin from "../../dialog/SwitchUserByAdmin.vue";
-import { router } from "../../../plugins/router";
+import Permission from "../../permission/Permission.vue";
+import { Type } from "../../toast/enum";
+import QA from "./QA.vue";
+import Tags from "./Tags.vue";
 enum DisplayType {
     None,
     UserInfo,

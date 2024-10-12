@@ -6,7 +6,7 @@ import { Type } from "../../components/toast/enum";
 export const useWXPusher = () => {
   const isQueryWxPusher = ref(false);
   const isCreateQRCodes = ref(false);
-  const wxPuhser = ref<ApiUser.WXPusher>();
+  const wxPusher = ref<ApiUser.WXPusher>();
   const QRCode = ref<ApiUser.WXPusherQRCode>();
   const queryWxPusher = async () => {
     if (isQueryWxPusher.value) return;
@@ -14,7 +14,7 @@ export const useWXPusher = () => {
     try {
       const res = await QueryWXPusher();
       if (res.code == 1 && res.data) {
-        wxPuhser.value = res.data;
+        wxPusher.value = res.data;
       }
     } catch (error) {
       console.error(error);
@@ -43,7 +43,7 @@ export const useWXPusher = () => {
   return {
     isQueryWxPusher,
     isCreateQRCodes,
-    wxPuhser,
+    wxPusher,
     QRCode,
     queryWxPusher,
     createQRCodes,

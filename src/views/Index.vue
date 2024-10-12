@@ -50,7 +50,7 @@
             <div class="space-x-4 hidden lg:flex">
                 <div class="mockup-code bg-base-300 text-base-content shadow-lg rounded-lg w-1/2">
                     <pre class="font-bold text-center mb-2">你站公告</pre>
-                    <pre data-prefix=">"><code>2023/10/14 {{ config.announcement }}</code></pre>
+                    <pre data-prefix=">"><code>无所事事的公告</code></pre>
                 </div>
                 <div @click="ticketBtnOnClick()"
                     class="bg-base-300 shadow-lg rounded-lg p-2 w-1/2 flex flex-col items-center">
@@ -91,8 +91,6 @@
 import { onMounted, ref } from "vue";
 import Login from "../components/card/Login.vue";
 import { userStore } from "../store/user";
-import { config } from "../plugins/gamesInfo/data";
-import { fetchSytemList } from "../plugins/axios";
 import { isNight } from "../plugins/common";
 import { router } from "../plugins/router";
 const followBtn = ref(false); // 启动按钮跟随鼠标
@@ -110,7 +108,4 @@ onMounted(() => {
     });
 });
 const list = ref<ApiSystem.Hall[]>([]);
-fetchSytemList().then((res) => {
-    if (res.data) list.value = res.data;
-});
 </script>

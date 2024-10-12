@@ -17,18 +17,18 @@
                 <StatusMessage />
             </div>
             <IndexStatus />
-            <div class="text-2xl font-bold">我的托管（{{ userQuota.data.value?.slots.filter((slot) => slot.gameAccount !==
-                null)?.length }} 已用 / {{ userQuota.data.value?.slots?.length }} 可用）</div>
-            <div v-if="isQueryGamesLoading" class="h-72 flex justify-center w-full">
+            <div class="text-2xl font-bold">我的托管（{{ userQuota?.slots.filter((slot) => slot.gameAccount !==
+                null)?.length }} 已用 / {{ userQuota?.slots?.length }} 可用）</div>
+            <div v-if="!isGameListCompletedInit" class="h-72 flex justify-center w-full">
                 <span className="loading loading-ring loading-lg"></span>
                 <span className="loading loading-ring loading-lg"></span>
                 <span className="loading loading-ring loading-lg"></span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <div v-for="(slot, key) in userQuota.data.value?.slots" :key="key">
-                    <GameAddCard v-if="!slot.gameAccount" :slot="slot" :userQuota="userQuota.data.value" :key="key"
+                <div v-for="(slot, key) in userQuota?.slots" :key="key">
+                    <GameAddCard v-if="!slot.gameAccount" :slot="slot" :userQuota="userQuota" :key="key"
                         @click="createGameButtonOnClick(slot, slot.uuid)" />
-                    <GameAccount v-else :game="findGame(slot.gameAccount)" @click="openGameConf(slot.gameAccount)">
+                    <GameAccount v-else :gameAccount="slot.gameAccount" @click="openGameConf(slot.gameAccount)">
                         <div class="divider mt-2 mb-3 text-info font-arknigths text-xl">START</div>
                         <div v-if="findGame(slot.gameAccount)">
                             <div class="grid gap-4 grid-cols-2 mt-2">
@@ -65,7 +65,7 @@
 </template>
 <script setup lang="ts">
 import "animate.css";
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { GameAccount, GameAddCard, GamePanel, IndexStatus } from "../../components/card/index";
 import { StatusMessage } from "../../components/dashboard/user";
 import CreateGame from "../../components/dialog/CreateGame.vue";
@@ -78,18 +78,20 @@ import { startCaptcha } from "../../plugins/captcha/captcha";
 import { getRealGameAccount, setMsg } from "../../plugins/common";
 import { NOTIFY } from "../../plugins/config";
 import showDialog from "../../plugins/dialog/dialog";
-import { config, findGame, getFirstGame, isQueryGamesLoading } from "../../plugins/gamesInfo/data";
-import { queryGamesInfo } from "../../plugins/gamesInfo/net";
-import { allowGameCreate, canDeleteGame } from "../../plugins/quota/quota";
-import { userQuota } from "../../plugins/quota/userQuota";
+import { findGame, getFirstGame, initializeGameListServerConnection, myState } from "../../store/myState/myState";
+import { allowGameCreate, canDeleteGame } from "../../store/myState/quota";
 import { userStore } from "../../store/user";
 const show = ref(false);
 const user = userStore();
 const selectedSlotUUID = ref("");
 const selectedRegisterForm = ref({} as Registry.AddGameForm); // for update password
 const isLoading = ref(false);
+
+const userQuota = computed(() => {
+    return myState.userQuota;
+});
 // start
-queryGamesInfo();
+initializeGameListServerConnection();
 const firstGame = getFirstGame;
 // 补发验证码
 watch(firstGame, (value) => {
@@ -110,18 +112,22 @@ watch(firstGame, (value) => {
     }
 });
 
+const isGameListCompletedInit = computed(() => {
+    return myState.isGameListCompletedInit;
+});
+
 onMounted(async () => {
     showDialog(YouMayKnow);
 });
 
 const createGameButtonOnClick = (slot: Registry.Slot, slotUUID: string) => {
-    if (!userQuota.value.data.value) {
+    if (!userQuota.value) {
         setMsg("游戏托管槽位数据异常，无法提交", Type.Warning);
         return;
     }
     const response = allowGameCreate(
         slot,
-        userQuota.value.data.value,
+        userQuota.value,
         user.isVerify // status code == 1 || 2
     );
     if (response.isLocked) {
@@ -166,11 +172,11 @@ const handleGameLoginBtnOnClick = (gameAccount: string) => {
 
 const handleDeleteBtnOnClick = async (slotUUID: string, gameAccount: string) => {
     // can you delete it?
-    if (userQuota.value.data.value === undefined) {
+    if (userQuota.value === undefined) {
         setMsg("游戏托管槽位数据异常，无法提交", Type.Warning);
         return;
     }
-    if (!canDeleteGame(userQuota.value.data.value, gameAccount)) {
+    if (!canDeleteGame(userQuota.value, gameAccount)) {
         setMsg(NOTIFY.NOT_ALLOW_DELETE_GAME, Type.Warning);
         return;
     }

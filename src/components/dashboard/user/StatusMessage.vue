@@ -1,31 +1,32 @@
 <template>
-    <p
-        v-if="user.info.status === -1 && userQuota.data.value?.idServerPhone.length === 0 && gameList[0]?.status.created_at != 0">
+    <p v-if="user.info.status === -1 && userQuota?.idServerPhone.length === 0 && gameList[0]?.status.created_at != 0">
         手机验证码已经发送, 完成【手机号：{{ gameList[0]?.status.account?.replace(/(\d{3})\d{6}(\d{2})/,
             "$1****$2") }}】绑定认证<b class="cursor-pointer" @click="handleRealNameDialogOpen">👉点我解锁👈</b>不限时游戏托管，并提升托管数量。
         剩余托管体验时间 <b>【{{
             calc(gameList[0]?.status.created_at, now) }}】</b>。<br />
     </p>
-    <p v-if="user.isVerify && userQuota.data.value?.idServerQQ.length === 0">完成QQ账号验证解锁更多槽位。<b class="cursor-pointer"
+    <p v-if="user.isVerify && userQuota?.idServerQQ.length === 0">完成QQ账号验证解锁更多槽位。<b class="cursor-pointer"
             @click="handleQQBindDialogOpen()">👉点我解锁👈</b>提升托管数量</p>
-    <p v-if="!isQueryWxPusher && !wxPuhser">博士！！！你怎么还没有<b class="cursor-pointer"
+    <p v-if="!isQueryWxPusher && !wxPusher">博士！！！你怎么还没有<b class="cursor-pointer"
             @click="navigateToWXPusher">👉绑定微信👈</b></p>
     <p>如果博士遇到问题(验证码没有收到，游戏异常等等)，使用<b class="cursor-pointer" @click="navigateToTicket">👉工单系统👈</b>请求协助。</p>
 
 </template>
 <script lang="ts" setup>
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import showDialog from "../../../plugins/dialog/dialog";
-import { userQuota } from "../../../plugins/quota/userQuota";
 import { router } from "../../../plugins/router";
-import { gameList } from "../../../plugins/gamesInfo/data";
+import { myState } from "../../../store/myState/myState";
 import { useWXPusher } from "../../../plugins/wxPusher/wxPusher";
 import { userStore } from "../../../store/user";
 import QQBind from "../../dialog/QQBind.vue";
 import RealName from "../../dialog/RealName.vue";
 
 const user = userStore();
-const { isQueryWxPusher, wxPuhser, queryWxPusher } = useWXPusher();
+const { isQueryWxPusher, wxPusher, queryWxPusher } = useWXPusher();
+
+const gameList = computed(() => myState.gameList);
+const userQuota = computed(() => myState.userQuota);
 
 onMounted(() => {
     queryWxPusher();

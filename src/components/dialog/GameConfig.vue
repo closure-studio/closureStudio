@@ -78,7 +78,7 @@ import { ref, watch } from "vue";
 import { doUpdateGameConf } from "../../plugins/axios";
 import { setMsg } from "../../plugins/common";
 import { Type } from "../toast/enum";
-import { findGame } from "../../plugins/gamesInfo/data";
+import { findGame } from "../../store/myState/myState";
 import { assets } from "../../plugins/assets/assets";
 import BaseDesign from "../BaseDesign.vue";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
