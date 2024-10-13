@@ -1,5 +1,5 @@
 interface PeriodicSyncManager {
-    register(tag: string, options?: {minInterval: number}): Promise<void>;
+    register(tag: string, options?: { minInterval: number }): Promise<void>;
 }
 
 declare global {
@@ -28,22 +28,23 @@ function subscribeUser(swRegistration: ServiceWorkerRegistration) {
         applicationServerKey: applicationServerKey
     })
         // 用户同意
-        .then(function(subscription) {
+        .then(function (subscription) {
             // alert(JSON.stringify(subscription))
             console.log('user is subscribed:', JSON.stringify(subscription));
         })
         // 用户不同意或者生成失败
-        .catch(function() {
+        .catch(function () {
             let ls = JSON.parse(localStorage.getItem("test") || '{}')
             if (ls?.config?.subscribe) alert('尝试获取【通知】权限失败，将无法自动推送新内容');
         });
 }
+
 export function initSW() {
     // @ts-ignore
     let deferredPrompt: BeforeInstallPromptEvent = 'init';
     window.addEventListener('load', () => {
         if ('serviceWorker' in navigator) {
-            window.addEventListener('beforeinstallprompt', (event) => { // 监听到可安装事件，进行触发提醒用户
+            window.addEventListener('beforeinstallprompt', (event) => {
                 event.preventDefault();
                 if (deferredPrompt === 'init') {
                     deferredPrompt = event;
@@ -54,45 +55,55 @@ export function initSW() {
                     deferredPrompt.prompt();
                     deferredPrompt = null;
                 });
-            }, { once: true })
-            void navigator.serviceWorker.register('/sw.js');
-            if (navigator.serviceWorker.controller) {
-                navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    alert('可露希尔已更新，即将自动更新');
-                    window.location.reload();
-                });
-            }
-            void navigator.serviceWorker.ready.then(async (registration) => {
-                if ('periodicSync' in registration) {
-                    const status = await navigator.permissions.query({
-                        // @ts-expect-error periodic sync is not included in the default SW interface.
-                        name: 'periodic-background-sync',
-                    });
+            }, { once: true });
 
-                    if (status.state === 'granted') {
-                        await registration.periodicSync.register('update-check', {
-                            minInterval: 24 * 60 * 60 * 1000,
+            // Register the service worker
+            navigator.serviceWorker.register('/sw.js').then((registration) => {
+                // Immediately check for updates
+                registration.update();
+
+                // If the service worker is ready
+                navigator.serviceWorker.ready.then(async (registration) => {
+                    if ('periodicSync' in registration) {
+                        const status = await navigator.permissions.query({
+                            name: 'periodic-background-sync' as PermissionName,
+                        });
+
+                        if (status.state === 'granted') {
+                            await registration.periodicSync.register('update-check', {
+                                minInterval: 24 * 60 * 60 * 1000,
+                            });
+                        }
+                    }
+
+                    // Handle push subscription
+                    if (window.PushManager) {
+                        registration.pushManager.getSubscription().then(subscription => {
+                            if (!subscription) {
+                                subscribeUser(registration);
+                            } else {
+                                console.log("subscription success:", subscription);
+                            }
                         });
                     }
-                }
-                if (window.PushManager) {
-                    registration.pushManager.getSubscription().then(subscription => {
-                        // 如果用户没有订阅
-                        if (!subscription) {
-                            subscribeUser(registration);
-                        } else {
-                            console.log("subscription success:" + subscription)
-                        }
-                    })
-                }
-                if (window.matchMedia('(display-mode: standalone)').matches) {
-                    document.addEventListener('visibilitychange', () => {
-                        if (document.visibilityState !== 'hidden') {
-                            navigator.serviceWorker.controller?.postMessage('update-check');
-                            void registration.update();
-                        }
+
+                    // Reload page when service worker updates
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        alert('可露希尔已更新，即将自动更新');
+                        window.location.reload();
                     });
-                }
+
+                    // Periodically check for updates in standalone mode
+                    if (window.matchMedia('(display-mode: standalone)').matches) {
+                        document.addEventListener('visibilitychange', () => {
+                            if (document.visibilityState !== 'hidden') {
+                                registration.update();
+                            }
+                        });
+                    }
+                });
+            }).catch((error) => {
+                console.error('Service worker registration failed:', error);
             });
         }
     });
