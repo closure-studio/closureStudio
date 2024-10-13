@@ -4,9 +4,9 @@
     <div class="flex items-center">
       <div class="avatar mr-2">
         <div class="w-12 rounded-md">
-          <!-- <img :src="`https://assets.ltsc.vip/avatar/${getAvatarType()}/${getAvatarId()}.png`" alt="斯卡蒂" /> -->
-          <img :src="`https://cc-im-kefu-cos.7moor-fs1.com/im/4d2c3f00-7d4c-11e5-af15-41bf63ae4ea0/ch9KONh0.jpg`"
-            alt="斯卡蒂" />
+          <img :src="`https://assets.ltsc.vip/avatar/${getAvatarType()}/${getAvatarId()}.png`" alt="斯卡蒂" />
+          <!-- <img :src="`https://cc-im-kefu-cos.7moor-fs1.com/im/4d2c3f00-7d4c-11e5-af15-41bf63ae4ea0/ch9KONh0.jpg`" -->
+          alt="斯卡蒂" />
 
         </div>
       </div>
@@ -42,41 +42,47 @@
 <script lang="ts" setup>
 import { assets } from "../../plugins/assets/assets";
 import { maskPhoneNumber } from "../../plugins/common";
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
+import { myState } from "../../store/games/myGames";
 interface Props {
-  game?: ApiGame.Game;
+  gameAccount?: string
 }
 const props = defineProps<Props>();
-const { game } = props;
+const { gameAccount } = props;
+
+const game = computed(() => {
+  if (!gameAccount) return null;
+  return myState.gameList.find((game) => game.status.account === gameAccount);
+});
 
 
 const getAvatarId = () => {
-  if (!game) return "avatar_activity_GK";
-  return game.status?.avatar.id || "avatar_activity_GK";
+  if (!game.value) return "avatar_activity_GK";
+  return game.value.status?.avatar.id || "avatar_activity_GK";
 };
 const getAvatarType = () => {
-  if (!game) return "DEFAULT";
-  return game.status?.avatar.type || "DEFAULT";
+  if (!game.value) return "DEFAULT";
+  return game.value.status?.avatar.type || "DEFAULT";
 };
 
 const getGameLevel = () => {
-  if (!game) return 0;
-  return game.status?.level || 0;
+  if (!game.value) return 0;
+  return game.value.status?.level || 0;
 };
 
 const getGamePlatformStr = () => {
-  if (!game) return "未知";
-  return game.status?.platform === 1 ? "官服" : "B服";
+  if (!game.value) return "未知";
+  return game.value.status?.platform === 1 ? "官服" : "B服";
 };
 
 const getGameNickName = () => {
-  if (!game) return "Nameless";
-  return game.status?.nick_name || "Nameless";
+  if (!game.value) return "Nameless";
+  return game.value.status?.nick_name || "Nameless";
 };
 
 const getMaskedGameAccount = () => {
-  if (!game) return "未知账号";
-  return maskPhoneNumber(game.game_config?.account);
+  if (!game.value) return "未知账号";
+  return maskPhoneNumber(game.value.game_config?.account);
 };
 
 const loadingIndex = ref<number | null>(null);
@@ -98,7 +104,7 @@ onUnmounted(() => {
 });
 
 const getContent = (m: number): string => {
-  if (!game) return "未知";
+  if (!game.value) return "未知";
 
   if (loadingIndex.value === m) {
     return '<span class="loading loading-bars loading-xs"></span>';
@@ -106,13 +112,13 @@ const getContent = (m: number): string => {
 
   switch (m) {
     case 1:
-      return game?.status?.ap?.toString() ?? "0";
+      return game.value?.status?.ap?.toString() ?? "0";
 
     case 2:
-      return assets.value.getStageName(game?.game_config?.map_id ?? "") || "未选择";
+      return assets.value.getStageName(game.value?.game_config?.map_id ?? "") || "未选择";
 
     case 3:
-      return game?.status?.text ?? "未知";
+      return game.value?.status?.text ?? "未知";
 
     default:
       return "";

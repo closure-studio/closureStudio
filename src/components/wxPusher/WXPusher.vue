@@ -7,11 +7,11 @@
       <span className="loading loading-bars loading-lg"></span>
     </div>
     <div v-if="!isQueryWxPusher">
-      <div v-if="wxPuhser">
-        <p class="my-2 text-2xl font-bold">博士你真棒，微信已绑定！{{ wxPuhser.userName }}</p>
+      <div v-if="wxPusher">
+        <p class="my-2 text-2xl font-bold">博士你真棒，微信已绑定！{{ wxPusher.userName }}</p>
         <button class="btn btn-info btn-sm my-2" @click="queryWxPusher">取消绑定</button>
       </div>
-      <div v-if="!wxPuhser">
+      <div v-if="!wxPusher">
         <p class="my-2 text-2xl font-bold">噢天啊，博士，快快绑定微信接收最新消息！！！</p>
         <div v-if="isCreateQRCodes">
           <span className="loading loading-bars loading-lg"></span>
@@ -55,5 +55,5 @@ onUnmounted(() => {
     clearInterval(intervalId);
   }
 });
-const { isQueryWxPusher, isCreateQRCodes, wxPuhser, QRCode, queryWxPusher, createQRCodes } = useWXPusher();
+const { isQueryWxPusher, isCreateQRCodes, wxPusher, QRCode, queryWxPusher, createQRCodes } = useWXPusher();
 </script>

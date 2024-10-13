@@ -16,29 +16,25 @@
 interface Props {
     tags: string[];
     ticketId?: string | null;
-    refresh?: () => void;
 }
 import { ref } from "vue";
 import { defaultTags, setMsg } from "../../../plugins/common";
 import { UpdateTicketById } from "../../../plugins/axios";
 import { Type } from "../../toast/enum";
+import { updateTicketStateById } from "../../../store/tickets/myTickets";
 
 const props = withDefaults(defineProps<Props>(), {
     tags: () => [],
     ticketId: null,
-    refresh: () => { }
 });
 const isUpdating = ref(false);
-const emits = defineEmits(["update:tags"]);
-
-const handleTagsOnClick = (tag: string) => {
+const handleTagsOnClick = async (tag: string) => {
     const newTags = tagsChange(tag, props.tags);
     if (props.ticketId) {
-        updateTags(newTags); // 现在传递新的tags作为参数
-        props.refresh();
+        await updateTags(newTags); // 现在传递新的tags作为参数
+        await updateTicketStateById(props.ticketId); // 更新ticket状态
     }
-    // 发出事件，携带更新后的tags
-    emits("update:tags", newTags);
+
 };
 
 const tagsChange = (tag: string, currentTags: string[]) => {

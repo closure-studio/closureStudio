@@ -1,7 +1,7 @@
 <template>
     <div v-if="tickets">
-        <div v-for="(ticket, key) in props.tickets" :key="ticket.id">
-            <Ticket :ticket="ticket" :getTickets="props.getTickets" />
+        <div v-for="(ticket, key) in tickets" :key="ticket.id">
+            <Ticket :ticket="ticket" />
             <div class="h-2"></div>
         </div>
     </div>
@@ -9,13 +9,12 @@
 <script setup lang="ts">
 import Ticket from "./Ticket.vue";
 interface Props {
-    tickets: TicketSystem.Ticket[] | null;
-    getTickets: () => void;
+    tickets: TicketSystem.Ticket[];
 }
 const props = withDefaults(defineProps<Props>(), {
-    tickets: null,
-    getTickets: () => { }
+    tickets: () => [],
 });
+const { tickets } = props;
 
 
 </script>

@@ -19,7 +19,7 @@
             </div>
 
 
-            <div v-if="isLoading" class="h-72 flex justify-center">
+            <div v-if="myTickets.isLoadingTickets" class="h-72 flex justify-center">
                 <span className="loading loading-ring loading-lg"></span>
                 <span className="loading loading-ring loading-lg"></span>
                 <span className="loading loading-ring loading-lg"></span>
@@ -27,21 +27,20 @@
 
             <transition enter-active-class="animate__animated animate__fadeIn"
                 leave-active-class="animate__animated animate__fadeOut">
-                <TicketTable v-if="triggerAnimation" :getTickets="getTickets" :tickets="selectedTickets" />
+                <TicketTable v-if="triggerAnimation" :tickets="selectedTickets" />
             </transition>
             <div class="h-12"></div>
-            <Reply :ticket="null" :refresh="getTickets" />
+            <Reply :ticket="null" />
         </div>
     </div>
 </template>
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
-import { userStore } from "../../store/user";
-import { queryGamesInfo } from "../../plugins/gamesInfo/net";
 import "animate.css";
+import { computed, onMounted, ref, watch } from "vue";
 import TicketTable from "../../components/tickets/TicketTable.vue";
 import Reply from "../../components/tickets/ticket/Reply.vue";
-import { GetTickets } from "../../plugins/axios";
+import { myTickets, queryTicketList } from "../../store/tickets/myTickets";
+import { initializeGameListServerConnection } from "../../store/games/myGames";
 
 enum selectType {
     waiting,
@@ -49,28 +48,23 @@ enum selectType {
 }
 
 const show = ref(false);
-const user = userStore();
-queryGamesInfo();
-const isLoading = ref(true);
-const ticketList = ref<TicketSystem.Ticket[]>([]);
-const selectBtnType = ref<selectType>(selectType.waiting);
 const triggerAnimation = ref(false);
+const selectBtnType = ref<selectType>(selectType.waiting);
 
-
-// init
 const selectedTickets = computed(() => {
     if (selectBtnType.value === selectType.waiting) {
-        return ticketList.value.filter((item) => {
+        return myTickets.ticketList.filter((item) => {
             return item.status === selectBtnType.value;
         });
     }
     if (selectBtnType.value === selectType.solved) {
-        return ticketList.value.filter((item) => {
+        return myTickets.ticketList.filter((item) => {
             return item.status === selectBtnType.value;
         });
     }
-    return ticketList.value;
+    return myTickets.ticketList;
 });
+
 
 watch(selectedTickets, () => {
     triggerAnimation.value = false;
@@ -80,22 +74,16 @@ watch(selectedTickets, () => {
 }, { deep: true });
 
 // handler
-
 const handleSelectBtnTypeOnClick = (type: selectType) => {
     selectBtnType.value = type;
 };
 
-const getTickets = async () => {
-    isLoading.value = true;
-    const res = await GetTickets();
-    if (res.data && res.code == 1) {
-        ticketList.value = res.data;
-    }
-    isLoading.value = false;
-};
+// onMounted
+onMounted(async () => {
+    initializeGameListServerConnection();
+    queryTicketList();
+});
 
-
-getTickets();
 </script>
 
 <style>

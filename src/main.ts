@@ -10,8 +10,8 @@ import { createApp } from "vue";
 import VueClickAway from "vue3-click-away";
 import App from "./App.vue";
 import "./plugins/captcha/gt.0.4.8";
-import { router } from "./plugins/router";
 import { initSW } from "./swloader";
+import { router } from "./router";
 const pinia = createPinia();
 pinia.use(
   persist({

@@ -1,15 +1,15 @@
 <template>
-    <div class="w-full" v-if="myTicket">
+    <div class="w-full" v-if="ticket">
         <div class="flex flex-col justify-between h-full">
             <div class="relative whitespace-pre-line">
-                {{ myTicket.content.content }}
-                <img v-if="myTicket.author.title"
+                {{ ticket.content.content }}
+                <img v-if="ticket.author.title"
                     class="absolute right-4 top-0 w-28 md:w-36 opacity-10 md:opacity-50 rounded-t-full rounded-bl-full"
                     src="../../../assets/1.png" alt="start" />
             </div>
             <div className="flex justify-start"></div>
             <div>
-                <div v-if="(isAuthor || user.isAdmin) && !myTicket.replyTo">
+                <div v-if="(isAuthor || user.isAdmin) && !ticket.replyTo">
                     <div class="divider divider-info p-1 m-1"></div>
                     <div v-if="isUpdating">
                         <span class="loading loading-bars"> </span>
@@ -17,26 +17,26 @@
                         <span class="loading loading-bars"> </span>
                     </div>
                     <div v-else>
-                        <div v-if="myTicket.status === 0" class="text-danger">
+                        <div v-if="ticket.status === 0" class="text-danger">
                             如果该问题已解决, 您可以<span class="underline font-bold cursor-pointer"
                                 @click="ticketOperation">关闭</span>该ticket
                         </div>
-                        <div v-if="myTicket.status === 1" class="text-danger">
+                        <div v-if="ticket.status === 1" class="text-danger">
                             天啊, 这个Ticket已经关闭,不管没关系,您可以<span class="underline font-bold cursor-pointer"
                                 @click="ticketOperation">重新打开</span>这个Ticket
                         </div>
                     </div>
                 </div>
                 <div class="flex flex-wrap">
-                    <QA v-if="(user.isAdmin || isAuthor) && !myTicket.replyTo" :updateQAContent="updateQAContent"
-                        :title="myTicket.content.title + '.' + myTicket.content.content" :token="user.token" />
-                    <Tags v-if="(user.isAdmin || isAuthor) && !myTicket.replyTo" :refresh="props.refresh"
-                        :tags="myTicket.tags" :ticketId="myTicket.id" @update:tags="updateTags" />
-                    <button v-if="user.isAdmin && !myTicket.replyTo && !myTicket.isPinned"
+                    <QA v-if="(user.isAdmin || isAuthor) && !ticket.replyTo" :updateQAContent="updateQAContent"
+                        :title="ticket.content.title + '.' + ticket.content.content" :token="user.token" />
+                    <Tags v-if="(user.isAdmin || isAuthor) && !ticket.replyTo" :tags="ticket.tags"
+                        :ticketId="ticket.id" />
+                    <button v-if="user.isAdmin && !ticket.replyTo && !ticket.isPinned"
                         class="btn btn-outline btn-xs m-1">
                         置顶
                     </button>
-                    <button v-if="user.isAdmin && !myTicket.replyTo && myTicket.isPinned"
+                    <button v-if="user.isAdmin && !ticket.replyTo && ticket.isPinned"
                         class="btn btn-outline btn-xs m-1">
                         取消置顶
                     </button>
@@ -73,16 +73,16 @@
                         <span class="loading loading-bars"> </span>
                     </div>
                     <div v-if="!isLoading && authorInfo">
-                        <div @click="copyToClipboard(myTicket.authorUUID)">
+                        <div @click="copyToClipboard(ticket.authorUUID)">
                             UUID:
                             <span class="underline font-bold cursor-pointer">{{
-                                myTicket.authorUUID
+                                ticket.authorUUID
                                 }}</span>
                         </div>
-                        <div @click="copyToClipboard(myTicket.gameAccount)">
+                        <div @click="copyToClipboard(ticket.gameAccount)">
                             Game:
                             <span class="underline font-bold cursor-pointer">{{
-                                myTicket.gameAccount
+                                ticket.gameAccount
                                 }}</span>
                         </div>
                         <div @click="copyToClipboard(authorInfo.UserEmail)">
@@ -95,7 +95,7 @@
                             <span v-if="authorInfo.Phone"> 手机: {{ authorInfo.Phone }}</span>
                             <span v-if="!authorInfo.Phone">
                                 手机: 未绑定
-                                <button v-if="user.isAdmin" @click="sendSMS(myTicket.authorUUID, smsSendPhone)"
+                                <button v-if="user.isAdmin" @click="sendSMS(ticket.authorUUID, smsSendPhone)"
                                     class="btn btn-outline btn-xs m-1">
                                     发送SMS{{ smsSendPhone }}
                                 </button></span>
@@ -156,8 +156,8 @@
                         <span class="loading loading-bars"> </span>
                         <span class="loading loading-bars"> </span>
                     </div>
-                    <div v-if="!isLoading && authorSolts">
-                        <div v-for="slot in authorSolts">
+                    <div v-if="!isLoading && authorSlots">
+                        <div v-for="slot in authorSlots">
                             <div>
                                 <span>Game:</span>
                                 <span v-if="slot.gameAccount"> {{ slot.gameAccount }} </span><span
@@ -182,60 +182,52 @@
     </div>
 </template>
 <script setup lang="ts">
-interface Props {
-    ticket: TicketSystem.Ticket | null;
-    refresh: () => void;
-    getTickets: () => void;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    ticket: null,
-    refresh: () => { },
-    getTickets: () => { },
-});
-import { nextTick, ref, watch } from "vue";
-import { getRealGameAccount, setMsg } from "../../../plugins/common";
+import { computed, nextTick, ref, watch } from "vue";
+import VueMarkdown from 'vue-markdown-render';
 import {
+    Auth_Login_Admin,
     QueryUser,
     SendSMS,
     UpdateTicketById,
-    fetchUserSlotsAdmin,
-    fetchGameLogsAdmin,
-    DelQuotaGameAdmin,
     doDelGame,
-    Auth_Login_Admin,
+    fetchGameLogsAdmin,
+    fetchUserSlotsAdmin
 } from "../../../plugins/axios";
-import { userStore } from "../../../store/user";
-import { Type } from "../../toast/enum";
-import Tags from "./Tags.vue";
-import { getSMSSlot } from "../../../plugins/quota/userQuota";
-import { checkIsMobile } from "../../../utils/regex";
-import { formatTime } from "../../../plugins/common";
-import QA from "./QA.vue";
-import Permission from "../../permission/Permission.vue";
-import VueMarkdown from 'vue-markdown-render'
+import { formatTime, getRealGameAccount, setMsg } from "../../../plugins/common";
 import showDialog from "../../../plugins/dialog/dialog";
+import { getSMSSlot } from "../../../store/games/quota";
+import { queryTicketList, updateTicketStateById } from "../../../store/tickets/myTickets";
+import { userStore } from "../../../store/user";
+import { checkIsMobile } from "../../../utils/regex";
 import SwitchUserByAdmin from "../../dialog/SwitchUserByAdmin.vue";
-import { router } from "../../../plugins/router";
+import Permission from "../../permission/Permission.vue";
+import { Type } from "../../toast/enum";
+import QA from "./QA.vue";
+import Tags from "./Tags.vue";
+interface Props {
+    ticket: TicketSystem.Ticket | null;
+}
+const props = withDefaults(defineProps<Props>(), {
+    ticket: null,
+});
+const { ticket } = props;
+
 enum DisplayType {
     None,
     UserInfo,
     GameLog,
     GameSlots,
     GamesInfo,
-    GameIngo,
 }
-
 const user = userStore();
-const myTicket = ref<TicketSystem.Ticket | null>(null);
 const isUpdating = ref(false);
 const isLoading = ref(false);
 const smsSendPhone = ref("");
-const isAuthor = ref(false);
+
 const displayType = ref<DisplayType>(DisplayType.None);
 const displayAuthorPermission = ref(false);
 const authorInfo = ref<ApiUser.User | null>(null);
-const authorSolts = ref<Registry.Slot[]>([]);
+const authorSlots = ref<Registry.Slot[]>([]);
 const authorGameLogs = ref<ApiGame.GameLogs>();
 const QAContent = ref("");
 const options = {
@@ -247,17 +239,10 @@ const options = {
     quotes: "“”‘’",
 };
 
-watch(
-    () => props.ticket,
-    (newVal) => {
-        isAuthor.value = newVal?.authorUUID === user.info.uuid;
-        myTicket.value = newVal;
-    },
-    {
-        deep: true,
-        immediate: true,
-    }
-);
+const isAuthor = computed(() => {
+    return ticket?.authorUUID === user.info.uuid;
+});
+
 
 watch(
     () => displayType.value,
@@ -282,19 +267,25 @@ watch(
 );
 
 const handleSwitchUserBtnOnClick = async () => {
-    if (!myTicket.value) {
+    if (!ticket) {
         setMsg("该Ticket用户信息不存在", Type.Warning);
+        return;
     }
     // Auth_Login_Admin
     showDialog(SwitchUserByAdmin, {
-        uuid: myTicket.value?.authorUUID,
+        uuid: ticket.authorUUID,
         switchFunc: switchUser,
     });
 };
 
 const handleDeleteSlotBtnOnClick = async (slotId: string) => {
+    if (!ticket) {
+        setMsg("该Ticket用户信息不存在", Type.Warning);
+        return;
+    }
     try {
         isLoading.value = true;
+        console.log("slotId", slotId);
         const resp = await doDelGame(slotId, "1");
         setMsg(resp.message, resp.code === 1 ? Type.Success : Type.Warning);
     } catch (error) {
@@ -307,22 +298,25 @@ const handleDeleteSlotBtnOnClick = async (slotId: string) => {
 };
 
 const getAuthorInfo = async () => {
+    if (!ticket) {
+        setMsg("该Ticket信息不存在", Type.Warning);
+        return;
+    }
     // use async method to fetch QueryUser and fetchUserSlotsAdmin
-    if (myTicket.value?.authorUUID) {
-        const [usersInfo, usersSolts] = await Promise.all([
-            QueryUser(myTicket.value?.authorUUID),
-            fetchUserSlotsAdmin(myTicket.value?.authorUUID),
+    if (ticket.authorUUID) {
+        const [usersInfo, usersSlots] = await Promise.all([
+            QueryUser(ticket.authorUUID),
+            fetchUserSlotsAdmin(ticket.authorUUID),
         ]);
         if (usersInfo.code === 1) {
-            const user = findAuthorInfo(myTicket.value?.authorUUID, usersInfo.data);
+            const user = findAuthorInfo(ticket.authorUUID, usersInfo.data);
             if (user) {
                 authorInfo.value = user;
             }
         }
-        console.log("usersSolts", usersSolts);
-        if (usersSolts.data && usersSolts.data?.length > 0) {
-            authorSolts.value = usersSolts.data;
-            const phone = getSMSSendPhone(usersSolts.data);
+        if (usersSlots.data && usersSlots.data?.length > 0) {
+            authorSlots.value = usersSlots.data;
+            const phone = getSMSSendPhone(usersSlots.data);
             if (phone) {
                 smsSendPhone.value = phone;
             }
@@ -331,18 +325,22 @@ const getAuthorInfo = async () => {
             authorInfo.value = null;
             setMsg("获取用户信息失败: " + usersInfo.message, Type.Warning);
         }
-        if (!usersSolts.data) {
-            setMsg("获取用户托管槽失败: " + usersSolts.message, Type.Warning);
+        if (!usersSlots.data) {
+            setMsg("获取用户托管槽失败: " + usersSlots.message, Type.Warning);
         }
     }
 };
 
 const getAuthorGameLogs = async () => {
+    if (!ticket) {
+        setMsg("该Ticket信息不存在", Type.Warning);
+        return;
+    }
     // use async method to fetch QueryUser and fetchUserSlotsAdmin
-    if (myTicket.value?.authorUUID && myTicket.value.gameAccount) {
+    if (ticket.authorUUID && ticket.gameAccount) {
         const resp = await fetchGameLogsAdmin(
-            myTicket.value.gameAccount,
-            myTicket.value?.authorUUID,
+            ticket.gameAccount,
+            ticket.authorUUID,
             0
         );
         if (resp.code === 1 && resp.data) {
@@ -354,18 +352,19 @@ const getAuthorGameLogs = async () => {
 };
 
 const hiddenTicket = async () => {
-    if (!myTicket.value) {
+    if (!ticket) {
+        setMsg("该Ticket信息不存在", Type.Warning);
         return;
     }
     try {
         isUpdating.value = true;
-        const updateResult = await UpdateTicketById(myTicket.value.id, {
+        const updateResult = await UpdateTicketById(ticket.id, {
             isHidden: true,
         });
         if (updateResult.code === 0) {
             throw new Error(updateResult.message);
         }
-        await props.getTickets();
+        await queryTicketList();
         setMsg("大成功", Type.Success);
     } catch (error) {
         const err = error as Error;
@@ -377,18 +376,22 @@ const hiddenTicket = async () => {
 };
 const ticketOperation = async () => {
     await nextTick();
-    if (isUpdating.value || !myTicket.value) {
+    if (!ticket) {
+        setMsg("该Ticket信息不存在", Type.Warning);
+        return;
+    }
+    if (isUpdating.value) {
         return;
     }
     try {
         isUpdating.value = true;
-        const updateResult = await UpdateTicketById(myTicket.value.id, {
-            status: myTicket.value.status === 0 ? 1 : 0,
+        const updateResult = await UpdateTicketById(ticket.id, {
+            status: ticket.status === 0 ? 1 : 0,
         });
         if (updateResult.code === 0) {
             throw new Error(updateResult.message);
         }
-        await props.refresh();
+        await updateTicketStateById(ticket.id);
         setMsg("大成功", Type.Success);
     } catch (error) {
         const err = error as Error;
@@ -397,12 +400,6 @@ const ticketOperation = async () => {
     } finally {
         isUpdating.value = false;
     }
-};
-const updateTags = (newTags: string[]) => {
-    if (!myTicket.value) {
-        return;
-    }
-    myTicket.value.tags = newTags;
 };
 
 const sendSMS = async (uuid: string, phone: string) => {
@@ -484,6 +481,4 @@ const switchUser = async (uuid: string) => {
 const updateQAContent = (content: string) => {
     QAContent.value = content;
 };
-
-myTicket.value = props.ticket;
 </script>
