@@ -1,4 +1,6 @@
 import { fetchUserSlots } from "../../plugins/axios";
+import { getRealGameAccount } from "../../plugins/common";
+import { checkIsMobile } from "../../utils/regex";
 import { myState } from "./myGames";
 
 export const queryUserQuota = async () => {
@@ -95,4 +97,21 @@ export const allowGameCreate = (slot: Registry.Slot, userQuota: Registry.UserInf
         return response;
     }
     return response;
+};
+
+export const getSMSSendPhone = () => {
+    const slots = myState.userQuota.slots;
+    const slot = getSMSSlot(slots);
+    if (!slot) {
+        return "";
+    }
+    const gameAccount = slot.gameAccount;
+    if (!gameAccount) {
+        return "";
+    }
+    const phone = getRealGameAccount(gameAccount);
+    if (!checkIsMobile(phone)) {
+        return "";
+    }
+    return phone;
 };

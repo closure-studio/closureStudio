@@ -92,7 +92,6 @@ const userQuota = computed(() => {
     return myState.userQuota;
 });
 // start
-initializeGameListServerConnection();
 const firstGame = getFirstGame;
 // 补发验证码
 watch(firstGame, (value) => {
@@ -118,6 +117,7 @@ const isGameListCompletedInit = computed(() => {
 });
 
 onMounted(async () => {
+    initializeGameListServerConnection();
     showDialog(YouMayKnow);
 });
 

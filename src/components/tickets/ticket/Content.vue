@@ -195,7 +195,7 @@ import {
 } from "../../../plugins/axios";
 import { formatTime, getRealGameAccount, setMsg } from "../../../plugins/common";
 import showDialog from "../../../plugins/dialog/dialog";
-import { getSMSSlot } from "../../../store/games/quota";
+import { getSMSSendPhone, getSMSSlot } from "../../../store/games/quota";
 import { queryTicketList, updateTicketStateById } from "../../../store/tickets/myTickets";
 import { userStore } from "../../../store/user";
 import { checkIsMobile } from "../../../utils/regex";
@@ -316,7 +316,7 @@ const getAuthorInfo = async () => {
         }
         if (usersSlots.data && usersSlots.data?.length > 0) {
             authorSlots.value = usersSlots.data;
-            const phone = getSMSSendPhone(usersSlots.data);
+            const phone = getSMSSendPhone();
             if (phone) {
                 smsSendPhone.value = phone;
             }
@@ -417,22 +417,6 @@ const sendSMS = async (uuid: string, phone: string) => {
     }
     setMsg("发送失败 " + resp.message, Type.Warning);
     return;
-};
-
-const getSMSSendPhone = (slots: Registry.Slot[]) => {
-    const slot = getSMSSlot(slots);
-    if (!slot) {
-        return;
-    }
-    const gameAccount = slot.gameAccount;
-    if (!gameAccount) {
-        return;
-    }
-    const phone = getRealGameAccount(gameAccount);
-    if (!checkIsMobile(phone)) {
-        return;
-    }
-    return phone;
 };
 
 const findAuthorInfo = (uuid: string, users: ApiUser.User[] | null) => {
