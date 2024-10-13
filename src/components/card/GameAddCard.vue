@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { userStore } from "../../store/user";
-import { allowGameCreate } from '../../store/myState/quota';
+import { allowGameCreate } from '../../store/games/quota';
 interface Props {
   slot: Registry.Slot | undefined,
   userQuota: Registry.UserInfo | undefined

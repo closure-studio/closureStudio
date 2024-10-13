@@ -1,6 +1,6 @@
 import { fetchGameList } from "../../plugins/axios";
 import { arknigthsGameCaptcha } from "../../plugins/captcha/captcha";
-import { myState } from "./myState";
+import { myState } from "./myGames";
 
 // 轮询间隔时间（毫秒）
 const intervalTime = 5000;

@@ -44,8 +44,8 @@ import { Type } from '../toast/enum';
 import { doUpdateGamePasswd } from '../../plugins/axios';
 import { DialogComponentProps } from '../../plugins/dialog/dialog';
 import { startCaptcha } from '../../plugins/captcha/captcha';
-import { queryGameList } from '../../store/myState/games';
-import { queryUserQuota } from '../../store/myState/quota';
+import { queryGameList } from '../../store/games/games';
+import { queryUserQuota } from '../../store/games/quota';
 
 
 export interface UpdateGamePasswdProps extends DialogComponentProps {

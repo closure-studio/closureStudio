@@ -8,7 +8,7 @@
 <script lang="ts" setup>
 import { watch, ref } from "vue";
 import { userStore } from "../../store/user";
-import { config } from "../../store/myState/myState";
+import { config } from "../../store/games/myGames";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
 const props = defineProps<DialogComponentProps>();
 const { dialogClose } = props;

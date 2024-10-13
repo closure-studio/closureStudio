@@ -93,7 +93,6 @@ import Login from "../components/card/Login.vue";
 import { userStore } from "../store/user";
 import { isNight } from "../plugins/common";
 import { router } from "../router";
-const followBtn = ref(false); // 启动按钮跟随鼠标
 const closure = ref(false); // Closure 图标动画
 const textRef = ref();
 const user = userStore();

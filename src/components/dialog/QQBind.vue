@@ -40,7 +40,7 @@ import { setMsg, sleep } from "../../plugins/common";
 import { Type } from "../toast/enum";
 import { Icon } from "@iconify/vue";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
-import { myState } from "../../store/myState/myState";
+import { myState } from "../../store/games/myGames";
 
 const props = defineProps<DialogComponentProps>();
 const { dialogClose } = props;

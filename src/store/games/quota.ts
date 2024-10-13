@@ -1,12 +1,12 @@
 import { fetchUserSlots } from "../../plugins/axios";
-import { myState } from "./myState";
+import { myState } from "./myGames";
 
 export const queryUserQuota = async () => {
     try {
         const resp = await fetchUserSlots();
         if (resp.code == 1 && resp.data) {
             resp.data.slots = quotaSlotsSort(resp.data.slots);
-            if (!myState) return true;            
+            if (!myState) return true;
             myState.userQuota = resp.data;
             return true;
         }

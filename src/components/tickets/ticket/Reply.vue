@@ -1,6 +1,5 @@
 <template>
     <div className="join p-1">
-
         <div v-for="(author, key) in user.getGames" :key="author.key">
             <input className="join-item btn btn-xs" type="radio" :checked="isSelectedAuthor(author.value.nickname)"
                 @click="() => {
@@ -14,9 +13,9 @@
             }" name="options" aria-label="匿名玩家" />
         </div>
     </div>
-    <Tags v-if="!props.ticket" :tags="tags" @update:tags="updateTags" />
+    <Tags v-if="!ticket" :tags="tags" @update:tags="updateTags" />
     <!-- // text input -->
-    <input v-model="ticketTitle" v-if="!props.ticket" type="text" placeholder="标题"
+    <input v-model="ticketTitle" v-if="!ticket" type="text" placeholder="标题"
         class="input input-bordered input-sm w-full my-2" />
     <textarea v-model="ticketContent" placeholder="请发表您的锐评"
         className="textarea textarea-bordered textarea-lg w-full my-2"></textarea>
@@ -42,23 +41,22 @@
     </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
-import { defaultAuthor, setMsg } from "../../../plugins/common";
-import { userStore } from "../../../store/user";
-import { Type } from "../../toast/enum";
-import { PostTicket, ReplyTicket } from "../../../plugins/axios";
-import Tags from "./Tags.vue";
-import showDialog from "../../../plugins/dialog/dialog";
-import { checkIsEmail, checkIsMobile } from "../../../utils/regex";
 import axios from "axios";
+import { ref } from "vue";
+import { PostTicket, ReplyTicket } from "../../../plugins/axios";
+import { defaultAuthor, setMsg } from "../../../plugins/common";
+import { queryTicketList } from "../../../store/tickets/myTickets";
+import { userStore } from "../../../store/user";
+import { checkIsEmail, checkIsMobile } from "../../../utils/regex";
+import { Type } from "../../toast/enum";
+import Tags from "./Tags.vue";
 interface Props {
     ticket?: TicketSystem.Ticket | null;
-    refresh?: () => Promise<void> | undefined;
 }
 const props = withDefaults(defineProps<Props>(), {
     ticket: null,
-    refresh: undefined
 });
+const { ticket } = props;
 const user = userStore();
 const selectedAuthor = ref<TicketSystem.Author | null>(defaultAuthor());
 const selectedGame = ref<string>("");
@@ -67,10 +65,6 @@ const ticketContent = ref<string>("");
 const isUpdating = ref(false);
 const tags = ref<string[]>([]);
 const ticketAttachments = ref<string[]>([]);
-
-// const handleTestBtnOnClick = () => {
-//     showDialog("test", "test", () => { console.log("test") });
-// }
 
 const updateTags = (newTags: string[]) => {
     tags.value = newTags;
@@ -153,7 +147,7 @@ const postTicket = async () => {
         setMsg("请选择一个游戏账号", Type.Warning);
         return;
     }
-    if (!props.ticket && !ticketTitle.value) {
+    if (!ticket && !ticketTitle.value) {
         // too long
         if (ticketTitle.value.length > 16) {
             setMsg("标题太长了", Type.Warning);
@@ -166,18 +160,15 @@ const postTicket = async () => {
     if (!data) {
         return;
     }
-    if (props.ticket) {
+    if (ticket) {
         // reply
-        await replyTicket(props.ticket.id, data);
+        await replyTicket(ticket.id, data);
     }
-    if (!props.ticket) {
+    if (!ticket) {
         // create
-
         await createTicket(data);
     }
-    if (props.refresh) {
-        await props.refresh();
-    }
+    await queryTicketList();
     isUpdating.value = false;
 }
 

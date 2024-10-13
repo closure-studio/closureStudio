@@ -43,7 +43,7 @@
 import { assets } from "../../plugins/assets/assets";
 import { maskPhoneNumber } from "../../plugins/common";
 import { ref, onMounted, onUnmounted, computed } from "vue";
-import { myState } from "../../store/myState/myState";
+import { myState } from "../../store/games/myGames";
 interface Props {
   gameAccount?: string
 }

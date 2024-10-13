@@ -17,6 +17,7 @@ interface State {
   isGameListCompletedInit: boolean;
   // others
   captchaCache: Record<string, ApiGame.CaptchaInfo>;
+  isStarted: boolean;
   isLoadingGameList: boolean;
 }
 
@@ -49,6 +50,7 @@ export const myState = reactive<State>({
   //
   isGameListCompletedInit: false,
   captchaCache: {},
+  isStarted: false,
   isLoadingGameList: false,
 });
 
@@ -56,6 +58,10 @@ export const myState = reactive<State>({
 
 export const initializeGameListServerConnection = async () => {
   // check is login
+  if (myState.isStarted) {
+    return;
+  }
+  myState.isStarted = true;
   const [quotaResult, gameListResult] = await Promise.all([queryUserQuota(), queryGameList()]);
   // 检查返回值是否都为 true
   if (!quotaResult || !gameListResult) {

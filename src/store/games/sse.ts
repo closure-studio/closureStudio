@@ -4,7 +4,7 @@ import { setMsg } from "../../plugins/common";
 import showDialog from "../../plugins/dialog/dialog";
 import { userStore } from "../user";
 import { updateCaptcha, updateGameList } from "./games";
-import { myState } from "./myState";
+import { myState } from "./myGames";
 
 export const startSSE = async () => {
   const user = userStore();

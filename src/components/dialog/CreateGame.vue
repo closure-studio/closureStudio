@@ -78,8 +78,8 @@ import { DialogComponentProps } from "../../plugins/dialog/dialog";
 import { checkIsMobile } from "../../utils/regex";
 import { Type } from "../toast/enum";
 import * as Sentry from "@sentry/vue";
-import { queryUserQuota } from "../../store/myState/quota";
-import { queryGameList } from "../../store/myState/games";
+import { queryUserQuota } from "../../store/games/quota";
+import { queryGameList } from "../../store/games/games";
 
 interface Props extends DialogComponentProps {
   slotUUID: string

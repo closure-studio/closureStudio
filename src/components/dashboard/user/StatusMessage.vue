@@ -15,7 +15,7 @@
 <script lang="ts" setup>
 import { computed, onMounted } from "vue";
 import showDialog from "../../../plugins/dialog/dialog";
-import { myState } from "../../../store/myState/myState";
+import { myState } from "../../../store/games/myGames";
 import { useWXPusher } from "../../../plugins/wxPusher/wxPusher";
 import { userStore } from "../../../store/user";
 import QQBind from "../../dialog/QQBind.vue";
