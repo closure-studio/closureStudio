@@ -1,9 +1,7 @@
-import { ref } from "vue";
 import NewSSRNotice from "../../components/dialog/NewSSRNotice.vue";
 import { Type } from "../../components/toast/enum";
 import { setMsg } from "../../plugins/common";
 import showDialog from "../../plugins/dialog/dialog";
-import { router } from "../../plugins/router";
 import { userStore } from "../user";
 import { updateCaptcha, updateGameList } from "./games";
 import { myState } from "./myState";
@@ -18,19 +16,10 @@ export const startSSE = async () => {
     setMsg("你的浏览器不支持 SSE 特性，访问托管列表将受到影响", Type.Warning);
     return false;
   }
-  if (user.isLogin === false) {
-    setMsg("请先登录", Type.Warning);
+  if (!user.token) {
+    setMsg("用户未登录", Type.Warning);
     return false;
   }
-
-  // 检查 token 是否过期
-  if (user.user.Info && user.user.Info.exp < Math.floor(Date.now() / 1000)) {
-    setMsg("登录已过期，请重新登录", Type.Warning);
-    user.logout();
-    router.push("/");
-    return false;
-  }
-
   // 设置连接超时
   const connectionTimeout = 5000; // 超时设定为5秒
 
@@ -62,6 +51,7 @@ export const startSSE = async () => {
     // 连接成功，监听事件
     event.addEventListener("game", (event) => {
       if (!event.data) return;
+      if (myState.isLoadingGameList) return;
       const data = JSON.parse(event.data) as ApiGame.Game[];
       updateGameList(data);
       updateCaptcha(data);
@@ -71,7 +61,9 @@ export const startSSE = async () => {
       const parsedData = JSON.parse(event.data) as ApiGame.LogEvent;
       setMsg(parsedData.content, Type.Success);
     });
-
+    window.addEventListener('beforeunload', function () {
+      event?.close();
+    });
     event.addEventListener("close", () => {
       setMsg("你已在其他窗口或设备访问，本页面暂停更新", Type.Warning);
       event?.close();

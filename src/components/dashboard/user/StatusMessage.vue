@@ -15,12 +15,12 @@
 <script lang="ts" setup>
 import { computed, onMounted } from "vue";
 import showDialog from "../../../plugins/dialog/dialog";
-import { router } from "../../../plugins/router";
 import { myState } from "../../../store/myState/myState";
 import { useWXPusher } from "../../../plugins/wxPusher/wxPusher";
 import { userStore } from "../../../store/user";
 import QQBind from "../../dialog/QQBind.vue";
 import RealName from "../../dialog/RealName.vue";
+import { router } from "../../../router";
 
 const user = userStore();
 const { isQueryWxPusher, wxPusher, queryWxPusher } = useWXPusher();

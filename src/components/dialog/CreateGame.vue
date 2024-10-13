@@ -77,6 +77,9 @@ import { setMsg } from "../../plugins/common";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
 import { checkIsMobile } from "../../utils/regex";
 import { Type } from "../toast/enum";
+import * as Sentry from "@sentry/vue";
+import { queryUserQuota } from "../../store/myState/quota";
+import { queryGameList } from "../../store/myState/games";
 
 interface Props extends DialogComponentProps {
   slotUUID: string
@@ -101,11 +104,15 @@ const handleCreateBtnOnClick = async () => {
     isLoading.value = true
     // createGame
     await createGame()
+    await queryUserQuota()
     setMsg('创建账号成功。开始自动登录', Type.Success)
     // loginFunc()
     await loginFunc(buildGameAccount(form.value.account, form.value.platform))
+    await queryGameList()
     dialogClose()
   } catch (error) {
+    console.error(error)
+    Sentry.captureException(error);
   } finally {
     isLoading.value = false
   }

@@ -14,10 +14,10 @@ interface State {
   userQuota: Registry.UserInfo;
   gameList: ApiGame.Game[];
   globalSSR: ApiGame.SSR[];
-  // isGameListLoading: boolean;
   isGameListCompletedInit: boolean;
   // others
   captchaCache: Record<string, ApiGame.CaptchaInfo>;
+  isLoadingGameList: boolean;
 }
 
 // 使用 reactive 创建状态
@@ -49,11 +49,13 @@ export const myState = reactive<State>({
   //
   isGameListCompletedInit: false,
   captchaCache: {},
+  isLoadingGameList: false,
 });
 
 
 
 export const initializeGameListServerConnection = async () => {
+  // check is login
   const [quotaResult, gameListResult] = await Promise.all([queryUserQuota(), queryGameList()]);
   // 检查返回值是否都为 true
   if (!quotaResult || !gameListResult) {

@@ -4,8 +4,9 @@ import { myState } from "./myState";
 export const queryUserQuota = async () => {
     try {
         const resp = await fetchUserSlots();
-        if (resp.data) {
+        if (resp.code == 1 && resp.data) {
             resp.data.slots = quotaSlotsSort(resp.data.slots);
+            if (!myState) return true;            
             myState.userQuota = resp.data;
             return true;
         }
