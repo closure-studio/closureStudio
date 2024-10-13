@@ -41,10 +41,7 @@ const handleSubmitBtnOnClick = async () => {
     const authResp = await Auth_Verify(smsCode.value);
     if (authResp.code === 1) {
       setMsg("认证成功,请重新登录", Type.Success);
-      const res = await Auth_Refresh();
-      if (res.data) {
-        user.login(res.data.token);
-      }
+      user.logout();
       window.location.reload();
       dialogClose();
       return;

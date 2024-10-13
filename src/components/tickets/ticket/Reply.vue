@@ -31,7 +31,7 @@
         <div class="flex justify-center items-center">
             <label>
                 <span class="m-2 btn btn-sm btn-info">上传截图</span>
-                <input type="file" class="file-input w-0 invisible" @change="uploadImage" />
+                <input type="file" class="file-input w-0 invisible" disabled @change="uploadImage" />
             </label>
         </div>
         <button class="m-2 btn btn-sm btn-info" @click="postTicket">

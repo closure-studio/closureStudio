@@ -78,9 +78,10 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import GameAccount from "../../components/card/GameAccount.vue";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { fetchGameList } from "../../plugins/axios";
 import { userStore } from "../../store/user";
+import { initializeGameListServerConnection } from "../../store/games/myGames";
 const route = useRoute();
 const user = userStore();
 const levels = ["杰斯顿", "深海杰斯顿", "海上杰斯顿", "空中杰斯顿", "兽主杰斯顿"];
@@ -100,10 +101,6 @@ const menu = [
   {
     name: "账号认证",
     to: "/profile/smsVerify"
-  },
-  {
-    name: "我的工单（待建）",
-    to: "/profile/damedane"
   }
 ];
 const gameList = ref<ApiGame.Game[]>([]);
@@ -113,5 +110,8 @@ fetchGameList().then((res) => {
 const days = computed(() => {
   if (!gameList.value.length) return 1;
   return Math.ceil((Math.floor(Date.now() / 1000) - gameList.value[0].status.created_at) / 60 / 60 / 24);
+});
+onMounted(async () => {
+  initializeGameListServerConnection();
 });
 </script>
