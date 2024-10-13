@@ -104,7 +104,7 @@ const handleCreateBtnOnClick = async () => {
     isLoading.value = true
     // createGame
     await createGame()
-    await queryUserQuota()
+    await Promise.all([queryGameList(), queryUserQuota()]);
     setMsg('创建账号成功。开始自动登录', Type.Success)
     // loginFunc()
     await loginFunc(buildGameAccount(form.value.account, form.value.platform))

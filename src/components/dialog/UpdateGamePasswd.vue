@@ -44,6 +44,8 @@ import { Type } from '../toast/enum';
 import { doUpdateGamePasswd } from '../../plugins/axios';
 import { DialogComponentProps } from '../../plugins/dialog/dialog';
 import { startCaptcha } from '../../plugins/captcha/captcha';
+import { queryGameList } from '../../store/myState/games';
+import { queryUserQuota } from '../../store/myState/quota';
 
 
 export interface UpdateGamePasswdProps extends DialogComponentProps {
@@ -71,6 +73,7 @@ const handleUpdateGamePasswdOnBtnClick = async () => {
         isLoading.value = false;
         const data = myForm.value;
         const resp = await startCaptcha(updateGamePasswdWithCaptcha(slotUUID, data));
+        await Promise.all([queryGameList(), queryUserQuota()]);
         if (resp.code === 1) {
             setMsg('更新密码成功', Type.Success)
             dialogClose();

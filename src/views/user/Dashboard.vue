@@ -79,8 +79,9 @@ import { getRealGameAccount, setMsg } from "../../plugins/common";
 import { NOTIFY } from "../../plugins/config";
 import showDialog from "../../plugins/dialog/dialog";
 import { findGame, getFirstGame, initializeGameListServerConnection, myState } from "../../store/myState/myState";
-import { allowGameCreate, canDeleteGame } from "../../store/myState/quota";
+import { allowGameCreate, canDeleteGame, queryUserQuota } from "../../store/myState/quota";
 import { userStore } from "../../store/user";
+import { queryGameList } from "../../store/myState/games";
 const show = ref(false);
 const user = userStore();
 const selectedSlotUUID = ref("");
@@ -185,9 +186,10 @@ const handleDeleteBtnOnClick = async (slotUUID: string, gameAccount: string) => 
         const deleteResp = await startCaptcha(deleteGameWithCaptcha(slotUUID));
         if (deleteResp.code === 1) {
             setMsg("删除成功", Type.Success);
-            return;
+        } else {
+            setMsg(deleteResp.message, Type.Warning);
         }
-        setMsg(deleteResp.message, Type.Warning);
+        await Promise.all([queryGameList(), queryUserQuota()]);
     } catch (error) {
         setMsg("删除失败", Type.Warning);
     } finally {
@@ -215,6 +217,7 @@ const gameLogin = async (account: string) => {
     try {
         isLoading.value = true;
         const loginResp = await startCaptcha(loginGameWithCaptcha(account));
+        await Promise.all([queryGameList(), queryUserQuota()]);
         if (loginResp.code === 1) {
             setMsg("启动成功", Type.Success);
             showDialog(GeeTestNotify);
@@ -239,8 +242,10 @@ const gameSuspend = async (account: string) => {
         if (resp.code === 1) {
             setMsg("暂停成功", Type.Success);
             return;
+        } else {
+            setMsg(resp.message, Type.Warning);
         }
-        setMsg(resp.message, Type.Warning);
+        await queryGameList();
     } catch (error) {
         setMsg("暂停失败", Type.Warning);
     } finally {
