@@ -184,12 +184,12 @@ const handleDeleteBtnOnClick = async (slotUUID: string, gameAccount: string) => 
     isLoading.value = true;
     try {
         const deleteResp = await startCaptcha(deleteGameWithCaptcha(slotUUID));
+        await Promise.all([queryGameList(), queryUserQuota()]);
         if (deleteResp.code === 1) {
             setMsg("删除成功", Type.Success);
         } else {
             setMsg(deleteResp.message, Type.Warning);
         }
-        await Promise.all([queryGameList(), queryUserQuota()]);
     } catch (error) {
         setMsg("删除失败", Type.Warning);
     } finally {
@@ -239,13 +239,12 @@ const gameSuspend = async (account: string) => {
     };
     try {
         const resp = await doUpdateGameConf(account, config);
+        await queryGameList();
         if (resp.code === 1) {
             setMsg("暂停成功", Type.Success);
-            return;
         } else {
             setMsg(resp.message, Type.Warning);
         }
-        await queryGameList();
     } catch (error) {
         setMsg("暂停失败", Type.Warning);
     } finally {
