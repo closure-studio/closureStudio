@@ -16,11 +16,12 @@
         取消
       </button>
       <button class="btn btn-info mt-auto" @click="handleSubmitBtnOnClick">
+        <span v-if="isLoading" className="loading loading-spinner"></span>
         确认
       </button>
     </div>
     <div v-if="user.isVerify" class="flex items-center space-x-4">
-      太棒了，你已完成身份验证！绑定手机号是: {{ phone }}
+      太棒了, 你已完成身份验证！绑定手机号是: {{ phone }}
     </div>
   </div>
 </template>
@@ -36,6 +37,7 @@ import { userStore } from '../../store/user';
 const smsCode = ref("");
 
 const user = userStore();
+const isLoading = ref(false);
 const phone = computed(() => getSMSSendPhone());
 const isGameListCompletedInit = computed(() => myState.isGameListCompletedInit);
 const handleCloseBtnOnClick = () => {
@@ -47,7 +49,11 @@ const handleSubmitBtnOnClick = async () => {
     setMsg("请输入验证码", Type.Warning);
     return;
   }
+  if (isLoading.value) {
+    return;
+  }
   try {
+    isLoading.value = true;
     const authResp = await Auth_Verify(smsCode.value);
     if (authResp.code === 1) {
       setMsg("认证成功,请重新登录", Type.Success);
@@ -55,10 +61,10 @@ const handleSubmitBtnOnClick = async () => {
       window.location.reload();
       return;
     }
-    if (authResp.code !== 1) {
-      setMsg("验证码错误", Type.Warning);
-      return;
-    }
+    isLoading.value = false;
+    setMsg("验证码错误", Type.Warning);
+    setMsg(authResp.message, Type.Warning);
+    return;
   } catch (error) {
     console.error(error);
 

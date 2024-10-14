@@ -232,7 +232,7 @@ const doUpdateCaptcha = (account: string, captcha: any) =>
     captcha_info: captcha,
   });
 const Auth_Refresh = () => get<ApiUser.Auth>(`${AuthServer}refreshToken`); // RefreshToken
-const Auth_Verify = (code: string) => post(`${AuthServer}phone`, { code }); // RealSMS
+const Auth_Verify = (code: string) => post<void>(`${AuthServer}phone`, { code }); // RealSMS
 
 // qq bind
 const fetchQQBindCode = () => get(`${AuthServer}qq`); // QQBindCode // get qqcode
