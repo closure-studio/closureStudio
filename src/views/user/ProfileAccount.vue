@@ -109,6 +109,10 @@ const handleDeleteAccountBtnOnClick = async () => {
   if (isLoading.value) {
     return;
   }
+  if (user.isAdmin) {
+    setMsg("管理员账号无法注销", Type.Warning);
+    return;
+  }
   showDialog(DeleteAccount, { deleteFunc: deleteFunc });
 }
 
