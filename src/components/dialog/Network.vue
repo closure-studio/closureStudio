@@ -8,8 +8,8 @@
 <script lang="ts" setup>
 import { watch, ref } from "vue";
 import { userStore } from "../../store/user";
-import { config } from "../../store/games/myGames";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
+import { myState } from "../../store/games/myGames";
 const props = defineProps<DialogComponentProps>();
 const { dialogClose } = props;
 const closeAnn = ref()
@@ -20,7 +20,7 @@ const handleCloseBtnOnClick = () => {
 }
 
 watch(
-  () => config.value.isUnderMaintenance,
+  () => myState.config.isUnderMaintenance,
   (v) => {
     if (v && !user.isAdmin) closeAnn.value.showModal()
   }
