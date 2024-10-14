@@ -19,28 +19,31 @@ if (user != null) {
     "Bearer " + JSON.parse(user)?.user?.Token;
 }
 
-service.interceptors.response.use(
-  (response) => {
-    const requestUrl = response.config?.baseURL
-      ? new URL(response.config.url!, response.config.baseURL)
-      : new URL(response.config.url!);
-    const host = requestUrl.host;
-    switch (host) {
-      case Host.RegistryServer:
-        const code = buildCodeFromRegisterResp(response)
-        const data: any = {
-          message: code === 0 ? (response.data.err ? response.data.err : "大失败") : "成功",
-          code: buildCodeFromRegisterResp(response),
-          data: response.data,
-        };
-        return data;
-      case Host.ArkHostServer:
-      case Host.AuthServer:
-      default:
-        return response.data;
-    }
+service.interceptors.response.use((response) => {
+  const requestUrl = response.config?.baseURL
+    ? new URL(response.config.url!, response.config.baseURL)
+    : new URL(response.config.url!);
+  const host = requestUrl.host;
+  switch (host) {
+    case Host.RegistryServer:
+      const code = buildCodeFromRegisterResp(response);
+      const data: any = {
+        message:
+          code === 0
+            ? response.data.err
+              ? response.data.err
+              : "大失败"
+            : "成功",
+        code: buildCodeFromRegisterResp(response),
+        data: response.data,
+      };
+      return data;
+    case Host.ArkHostServer:
+    case Host.AuthServer:
+    default:
+      return response.data;
   }
-);
+});
 type RequestMethod = "get" | "post" | "put" | "delete" | "patch";
 interface RequestParam {
   url: string;
@@ -153,6 +156,14 @@ const Auth_ResetPassword = (params: {
 const Auth_Send_SMS = (params: { phone: string }) =>
   post<ApiUser.Auth>(`${AuthServer}sms`, params);
 
+// Email         string `json:"email"`
+// CurrentPasswd string `json:"currentPasswd"`
+// NewPasswd     string `json:"newPasswd"`
+const Auth_UpdatePasswd = (params: {
+  email: string;
+  currentPasswd: string;
+  newPasswd: string;
+}) => put<void>(`${AuthServer}password`, params);
 const QueryWXPusher = () => get<ApiUser.WXPusher>(`${AuthServer}wechat`);
 const CreateWXPusherQRCode = () =>
   post<ApiUser.WXPusherQRCode>(`${AuthServer}wxpusher`);
@@ -206,9 +217,13 @@ const doUpdateGamePasswd = (slot: string, token: string, params: any) =>
     params
   ); // GameCreate
 const doDelGame = (token: string, slot: string) =>
-  captchaPost<void>(`${RegistryServer}api/slots/gameAccount?uuid=${slot}`, token, {
-    account: null,
-  });
+  captchaPost<void>(
+    `${RegistryServer}api/slots/gameAccount?uuid=${slot}`,
+    token,
+    {
+      account: null,
+    }
+  );
 const doDelGameAdmin = (slot: string, token: string) =>
   captchaPost(`${RegistryServer}api/slots/gameAccount?uuid=${slot}`, token, {
     account: null,
@@ -232,7 +247,8 @@ const doUpdateCaptcha = (account: string, captcha: any) =>
     captcha_info: captcha,
   });
 const Auth_Refresh = () => get<ApiUser.Auth>(`${AuthServer}refreshToken`); // RefreshToken
-const Auth_Verify = (code: string) => post<void>(`${AuthServer}phone`, { code }); // RealSMS
+const Auth_Verify = (code: string) =>
+  post<void>(`${AuthServer}phone`, { code }); // RealSMS
 
 // qq bind
 const fetchQQBindCode = () => get(`${AuthServer}qq`); // QQBindCode // get qqcode
@@ -259,28 +275,58 @@ const ReplyTicket = (id: string, data: TicketSystem.createTicket) =>
 const PostTicket = (data: TicketSystem.createTicket) =>
   post(`${TicketsServer}tickets/`, data); // getTIckets
 
-
 const buildCodeFromRegisterResp = (resp: any): number => {
-  if (!resp.data.err && !resp.data.code) return 1
-  return (resp.data.err || resp.data.code != 1)
+  if (!resp.data.err && !resp.data.code) return 1;
+  return resp.data.err || resp.data.code != 1
     ? 0 // If there is an error, code is 0
     : resp.data.available &&
       resp.data.results !== undefined &&
       resp.data.results !== null
-      ? 1 // If available is true and results are valid, code is 1
-      : resp.data.code ?? 0 // Otherwise, use the provided code or default to 0
-}
+    ? 1 // If available is true and results are valid, code is 1
+    : resp.data.code ?? 0; // Otherwise, use the provided code or default to 0
+};
 export {
-  Auth_Info, Auth_Login, Auth_Login_Admin, Auth_Refresh, Auth_Register,
-  Auth_ResetPassword, Auth_Send_SMS, Auth_Verify, DelQuotaGameAdmin, doAddGame, doDelGame, doFindAccount, doGameLogin, doUpdateCaptcha, doUpdateGameConf, doUpdateGamePasswd, fetchGameDetails, fetchGameList,
-  fetchGameListBySSE, fetchGameLogs, fetchGameLogsAdmin, fetchQQBindCode, fetchSystemConfig,
-  fetchSytemList, fetchUserSlots, fetchUserSlotsAdmin, load, QueryUser, SendCodeOnRegister, SendSMS,
-  UpdateUserPermission
+  Auth_Info,
+  Auth_Login,
+  Auth_Login_Admin,
+  Auth_Refresh,
+  Auth_Register,
+  Auth_ResetPassword,
+  Auth_Send_SMS,
+  Auth_UpdatePasswd,
+  Auth_Verify,
+  DelQuotaGameAdmin,
+  doAddGame,
+  doDelGame,
+  doFindAccount,
+  doGameLogin,
+  doUpdateCaptcha,
+  doUpdateGameConf,
+  doUpdateGamePasswd,
+  fetchGameDetails,
+  fetchGameList,
+  fetchGameListBySSE,
+  fetchGameLogs,
+  fetchGameLogsAdmin,
+  fetchQQBindCode,
+  fetchSystemConfig,
+  fetchSytemList,
+  fetchUserSlots,
+  fetchUserSlotsAdmin,
+  load,
+  QueryUser,
+  SendCodeOnRegister,
+  SendSMS,
+  UpdateUserPermission,
 };
 
-  export {
-    GetReplays, GetTicketById, GetTickets, PostTicket, ReplyTicket, UpdateTicketById
-  };
+export {
+  GetReplays,
+  GetTicketById,
+  GetTickets,
+  PostTicket,
+  ReplyTicket,
+  UpdateTicketById,
+};
 
-  export { CreateWXPusherQRCode, QueryWXPusher };
-
+export { CreateWXPusherQRCode, QueryWXPusher };

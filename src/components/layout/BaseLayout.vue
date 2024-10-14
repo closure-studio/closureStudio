@@ -46,6 +46,6 @@ const dynamicPath = computed(() => {
 const logout = () => {
   user.logout();
   setMsg('已退出登录', Type.Success)
-  window.location.href = "/";
+  window.location.reload();
 }
 </script>
