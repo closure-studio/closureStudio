@@ -199,7 +199,7 @@ const apiGeetestSet = (account: string, platform: number, params: any) =>
   post(`Game/Captcha/${account}/${platform}`, params); // Geetest
 
 const fetchSystemConfig = () => get<ApiSystem.Config>("system/config");
-const fetchSytemList = () => get<ApiSystem.Hall[]>("system/apCostList");
+const fetchSystemList = () => get<ApiSystem.Hall[]>("system/apCostList");
 
 const doGameLogin = (token: string, account: string) =>
   captchaPost<void>(`game/login/${account}`, token, null); // GameLogin
@@ -310,7 +310,7 @@ export {
   fetchGameLogsAdmin,
   fetchQQBindCode,
   fetchSystemConfig,
-  fetchSytemList,
+  fetchSystemList,
   fetchUserSlots,
   fetchUserSlotsAdmin,
   load,

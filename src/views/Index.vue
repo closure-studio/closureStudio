@@ -63,7 +63,7 @@
                 </div>
             </div>
             <div class="divider text-2xl 2xl:text-4xl 2xl:my-8 font-extrabold">罗 德 岛 名 人 堂</div>
-            <div class="flex-auto grid content-between grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div class="flex-auto grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 <div v-for="k in list">
                     <div class="rounded-t-md bg-info text-center pt-1 text-2xl font-zhCN">
                         {{ k.nickName }}
@@ -93,18 +93,22 @@ import Login from "../components/card/Login.vue";
 import { userStore } from "../store/user";
 import { isNight } from "../plugins/common";
 import { router } from "../router";
+import { fetchSystemList } from "../plugins/axios";
 const closure = ref(false); // Closure 图标动画
 const textRef = ref();
 const user = userStore();
 const ticketBtnOnClick = () => {
     router.push("/ticket");
 };
-
-onMounted(() => {
+const list = ref<ApiSystem.Hall[]>([]);
+onMounted(async () => {
     textRef.value.addEventListener("animationend", function () {
         // textRef.value.parentNode.removeChild(textRef.value);
         closure.value = true;
     });
+    const resp = await fetchSystemList()
+    if (resp.code == 1 && resp.data) {
+        list.value = resp.data
+    }
 });
-const list = ref<ApiSystem.Hall[]>([]);
 </script>
