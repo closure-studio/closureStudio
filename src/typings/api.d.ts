@@ -269,3 +269,7 @@ declare namespace Registry {
     uuid: string;
   }
 }
+
+declare namespace HealthMonitor {
+  export type HealthRecord = Record<string, string>;
+}
