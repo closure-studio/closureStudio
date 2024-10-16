@@ -47,19 +47,13 @@
             </div>
         </div>
         <div class="flex flex-col slide-in-bottom delay-75 lg:ml-6 flex-auto">
-            <div class="space-x-4 hidden lg:flex">
-                <div class="mockup-code bg-base-300 text-base-content shadow-lg rounded-lg w-1/2">
+            <div class="lg:space-x-2 hidden lg:flex">
+                <div class="mockup-code bg-base-300 text-base-content shadow-lg rounded-lg sm:w-full lg:w-1/2">
                     <pre class="font-bold text-center mb-2">你站公告</pre>
                     <pre data-prefix=">"><code>无所事事的公告</code></pre>
                 </div>
-                <div @click="ticketBtnOnClick()"
-                    class="bg-base-300 shadow-lg rounded-lg p-2 w-1/2 flex flex-col items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="w-12 h-12 mt-2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" />
-                    </svg>
-                    <span class="font-bold text-4xl">在线工单（Beta）</span>
+                <div class="mockup-code bg-base-300 text-base-content shadow-lg rounded-lg sm:w-full lg:w-1/2">
+                    <APIStatusBoard />
                 </div>
             </div>
             <div class="divider text-2xl 2xl:text-4xl 2xl:my-8 font-extrabold">罗 德 岛 名 人 堂</div>
@@ -92,14 +86,11 @@ import { onMounted, ref } from "vue";
 import Login from "../components/card/Login.vue";
 import { userStore } from "../store/user";
 import { isNight } from "../plugins/common";
-import { router } from "../router";
 import { fetchSystemList } from "../plugins/axios";
+import APIStatusBoard from "../components/APIStatus/APIStatusBoard.vue";
 const closure = ref(false); // Closure 图标动画
 const textRef = ref();
 const user = userStore();
-const ticketBtnOnClick = () => {
-    router.push("/ticket");
-};
 const list = ref<ApiSystem.Hall[]>([]);
 onMounted(async () => {
     textRef.value.addEventListener("animationend", function () {

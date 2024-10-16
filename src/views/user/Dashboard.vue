@@ -16,8 +16,15 @@
                 <div class="divider mt-0">个人信息</div>
                 <StatusMessage />
             </div>
+            <transition name="collapse" @before-enter="beforeEnter" @enter="enter" @leave="leave">
+                <div @click="handleAPIStatusBoardOnClick" v-if="isAPIStatusBoardShow"
+                    class="bg-base-300 shadow-lg rounded-lg px-4 blog relative mt-5 py-5">
+                    <APIStatusBoard />
+                </div>
+            </transition>
             <IndexStatus />
-            <div class="text-2xl font-bold">我的托管（{{ userQuota?.slots.filter((slot) => slot.gameAccount !==
+            <div class="text-2xl font-bold">我的托管（{{ userQuota?.slots.filter((slot: Registry.Slot) => slot.gameAccount
+                !==
                 null)?.length }} 已用 / {{ userQuota?.slots?.length }} 可用）</div>
             <div v-if="!isGameListCompletedInit" class="h-72 flex justify-center w-full">
                 <span className="loading loading-ring loading-lg"></span>
@@ -82,12 +89,13 @@ import { findGame, getFirstGame, initializeGameListServerConnection, myState } f
 import { allowGameCreate, canDeleteGame, queryUserQuota } from "../../store/games/quota";
 import { userStore } from "../../store/user";
 import { queryGameList } from "../../store/games/games";
+import APIStatusBoard from "../../components/APIStatus/APIStatusBoard.vue";
 const show = ref(false);
 const user = userStore();
 const selectedSlotUUID = ref("");
 const selectedRegisterForm = ref({} as Registry.AddGameForm); // for update password
 const isLoading = ref(false);
-
+const isAPIStatusBoardShow = ref(true);
 const userQuota = computed(() => {
     return myState.userQuota;
 });
@@ -159,6 +167,10 @@ const isLoginBtnDisabled = (gameAccount: string) => {
     if (isLoading.value) return true;
     if (!game) return false;
     return game.status.code === 1;
+};
+
+const handleAPIStatusBoardOnClick = () => {
+    isAPIStatusBoardShow.value = false;
 };
 
 const handleGameSuspendBtnOnClick = (gameAccount: string) => {
@@ -275,12 +287,38 @@ const openGameConf = (account: string) => {
     selectGame.value = show.value ? "" : game.status.account;
     show.value = !show.value;
 };
+const beforeEnter = (el: HTMLElement): void => {
+    el.style.height = '0';
+    el.style.opacity = '0';
+};
 
+const enter = (el: HTMLElement, done: () => void): void => {
+    el.style.transition = 'all 0.3s ease';
+    el.style.height = el.scrollHeight + 'px';
+    el.style.opacity = '1';
+    setTimeout(done, 300); // 动画持续时间 0.3s
+};
+
+const leave = (el: HTMLElement, done: () => void): void => {
+    el.style.transition = 'all 0.2s ease';
+    el.style.height = el.scrollHeight + 'px'; // 确保在消失前先设置高度
+    setTimeout(() => {
+        el.style.height = '0'; // 折叠动画
+        el.style.opacity = '0'; // 渐隐动画
+        setTimeout(done, 100); // 等待动画完成再移除元素
+    }, 0);
+};
 </script>
 <style>
 div,
 img {
     user-select: none;
     -webkit-user-drag: none;
+}
+
+.collapse-enter-active,
+.collapse-leave-active {
+    overflow: hidden;
+    /* 防止高度动画过程中内容溢出 */
 }
 </style>
