@@ -47,17 +47,13 @@
             </div>
         </div>
         <div class="flex flex-col slide-in-bottom delay-75 lg:ml-6 flex-auto">
-            <div class="space-x-4 hidden lg:flex">
-                <div class="mockup-code bg-base-300 text-base-content shadow-lg rounded-lg w-1/2">
+            <div class="lg:space-x-2 hidden lg:flex">
+                <div class="mockup-code bg-base-300 text-base-content shadow-lg rounded-lg sm:w-full lg:w-1/2">
                     <pre class="font-bold text-center mb-2">你站公告</pre>
                     <pre data-prefix=">"><code>无所事事的公告</code></pre>
                 </div>
-                <div class="mockup-code bg-base-300 text-base-content shadow-lg rounded-lg w-1/2">
-                    <pre class="font-bold text-center mb-2">系统监控</pre>
-                    <div class="flex ml-2">
-                        <APIStatus v-for="(address, label) in healthRecords" :key="address" :label="label"
-                            :address="address" />
-                    </div>
+                <div class="mockup-code bg-base-300 text-base-content shadow-lg rounded-lg sm:w-full lg:w-1/2">
+                    <APIStatusBoard />
                 </div>
             </div>
             <div class="divider text-2xl 2xl:text-4xl 2xl:my-8 font-extrabold">罗 德 岛 名 人 堂</div>
@@ -90,10 +86,8 @@ import { onMounted, ref } from "vue";
 import Login from "../components/card/Login.vue";
 import { userStore } from "../store/user";
 import { isNight } from "../plugins/common";
-import { router } from "../router";
 import { fetchSystemList } from "../plugins/axios";
-import { healthRecords } from "../components/APIStatus/config"
-import APIStatus from "../components/APIStatus/APIStatus.vue";
+import APIStatusBoard from "../components/APIStatus/APIStatusBoard.vue";
 const closure = ref(false); // Closure 图标动画
 const textRef = ref();
 const user = userStore();

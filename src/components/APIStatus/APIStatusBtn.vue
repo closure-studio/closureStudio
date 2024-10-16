@@ -1,9 +1,9 @@
 <template>
     <div>
-        <button className="btn btn-ghost btn-xs">
+        <button class="btn btn-ghost btn-xs">
             {{ label }}
-            <input v-if="isHealth" type="radio" className="radio radio-accent radio-xs" defaultChecked />
-            <input v-if="!isHealth" type="radio" className="radio radio-error radio-xs" defaultChecked />
+            <input v-if="isHealth" type="radio" class="radio radio-accent radio-xs animate-blink" defaultChecked />
+            <input v-if="!isHealth" type="radio" class="radio radio-error radio-xs animate-blink" defaultChecked />
         </button>
     </div>
 </template>
@@ -38,3 +38,21 @@ onMounted(() => {
     checkSVG()
 })
 </script>
+
+<style>
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+.animate-blink {
+    animation: blink 1s infinite;
+}
+</style>
