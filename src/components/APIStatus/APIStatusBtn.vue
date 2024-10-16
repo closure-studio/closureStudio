@@ -1,7 +1,7 @@
 <template>
     <div>
-        <button class="btn btn-ghost btn-xs">
-            {{ label }}
+        <button class="btn px-0 btn-ghost btn-xs w-full">
+            <span class="mr-auto">{{ label }}</span>
             <input v-if="isHealth" type="radio" class="radio radio-accent radio-xs animate-blink" defaultChecked />
             <input v-if="!isHealth" type="radio" class="radio radio-error radio-xs animate-blink" defaultChecked />
         </button>

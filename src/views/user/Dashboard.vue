@@ -287,24 +287,24 @@ const openGameConf = (account: string) => {
     selectGame.value = show.value ? "" : game.status.account;
     show.value = !show.value;
 };
-const beforeEnter = (el: HTMLElement): void => {
-    el.style.height = '0';
-    el.style.opacity = '0';
+const beforeEnter = (el: Element): void => {
+    (el as HTMLElement).style.height = '0';
+    (el as HTMLElement).style.opacity = '0';
 };
 
-const enter = (el: HTMLElement, done: () => void): void => {
-    el.style.transition = 'all 0.3s ease';
-    el.style.height = el.scrollHeight + 'px';
-    el.style.opacity = '1';
+const enter = (el: Element, done: () => void): void => {
+    (el as HTMLElement).style.transition = 'all 0.3s ease';
+    (el as HTMLElement).style.height = (el as HTMLElement).scrollHeight + 'px';
+    (el as HTMLElement).style.opacity = '1';
     setTimeout(done, 300); // 动画持续时间 0.3s
 };
 
-const leave = (el: HTMLElement, done: () => void): void => {
-    el.style.transition = 'all 0.2s ease';
-    el.style.height = el.scrollHeight + 'px'; // 确保在消失前先设置高度
+const leave = (el: Element, done: () => void): void => {
+    (el as HTMLElement).style.transition = 'all 0.2s ease';
+    (el as HTMLElement).style.height = (el as HTMLElement).scrollHeight + 'px'; // 确保在消失前先设置高度
     setTimeout(() => {
-        el.style.height = '0'; // 折叠动画
-        el.style.opacity = '0'; // 渐隐动画
+        (el as HTMLElement).style.height = '0'; // 折叠动画
+        (el as HTMLElement).style.opacity = '0'; // 渐隐动画
         setTimeout(done, 100); // 等待动画完成再移除元素
     }, 0);
 };

@@ -9,8 +9,8 @@ export const healthRecords: HealthMonitor.HealthRecord = {
     "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm26dqjw3001d12myw9rdumtk/badge.svg",
   消息推送:
     "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm2alu1bv00dr7x57sl8933m5/badge.svg",
-  Q群机器人:
+  QQ机器人:
     "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm2alu1bv00dr7x57sl8933m5/badge.svg",
-  通行证:
+  授权服务:
     "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm26dov5e000z12mywglwp5q5/badge.svg",
 };
