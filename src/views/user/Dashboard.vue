@@ -18,7 +18,7 @@
             </div>
             <transition name="collapse" @before-enter="beforeEnter" @enter="enter" @leave="leave">
                 <div @click="handleAPIStatusBoardOnClick" v-if="isAPIStatusBoardShow"
-                    class="bg-base-300 shadow-lg rounded-lg px-4 blog relative mt-5 py-5">
+                    class="bg-base-300 shadow-lg rounded-lg blog relative mt-5 py-5">
                     <APIStatusBoard />
                 </div>
             </transition>

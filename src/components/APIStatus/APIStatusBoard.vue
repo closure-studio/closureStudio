@@ -1,7 +1,7 @@
 <template>
     <div>
         <pre class="font-bold text-center mb-2">服务监控</pre>
-        <div :style="gridStyle" class="grid justify-center">
+        <div :style="gridStyle" class="grid gap-1 justify-center">
             <div v-for="(address, label) in healthRecords" :key="address" class="text-left">
                 <APIStatusBtn :label="label" :address="address" />
             </div>
@@ -48,7 +48,6 @@ onBeforeUnmount(() => {
 <style scoped>
 .grid {
     display: grid;
-    justify-items: center;
 }
 
 .text-left {
