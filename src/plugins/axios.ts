@@ -119,7 +119,7 @@ function sse<T>(url: string) {
 export default service;
 const AuthServer: string = "https://passport.ltsc.vip/api/v1/";
 const RegistryServer: string = "https://registry.ltsc.vip/";
-const TicketsServer: string = "https://ticket.arknights.host/";
+const TicketsServer: string = "https://ticket.arknights.app/";
 function del(url: string, params: any) {
   return new Promise((resolve) => {
     service.delete(url, { data: params }).then((res) => {
