@@ -58,8 +58,12 @@ const game = computed(() => {
 
 const getAvatarId = () => {
   if (!game.value) return "avatar_activity_GK";
-  return game.value.status?.avatar.id || "avatar_activity_GK";
+  // 如果有 avatar id，则进行替换处理
+  return (game.value.status?.avatar.id || "avatar_activity_GK")
+    .replace(/@/g, "_") // 替换 @ 为 _
+    .replace(/#/g, "_"); // 替换 # 为 _
 };
+
 const getAvatarType = () => {
   if (!game.value) return "DEFAULT";
   return game.value.status?.avatar.type || "DEFAULT";
