@@ -2,7 +2,7 @@ export const healthRecords: HealthMonitor.HealthRecord = {
   游戏管理:
     "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm26dov5e000z12mywglwp5q5/badge.svg",
   主控中心:
-    "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm26gwg0e01el12my125epkzx/badge.svg",
+    "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm4zsgrx4000138mwl7ukyby9/badge.svg",
   智能问答:
     "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm26f9i8q00jl12my7b07xgql/badge.svg",
   工单系统:
