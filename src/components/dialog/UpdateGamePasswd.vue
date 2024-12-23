@@ -76,6 +76,7 @@ const handleUpdateGamePasswdOnBtnClick = async () => {
         await Promise.all([queryGameList(), queryUserQuota()]);
         if (resp.code === 1) {
             setMsg('更新密码成功', Type.Success)
+            window.location.reload()
             dialogClose();
         } else {
             setMsg('请刷新页面后重试', Type.Warning)
