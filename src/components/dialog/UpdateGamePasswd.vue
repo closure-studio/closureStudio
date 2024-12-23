@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-base-100 mx-4 px-6 py-4 shadow-lg max-w-md rounded-lg blog">
+    <div class="bg-base-100 w-96 mx-4 px-6 py-4 shadow-lg max-w-md rounded-lg blog">
         <div class="text-3xl text-info font-bold text-center">修改密码</div>
         <div class="divider">账号信息</div>
         <div class="w-full mb-3">
