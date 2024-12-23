@@ -70,7 +70,7 @@ const handleUpdateGamePasswdOnBtnClick = async () => {
         return;
     }
     try {
-        isLoading.value = false;
+        isLoading.value = true;
         const data = myForm.value;
         const resp = await startCaptcha(updateGamePasswdWithCaptcha(slotUUID, data));
         await Promise.all([queryGameList(), queryUserQuota()]);
