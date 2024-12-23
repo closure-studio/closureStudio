@@ -32,7 +32,7 @@
             </button>
             <button class="btn btn-info w-28" @click="handleUpdateGamePasswdOnBtnClick">
                 <span v-if="isLoading" class="loading loading-bars" />
-                更新游戏密码
+                <span v-else>更新游戏密码</span>
             </button>
         </div>
     </div>
