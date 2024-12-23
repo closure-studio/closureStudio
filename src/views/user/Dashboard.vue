@@ -41,7 +41,7 @@
                             <div class="grid gap-4 grid-cols-2 mt-2">
                                 <button class="btn btn-outline btn-sm btn-block btn-primary"
                                     v-if="isUpdateStatus(slot.gameAccount)" :disabled="isLoading"
-                                    @click.stop="handleUpdatePasswdBtnOnClick(slot)">更新</button>
+                                    @click.stop="handleUpdatePasswdBtnOnClick(slot)">更新密码</button>
 
                                 <button class="btn btn-outline btn-sm btn-block btn-primary"
                                     v-else-if="isSuspendStatus(slot.gameAccount)"
@@ -153,7 +153,10 @@ const createGameButtonOnClick = (slot: Registry.Slot, slotUUID: string) => {
 const isUpdateStatus = (gameAccount: string) => {
     const game = findGame(gameAccount);
     if (!game) return false;
-    return game.status.code === -1 && game.status.text.indexOf("密码错误") != -1;
+    if (!game.status.password || game.status.text.includes("密码错误")) {
+        return true
+    }
+    return false;
 };
 
 const isSuspendStatus = (gameAccount: string) => {
