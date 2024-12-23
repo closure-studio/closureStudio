@@ -28,7 +28,7 @@
         <div class="flex justify-center space-x-4 mb-3">
             <button @click="dialogClose()" class="btn btn-error btn-outline w-28">
                 <span v-if="isLoading" class="loading loading-bars" />
-                关闭
+                <span v-else>关闭</span>
             </button>
             <button class="btn btn-info w-28" @click="handleUpdateGamePasswdOnBtnClick">
                 <span v-if="isLoading" class="loading loading-bars" />
