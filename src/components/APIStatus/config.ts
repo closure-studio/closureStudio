@@ -10,7 +10,7 @@ export const healthRecords: HealthMonitor.HealthRecord = {
   消息推送:
     "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm2alu1bv00dr7x57sl8933m5/badge.svg",
   QQ机器人:
-    "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm2alu1bv00dr7x57sl8933m5/badge.svg",
+    "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm50sb1hg01oe38mwpfhg4sza/badge.svg",
   授权服务:
     "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm26dov5e000z12mywglwp5q5/badge.svg",
 };
