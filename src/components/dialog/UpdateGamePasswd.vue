@@ -16,12 +16,12 @@
         <div class="w-full mb-3">
             <label class="label cursor-pointer">
                 <span class="text-xl">BiliBili服</span>
-                <input disabled type="radio" :value="2" v-model="form.platform" id="bili"
+                <input type="radio" :value="2" v-model="form.platform" id="bili"
                     class="radio checked:bg-blue-500" />
             </label>
             <label class="label cursor-pointer">
                 <span class="text-xl">官服(安卓 / IOS)</span>
-                <input disabled type="radio" :value="1" v-model="form.platform" id="official"
+                <input type="radio" :value="1" v-model="form.platform" id="official"
                     class="radio checked:bg-red-500" />
             </label>
         </div>
