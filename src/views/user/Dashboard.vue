@@ -40,11 +40,7 @@
                         <div v-if="findGame(slot.gameAccount)">
                             <div class="grid gap-4 grid-cols-2 mt-2">
                                 <button class="btn btn-outline btn-sm btn-block btn-primary"
-                                    v-if="isUpdateStatus(slot.gameAccount)" :disabled="isLoading"
-                                    @click.stop="handleUpdatePasswdBtnOnClick(slot)">更新密码</button>
-
-                                <button class="btn btn-outline btn-sm btn-block btn-primary"
-                                    v-else-if="isSuspendStatus(slot.gameAccount)"
+                                    v-if="isSuspendStatus(slot.gameAccount)"
                                     @click="handleGameSuspendBtnOnClick(slot.gameAccount)"
                                     :disabled="isLoading">暂停</button>
 
@@ -52,13 +48,13 @@
                                     @click="handleGameLoginBtnOnClick(slot.gameAccount)"
                                     :disabled="isLoginBtnDisabled(slot.gameAccount)">启动</button>
 
+                                <button class="btn btn-outline btn-sm btn-block btn-primary"
+                                    :disabled="isLoading"
+                                    @click.stop="handleUpdatePasswdBtnOnClick(slot)">更新密码</button>
+
                                 <button :disabled="isLoading" class="btn btn-outline btn-sm btn-block btn-error"
                                     @click.stop="handleDeleteBtnOnClick(slot.uuid, slot.gameAccount)">删除</button>
                             </div>
-                        </div>
-                        <div v-if="!findGame(slot.gameAccount)">
-                            <button :disabled="isLoading" class="btn btn-outline btn-sm btn-block btn-error mt-2"
-                                @click.stop="handleDeleteBtnOnClick(slot.uuid, slot.gameAccount)">点击进行修复</button>
                         </div>
                     </GameAccount>
                 </div>
