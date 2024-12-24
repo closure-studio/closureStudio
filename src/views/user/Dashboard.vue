@@ -153,7 +153,7 @@ const createGameButtonOnClick = (slot: Registry.Slot, slotUUID: string) => {
 const isUpdateStatus = (gameAccount: string) => {
     const game = findGame(gameAccount);
     if (!game) return false;
-    if (!game.status.password || game.status.text.includes("密码错误")) {
+    if (!game.status.password || game.status.text.includes("密码错误") || game.status.text.includes("无法解密密码")) {
         return true
     }
     return false;
