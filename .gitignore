@@ -33,3 +33,5 @@ stats.html
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+ArknightsGamedataPure
