@@ -48,12 +48,16 @@
                                     @click="handleGameLoginBtnOnClick(slot.gameAccount)"
                                     :disabled="isLoginBtnDisabled(slot.gameAccount)">启动</button>
 
-                                <button class="btn btn-outline btn-sm btn-block btn-primary"
-                                    :disabled="isLoading"
+                                <button class="btn btn-outline btn-sm btn-block btn-primary" :disabled="isLoading"
                                     @click.stop="handleUpdatePasswdBtnOnClick(slot)">更新密码</button>
 
                                 <button :disabled="isLoading" class="btn btn-outline btn-sm btn-block btn-error"
                                     @click.stop="handleDeleteBtnOnClick(slot.uuid, slot.gameAccount)">删除</button>
+                                <div v-if="!findGame(slot.gameAccount)">
+                                    <button :disabled="isLoading"
+                                        class="btn btn-outline btn-sm btn-block btn-error mt-2"
+                                        @click.stop="handleRepairBtnOnClick(slot.uuid, slot.gameAccount)">点击进行修复</button>
+                                </div>
                             </div>
                         </div>
                     </GameAccount>
@@ -76,7 +80,7 @@ import GeeTestNotify from "../../components/dialog/GeeTestNotify.vue";
 import UpdateGamePasswd from "../../components/dialog/UpdateGamePasswd.vue";
 import YouMayKnow from "../../components/dialog/YouMayKnow.vue";
 import { Type } from "../../components/toast/enum";
-import { Auth_Send_SMS, doDelGame, doGameLogin, doUpdateGameConf } from "../../plugins/axios";
+import { Auth_Send_SMS, doAddGame, doDelGame, doGameLogin, doUpdateGameConf } from "../../plugins/axios";
 import { startCaptcha } from "../../plugins/captcha/captcha";
 import { getRealGameAccount, setMsg } from "../../plugins/common";
 import { NOTIFY } from "../../plugins/config";
@@ -86,6 +90,7 @@ import { allowGameCreate, canDeleteGame, queryUserQuota } from "../../store/game
 import { userStore } from "../../store/user";
 import { queryGameList } from "../../store/games/games";
 import APIStatusBoard from "../../components/APIStatus/APIStatusBoard.vue";
+import { processGameAccount } from "../../utils/account";
 const show = ref(false);
 const user = userStore();
 const selectedSlotUUID = ref("");
@@ -209,6 +214,48 @@ const handleDeleteBtnOnClick = async (slotUUID: string, gameAccount: string) => 
 };
 
 
+const handleRepairBtnOnClick = async (slotUUID: string, gameAccount: string) => {
+    // can you delete it?
+    if (userQuota.value === undefined) {
+        setMsg("游戏托管槽位数据异常，无法提交", Type.Warning);
+        return;
+    }
+    if (!canDeleteGame(userQuota.value, gameAccount)) {
+        setMsg(NOTIFY.NOT_ALLOW_DELETE_GAME, Type.Warning);
+        return;
+    }
+    isLoading.value = true;
+    try {
+        const accountInfo = processGameAccount(gameAccount)
+        if (!accountInfo) {
+            setMsg("账号格式不正确", Type.Warning);
+            return;
+        }
+        const form: Registry.AddGameForm = {
+            account: accountInfo.remaining,
+            password: "123456",
+            platform: accountInfo.code,
+        }
+        const createGameResp = await startCaptcha(createGameWithCaptcha(slotUUID, form))
+        if (createGameResp.code == 1) {
+            return createGameResp
+        }
+        setMsg(createGameResp.message, Type.Error)
+        await Promise.all([queryGameList(), queryUserQuota()]);
+        if (createGameResp.code === 1) {
+            setMsg("修复成功", Type.Success);
+        } else {
+            setMsg(createGameResp.message, Type.Warning);
+        }
+    } catch (error) {
+        setMsg("修复失败", Type.Warning);
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+
+
 const handleUpdatePasswdBtnOnClick = async (slot: Registry.Slot) => {
     // can you delete it?
     if (!slot.gameAccount) return;
@@ -263,6 +310,12 @@ const gameSuspend = async (account: string) => {
 
     }
 };
+
+const createGameWithCaptcha = (slotUUID: string, data: Registry.AddGameForm) => {
+  return async (captchaToken: string) => {
+    return await doAddGame(slotUUID, captchaToken, data)
+  }
+}
 
 const deleteGameWithCaptcha = (slotUUID: string) => {
     return async (captchaToken: string) => {
