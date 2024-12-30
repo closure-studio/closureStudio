@@ -230,6 +230,7 @@ const handleRepairBtnOnClick = async (slotUUID: string, gameAccount: string) => 
             setMsg("账号格式不正确", Type.Warning);
             return;
         }
+        setMsg("该操作可能耗时5分钟以上, 请耐心等待", Type.Warning);
         const form: Registry.AddGameForm = {
             account: accountInfo.remaining,
             password: "123456",
