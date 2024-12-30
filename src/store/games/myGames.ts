@@ -5,9 +5,6 @@ import { queryGameList, startGameListPolling } from "./games";
 import { startSSE } from "./sse";
 import { queryUserQuota } from "./quota";
 
-
-
-
 // 定义 State 的类型
 interface State {
   config: ApiSystem.Config;
@@ -26,7 +23,7 @@ export const myState = reactive<State>({
   config: {
     isUnderMaintenance: false,
     isDebugMode: false,
-    announcement: '',
+    announcement: "",
     allowGameLogin: true,
     allowGameCreate: true,
     allowGameUpdate: true,
@@ -36,14 +33,14 @@ export const myState = reactive<State>({
   userQuota: {
     createdAt: 0,
     idServerPermission: 0,
-    idServerPhone: '',
-    idServerQQ: '',
+    idServerPhone: "",
+    idServerQQ: "",
     idServerStatus: 0,
     ruleFlags: [],
     rules: [],
     slots: [],
     updatedAt: 0,
-    uuid: '',
+    uuid: "",
   },
   globalSSR: [],
 
@@ -54,15 +51,16 @@ export const myState = reactive<State>({
   isLoadingGameList: false,
 });
 
-
-
 export const initializeGameListServerConnection = async () => {
   // check is login
   if (myState.isStarted) {
     return;
   }
   myState.isStarted = true;
-  const [quotaResult, gameListResult] = await Promise.all([queryUserQuota(), queryGameList()]);
+  const [quotaResult, gameListResult] = await Promise.all([
+    queryUserQuota(),
+    queryGameList(),
+  ]);
   // 检查返回值是否都为 true
   if (!quotaResult || !gameListResult) {
     setMsg("初始化失败, 请刷新网页或稍后再尝试", Type.Warning);
@@ -77,8 +75,8 @@ export const initializeGameListServerConnection = async () => {
   startGameListPolling();
 };
 
-
 export const findGame = (gameAccount: string) => {
+  if (!myState.gameList) return false;
   return myState.gameList.find((game) => game.status.account === gameAccount);
 };
 
@@ -89,4 +87,3 @@ export const getFirstGame = computed(() => {
   }
   return myState.gameList[0];
 });
-
