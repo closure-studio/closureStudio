@@ -55,7 +55,7 @@
                                     @click.stop="handleDeleteBtnOnClick(slot.uuid, slot.gameAccount)">删除</button>
                             </div>
                         </div>
-                        <div v-if="!findGame(slot.gameAccount)">
+                        <div v-if="!findGame(slot.gameAccount) && isGameListCompletedInit">
                             <button :disabled="isLoading" class="btn btn-outline btn-sm btn-block btn-error mt-2"
                                 @click.stop="handleRepairBtnOnClick(slot.uuid, slot.gameAccount)">点击进行修复</button>
                         </div>
