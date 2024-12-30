@@ -53,12 +53,11 @@
 
                                 <button :disabled="isLoading" class="btn btn-outline btn-sm btn-block btn-error"
                                     @click.stop="handleDeleteBtnOnClick(slot.uuid, slot.gameAccount)">删除</button>
-                                <div v-if="!findGame(slot.gameAccount)">
-                                    <button :disabled="isLoading"
-                                        class="btn btn-outline btn-sm btn-block btn-error mt-2"
-                                        @click.stop="handleRepairBtnOnClick(slot.uuid, slot.gameAccount)">点击进行修复</button>
-                                </div>
                             </div>
+                        </div>
+                        <div v-if="!findGame(slot.gameAccount)">
+                            <button :disabled="isLoading" class="btn btn-outline btn-sm btn-block btn-error mt-2"
+                                @click.stop="handleRepairBtnOnClick(slot.uuid, slot.gameAccount)">点击进行修复</button>
                         </div>
                     </GameAccount>
                 </div>
@@ -312,9 +311,9 @@ const gameSuspend = async (account: string) => {
 };
 
 const createGameWithCaptcha = (slotUUID: string, data: Registry.AddGameForm) => {
-  return async (captchaToken: string) => {
-    return await doAddGame(slotUUID, captchaToken, data)
-  }
+    return async (captchaToken: string) => {
+        return await doAddGame(slotUUID, captchaToken, data)
+    }
 }
 
 const deleteGameWithCaptcha = (slotUUID: string) => {
