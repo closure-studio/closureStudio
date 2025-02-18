@@ -1,5 +1,5 @@
 import { Type } from "../../components/toast/enum";
-import { doUpdateCaptcha } from "../axios/axios";
+import apiClient from "../axios/apiClient";
 import { setMsg } from "../common";
 import * as Sentry from "@sentry/vue";
 
@@ -121,7 +121,7 @@ export const arknigthsGameCaptcha = (account: string, data: ApiGame.CaptchaInfo)
         captchaObj.onSuccess(() => {
             const validate = captchaObj.getValidate();
             setMsg('提交成功，正在登录...', Type.Success)
-            doUpdateCaptcha(account, {
+            apiClient.doUpdateCaptcha(account, {
                 challenge: data.challenge,
                 geetest_challenge: validate.geetest_challenge,
                 geetest_seccode: validate.geetest_seccode,

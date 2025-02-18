@@ -28,11 +28,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { Type } from '../../components/toast/enum';
-import { Auth_Verify } from '../../plugins/axios/axios';
 import { setMsg } from '../../plugins/common';
 import { myState } from '../../store/games/myGames';
 import { getSMSSendPhone } from '../../store/games/quota';
 import { userStore } from '../../store/user';
+import authClient from '../../plugins/axios/authClient';
 
 const smsCode = ref("");
 
@@ -54,7 +54,7 @@ const handleSubmitBtnOnClick = async () => {
   }
   try {
     isLoading.value = true;
-    const authResp = await Auth_Verify(smsCode.value);
+    const authResp = await authClient.verify(smsCode.value);
     if (authResp.code === 1) {
       setMsg("认证成功,请重新登录", Type.Success);
       user.logout();

@@ -74,14 +74,14 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { ref, watch } from "vue";
-import { doUpdateGameConf } from "../../plugins/axios/axios";
-import { setMsg } from "../../plugins/common";
-import { Type } from "../toast/enum";
-import { findGame } from "../../store/games/myGames";
+import { ref } from "vue";
 import { assets } from "../../plugins/assets/assets";
-import BaseDesign from "../BaseDesign.vue";
+import apiClient from "../../plugins/axios/apiClient";
+import { setMsg } from "../../plugins/common";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
+import { findGame } from "../../store/games/myGames";
+import BaseDesign from "../BaseDesign.vue";
+import { Type } from "../toast/enum";
 
 interface Props extends DialogComponentProps {
     account: string;
@@ -145,7 +145,7 @@ const onSubmit = async () => {
     delete copyConfig.account;
     isLoading.value = true;
     try {
-        const result = await doUpdateGameConf(account, copyConfig);
+        const result = await apiClient.doUpdateGameConf(account, copyConfig);
         setMsg(result.message, Type.Info);
         dialogClose();
     } catch (error) {

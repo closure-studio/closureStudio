@@ -10,11 +10,12 @@ class AuthClient extends AxiosServer {
     super(hostServer);
     this.AuthServer = hostServer.baseURL;
   }
-  Auth_Login(params: { email: string; password: string }) {
-    return this.post<ApiUser.Auth>(`${this.AuthServer}${LOGIN_PATH}`, params);
+
+  login(params: { email: string; password: string }) {
+    return this.post<ApiUser.Auth>(`${LOGIN_PATH}`, params);
   }
 
-  Auth_Register(params: {
+  register(params: {
     email: string;
     password: string;
     code: string;
@@ -24,58 +25,54 @@ class AuthClient extends AxiosServer {
     return this.post<ApiUser.Auth>(`/register`, params);
   }
 
-  Auth_ResetPassword(params: {
-    email: string;
-    code: string;
-    newPasswd: string;
-  }) {
+  resetPassword(params: { email: string; code: string; newPasswd: string }) {
     return this.post<ApiUser.Auth>(`/forget`, params);
   }
-  Auth_Send_SMS(params: { phone: string }) {
+  Send_SMS(params: { phone: string }) {
     return this.post<ApiUser.Auth>(`/sms`, params);
   }
 
-  Auth_UpdatePasswd(params: {
+  updatePasswd(params: {
     email: string;
     currentPasswd: string;
     newPasswd: string;
   }) {
-    return this.put<void>(`password`, params);
+    return this.put<void>(`/password`, params);
   }
 
-  QueryUser(value: string) {
+  queryUser(value: string) {
     return this.get<ApiUser.User[]>(`/admin/users/query?value=${value}`);
   }
   SendSMS(params: { uuid: string; phone: string }) {
     return this.post<string>(`/admin/users/sms`, params);
   }
-  UpdateUserPermission(uuid: string, permission: number) {
+  updateUserPermission(uuid: string, permission: number) {
     return this.post(`/admin/permission?uuid=${uuid}&permission=${permission}`);
   }
-  SendCodeOnRegister(params: { email: string }) {
+  sendCodeOnRegister(params: { email: string }) {
     return this.post(`/mail/register/code`, params);
   }
-  Auth_Info() {
+  info() {
     return this.get(`/info`);
   }
 
-  Auth_Login_Admin(params: { uuid: string }) {
+  loginAdmin(params: { uuid: string }) {
     return this.post<ApiUser.Auth>(`/admin/users/login`, params);
   }
   //RefreshToken
-  Auth_Refresh() {
+  refresh() {
     return this.get<ApiUser.Auth>(`/refreshToken`);
   }
-  Auth_Verify(code: string) {
+  verify(code: string) {
     return this.post<void>(`/phone`, { code }); // RealSMS
   }
-  FetchQQBindCode() {
+  fetchQQBindCode() {
     return this.get(`/qq`); // QQBindCode // get qqcode
   }
-  QueryWXPusher() {
+  queryWXPusher() {
     return this.get<ApiUser.WXPusher>(`/wechat`);
   }
-  CreateWXPusherQRCode() {
+  createWXPusherQRCode() {
     return this.post<ApiUser.WXPusherQRCode>(`/wxpusher`);
   }
 }

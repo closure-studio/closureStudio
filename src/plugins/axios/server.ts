@@ -51,6 +51,11 @@ export class AxiosServer {
       }
     });
   }
+
+  setJWT(token: string) {
+    this.service.defaults.headers.common["Authorization"] = "Bearer " + token;
+  }
+
   setHostServer(hostServer: HostServer) {
     this.hostServer = hostServer;
     this.service.defaults.baseURL = hostServer.baseURL;

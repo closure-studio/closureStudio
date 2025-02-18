@@ -86,8 +86,8 @@ import { onMounted, ref } from "vue";
 import Login from "../components/card/Login.vue";
 import { userStore } from "../store/user";
 import { isNight } from "../plugins/common";
-import { fetchSystemList } from "../plugins/axios/axios";
 import APIStatusBoard from "../components/APIStatus/APIStatusBoard.vue";
+import apiClient from "../plugins/axios/apiClient";
 const closure = ref(false); // Closure 图标动画
 const textRef = ref();
 const user = userStore();
@@ -97,7 +97,7 @@ onMounted(async () => {
         // textRef.value.parentNode.removeChild(textRef.value);
         closure.value = true;
     });
-    const resp = await fetchSystemList()
+    const resp = await apiClient.fetchSystemList()
     if (resp.code == 1 && resp.data) {
         list.value = resp.data
     }

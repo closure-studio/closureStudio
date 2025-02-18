@@ -42,10 +42,10 @@
 import { computed, ref } from 'vue';
 import DeleteAccount from '../../components/dialog/DeleteAccount.vue';
 import { Type } from '../../components/toast/enum';
-import { Auth_UpdatePasswd } from '../../plugins/axios/axios';
 import { setMsg } from '../../plugins/common';
 import showDialog from '../../plugins/dialog/dialog';
 import { userStore } from '../../store/user';
+import authClient from '../../plugins/axios/authClient';
 
 const user = userStore();
 const createdAt = computed(() => new Date(user.info.createdAt * 1000).toLocaleString());
@@ -77,7 +77,7 @@ const handleUpdatePasswordBtnOnClick = async () => {
   }
   try {
     isLoading.value = true;
-    const updatePasswordResp = await Auth_UpdatePasswd({
+    const updatePasswordResp = await authClient.updatePasswd({
       email: user.info.email,
       currentPasswd: currentPassword.value,
       newPasswd: newPassword.value,

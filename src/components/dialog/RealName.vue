@@ -15,11 +15,11 @@
 </template>
 <script lang="ts" setup>
 import { ref } from "vue";
-import { Auth_Refresh, Auth_Verify } from "../../plugins/axios/axios";
 import { setMsg } from "../../plugins/common";
 import { Type } from "../toast/enum";
 import { userStore } from "../../store/user";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
+import authClient from "../../plugins/axios/authClient";
 
 const props = withDefaults(defineProps<DialogComponentProps>(), {
   dialogClose: () => { }
@@ -38,7 +38,7 @@ const handleSubmitBtnOnClick = async () => {
     return;
   }
   try {
-    const authResp = await Auth_Verify(smsCode.value);
+    const authResp = await authClient.verify(smsCode.value);
     if (authResp.code === 1) {
       setMsg("认证成功,请重新登录", Type.Success);
       user.logout();

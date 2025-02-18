@@ -9,10 +9,15 @@ class APIClient extends AxiosServer {
     return this.get<ApiGame.GameLogs>(`/game/log/${account}/${id}`);
   }
   fetchGameLogsAdmin(account: string, uuid: string, id: number) {
-    this.get<ApiGame.GameLogs>(`/game/log/${account}/${id}?uuid=${uuid}`);
+    return this.get<ApiGame.GameLogs>(
+      `/game/log/${account}/${id}?uuid=${uuid}`
+    );
   }
   fetchGameList() {
-    this.get<ApiGame.Game[]>(`/game`); // GameList
+    return this.get<ApiGame.Game[]>(`/game`); // GameList
+  }
+  fetchGameDetails(account: string) {
+    return this.get<ApiGame.Detail>(`/game/${account}`);
   }
 
   fetchSystemConfig() {
@@ -28,6 +33,17 @@ class APIClient extends AxiosServer {
 
   fetchGameListBySSE() {
     return this.sse<ApiGame.Game[]>("/sse/game"); // 实验性获取 GameList
+  }
+
+  doUpdateGameConf(account: string, game: ApiGame.Config) {
+    return this.post(`/game/config/${account}`, {
+      config: game,
+    });
+  }
+  doUpdateCaptcha(account: string, captcha: any) {
+    return this.post(`/game/config/${account}`, {
+      captcha_info: captcha,
+    });
   }
 }
 

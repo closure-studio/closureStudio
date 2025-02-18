@@ -13,19 +13,19 @@ class TicketClient extends AxiosServer {
     return this.get<TicketSystem.Ticket[]>(`/tickets`); // getTIckets
   }
   GetReplays(id: string) {
-    return this.get<TicketSystem.Ticket[]>(`tickets/${id}/replies`); // getTIckets
+    return this.get<TicketSystem.Ticket[]>(`/tickets/${id}/replies`); // getTIckets
   }
 
   UpdateTicketById(id: string, data: TicketSystem.updateTicket) {
-    return this.put(`tickets/${id}`, data); // getTIckets
+    return this.put(`/tickets/${id}`, data); // getTIckets
   }
 
   ReplyTicket(id: string, data: TicketSystem.createTicket) {
-    return this.post(`tickets/${id}/replies`, data); // getTIckets
+    return this.post(`/tickets/${id}/replies`, data); // getTIckets
   }
 
   PostTicket(data: TicketSystem.createTicket) {
-    return this.post(`tickets/`, data); // getTIckets
+    return this.post(`/tickets/`, data); // getTIckets
   }
 }
 

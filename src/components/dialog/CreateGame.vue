@@ -71,7 +71,6 @@
 </template>
 <script lang="ts" setup>
 import { ref } from "vue";
-import { doAddGame } from "../../plugins/axios/axios";
 import { startCaptcha } from "../../plugins/captcha/captcha";
 import { setMsg } from "../../plugins/common";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
@@ -80,6 +79,7 @@ import { Type } from "../toast/enum";
 import * as Sentry from "@sentry/vue";
 import { queryUserQuota } from "../../store/games/quota";
 import { queryGameList } from "../../store/games/games";
+import registryClient from "../../plugins/axios/registryClient";
 
 interface Props extends DialogComponentProps {
   slotUUID: string
@@ -156,7 +156,7 @@ const buildGameAccount = (account: string, platform: number) => {
 
 const createGameWithCaptcha = (slotUUID: string, data: Registry.AddGameForm) => {
   return async (captchaToken: string) => {
-    return await doAddGame(slotUUID, captchaToken, data)
+    return await registryClient.doAddGame(slotUUID, captchaToken, data)
   }
 }
 

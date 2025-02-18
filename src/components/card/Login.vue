@@ -157,14 +157,15 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { setMsg } from "../../plugins/common";
-import { Type } from "../toast/enum";
-import Docker from "../toast/Docker.vue";
-import { Auth_Login, Auth_Register, Auth_ResetPassword, SendCodeOnRegister, doFindAccount } from "../../plugins/axios/axios";
-import { userStore } from "../../store/user";
 import { useRouter } from "vue-router";
-import { checkIsEmail, getEmailUsernameLength } from "../../utils/regex";
+import authClient from "../../plugins/axios/authClient";
+import registryClient from "../../plugins/axios/registryClient";
 import { startCaptcha } from "../../plugins/captcha/captcha";
+import { setMsg } from "../../plugins/common";
+import { userStore } from "../../store/user";
+import { checkIsEmail, getEmailUsernameLength } from "../../utils/regex";
+import Docker from "../toast/Docker.vue";
+import { Type } from "../toast/enum";
 
 enum ModelType {
     Login,
@@ -203,7 +204,7 @@ const findAccountRespData = ref("")
 const loginBtn = () => {
     if (isLoading.value) return;
     isLoading.value = true;
-    Auth_Login(loginParams.value)
+    authClient.login(loginParams.value)
         .then((res) => {
             if (res.data) {
                 setMsg("登录成功", Type.Success);
@@ -233,7 +234,7 @@ const sendCode = async (email: string) => {
         const parm = {
             email: email
         };
-        const resp = await SendCodeOnRegister(parm);
+        const resp = await authClient.sendCodeOnRegister(parm);
         if (resp.code === 0) {
             setMsg(resp.message || "发送失败", Type.Warning);
         } else {
@@ -277,7 +278,7 @@ const regBtn = () => {
     regParams.value.noise = window.idaks?.join("");
     // @ts-ignore
     regParams.value.sign = window.skadi(regParams.value.email + "&" + regParams.value.password + "&" + regParams.value.noise);
-    Auth_Register(regParams.value)
+    authClient.register(regParams.value)
         .then((res) => {
             if (res.code === 0 || !res.data) {
                 setMsg(res.message || "注册失败", Type.Warning);
@@ -301,7 +302,7 @@ const resetPasswordBtn = () => {
         setMsg("邮箱格式不正确", Type.Warning);
         return;
     }
-    Auth_ResetPassword(forgetParams.value)
+    authClient.resetPassword(forgetParams.value)
         .then((res) => {
             if (res.code === 0) {
                 setMsg(res.message || "重置失败", Type.Warning);
@@ -351,7 +352,7 @@ const FindAccountWithCaptcha = (gameAccount: string, platform: number) => {
         account = "B" + gameAccount;
     }
     return async (captchaToken: string) => {
-        return await doFindAccount(account, captchaToken);
+        return await registryClient.doFindAccount(account, captchaToken);
     };
 };
 </script>

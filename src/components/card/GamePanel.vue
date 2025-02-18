@@ -38,7 +38,7 @@
 </template>
 <script lang="ts" setup>
 import { ref, watch } from "vue";
-import { fetchGameDetails, fetchGameLogs } from "../../plugins/axios/axios";
+import apiClient from "../../plugins/axios/apiClient";
 import { formatTime, setMsg } from "../../plugins/common";
 import showDialog from "../../plugins/dialog/dialog";
 import { findGame } from "../../store/games/myGames";
@@ -81,7 +81,7 @@ watch(
 
 const getGameDetails = async () => {
     try {
-        const res = await fetchGameDetails(props.account);
+        const res = await apiClient.fetchGameDetails(props.account);
         if (res.data) {
             details.value = res.data;
         } else {
@@ -108,7 +108,7 @@ const getLogs = async () => {
     const lastLogId = gameLogs.value.logs[gameLogs.value.logs.length - 1]?.id || 0; // 设置为0如果为undefined
 
     try {
-        const res = await fetchGameLogs(props.account, lastLogId);
+        const res = await apiClient.fetchGameLogs(props.account, lastLogId);
         if (res.data) {
             gameLogs.value.logs.push(...res.data.logs);
             gameLogs.value.hasMore = res.data.hasMore;

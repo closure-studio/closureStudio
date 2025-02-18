@@ -34,13 +34,13 @@
 </template>
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted, computed } from "vue";
-import { fetchQQBindCode } from "../../plugins/axios/axios";
 import { NOTIFY } from "../../plugins/config";
 import { setMsg, sleep } from "../../plugins/common";
 import { Type } from "../toast/enum";
 import { Icon } from "@iconify/vue";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
 import { myState } from "../../store/games/myGames";
+import authClient from "../../plugins/axios/authClient";
 
 const props = defineProps<DialogComponentProps>();
 const { dialogClose } = props;
@@ -53,7 +53,7 @@ const userQuota = computed(() => {
 });
 
 onMounted(() => {
-    fetchQQBindCode();
+    authClient.fetchQQBindCode();
     intervalId = window.setInterval(getQQBindCode, 5000);
 });
 
@@ -88,7 +88,7 @@ const getQQBindCode = () => {
         qqCode.value = userQuota.value.idServerQQ;
         return;
     }
-    fetchQQBindCode()
+    authClient.fetchQQBindCode()
         .then((res) => {
             if (res.code === 1) {
                 qqCode.value = ("verifyCode:" + res.data) as string;

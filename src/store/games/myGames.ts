@@ -76,7 +76,7 @@ export const initializeGameListServerConnection = async () => {
 };
 
 export const findGame = (gameAccount: string) => {
-  if (!myState.gameList) return false;
+  if (!myState.gameList) return undefined;
   return myState.gameList.find((game) => game.status.account === gameAccount);
 };
 

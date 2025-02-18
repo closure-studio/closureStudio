@@ -5,7 +5,7 @@
                 @click="() => {
                     setSelectAuthor(author.value, author.key);
                 }
-                    " name="options" :aria-label="author.value.nickname" />
+                " name="options" :aria-label="author.value.nickname" />
         </div>
         <div v-if="!Array.isArray(user.getGames) || user.getGames.length === 0">
             <input className="join-item btn btn-xs" type="radio" :checked="isSelectedAuthor('匿名玩家')" @click="() => {
@@ -43,13 +43,13 @@
 <script setup lang="ts">
 import axios from "axios";
 import { ref } from "vue";
-import { PostTicket, ReplyTicket } from "../../../plugins/axios/axios";
 import { defaultAuthor, setMsg } from "../../../plugins/common";
 import { queryTicketList } from "../../../store/tickets/myTickets";
 import { userStore } from "../../../store/user";
 import { checkIsEmail, checkIsMobile } from "../../../utils/regex";
 import { Type } from "../../toast/enum";
 import Tags from "./Tags.vue";
+import ticketClient from "../../../plugins/axios/ticketClient";
 interface Props {
     ticket?: TicketSystem.Ticket | null;
 }
@@ -175,7 +175,7 @@ const postTicket = async () => {
 const replyTicket = async (id: string, data: TicketSystem.createTicket) => {
     try {
         isUpdating.value = true;
-        const result = await ReplyTicket(id, data);
+        const result = await ticketClient.ReplyTicket(id, data);
         if (result.code === 0) {
             setMsg(result.message, Type.Warning);
             throw new Error(result.message);
@@ -191,7 +191,7 @@ const replyTicket = async (id: string, data: TicketSystem.createTicket) => {
 const createTicket = async (data: TicketSystem.createTicket) => {
     try {
         isUpdating.value = true;
-        const result = await PostTicket(data);
+        const result = await ticketClient.PostTicket(data);
         if (result.code === 0) {
             setMsg(result.message, Type.Warning);
             throw new Error(result.message);

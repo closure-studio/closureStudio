@@ -19,9 +19,9 @@ interface Props {
 }
 import { ref } from "vue";
 import { defaultTags, setMsg } from "../../../plugins/common";
-import { UpdateTicketById } from "../../../plugins/axios/axios";
 import { Type } from "../../toast/enum";
 import { updateTicketStateById } from "../../../store/tickets/myTickets";
+import ticketClient from "../../../plugins/axios/ticketClient";
 
 const props = withDefaults(defineProps<Props>(), {
     tags: () => [],
@@ -61,7 +61,7 @@ const updateTags = async (newTags: string[]) => {
     }
     try {
         isUpdating.value = true;
-        const updateResult = await UpdateTicketById(props.ticketId, { tags: newTags });
+        const updateResult = await ticketClient.UpdateTicketById(props.ticketId, { tags: newTags });
         if (updateResult.code === 0) {
             throw new Error(updateResult.message);
         }

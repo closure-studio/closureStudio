@@ -42,18 +42,6 @@ class RegistryClient extends AxiosServer {
     return this.post<string>(`/api/mgm/slots/slot?uid=${userId}`, params);
   }
 
-  doUpdateGameConf(account: string, game: ApiGame.Config) {
-    return this.post(`/game/config/${account}`, {
-      config: game,
-    });
-  }
-
-  doUpdateCaptcha(account: string, captcha: any) {
-    this.post(`/game/config/${account}`, {
-      captcha_info: captcha,
-    });
-  }
-
   fetchUserSlots() {
     return this.get<Registry.UserInfo>(`/api/users/me`); // UserSlots
   }

@@ -23,9 +23,9 @@
                 </div>
             </transition>
             <IndexStatus />
-            <div class="text-2xl font-bold">我的托管（{{ userQuota?.slots.filter((slot: Registry.Slot) => slot.gameAccount
+            <div class="text-2xl font-bold">我的托管（{{userQuota?.slots.filter((slot: Registry.Slot) => slot.gameAccount
                 !==
-                null)?.length }} 已用 / {{ userQuota?.slots?.length }} 可用）</div>
+                null)?.length}} 已用 / {{ userQuota?.slots?.length }} 可用）</div>
             <div v-if="!isGameListCompletedInit" class="h-72 flex justify-center w-full">
                 <span className="loading loading-ring loading-lg"></span>
                 <span className="loading loading-ring loading-lg"></span>
@@ -79,7 +79,6 @@ import GeeTestNotify from "../../components/dialog/GeeTestNotify.vue";
 import UpdateGamePasswd from "../../components/dialog/UpdateGamePasswd.vue";
 import YouMayKnow from "../../components/dialog/YouMayKnow.vue";
 import { Type } from "../../components/toast/enum";
-import { Auth_Send_SMS, doAddGame, doDelGame, doGameLogin, doUpdateGameConf } from "../../plugins/axios/axios";
 import { startCaptcha } from "../../plugins/captcha/captcha";
 import { getRealGameAccount, setMsg } from "../../plugins/common";
 import { NOTIFY } from "../../plugins/config";
@@ -90,6 +89,9 @@ import { userStore } from "../../store/user";
 import { queryGameList } from "../../store/games/games";
 import APIStatusBoard from "../../components/APIStatus/APIStatusBoard.vue";
 import { processGameAccount } from "../../utils/account";
+import authClient from "../../plugins/axios/authClient";
+import apiClient from "../../plugins/axios/apiClient";
+import registryClient from "../../plugins/axios/registryClient";
 const show = ref(false);
 const user = userStore();
 const selectedSlotUUID = ref("");
@@ -116,7 +118,7 @@ watch(firstGame, (value) => {
         if (isNaN(parseInt(phone[0]))) {
             phone = phone.slice(1);
         }
-        Auth_Send_SMS({ phone: phone });
+        authClient.Send_SMS({ phone: phone });
     }
 });
 
@@ -295,7 +297,7 @@ const gameSuspend = async (account: string) => {
         is_stopped: true
     };
     try {
-        const resp = await doUpdateGameConf(account, config);
+        const resp = await apiClient.doUpdateGameConf(account, config);
         await queryGameList();
         if (resp.code === 1) {
             setMsg("暂停成功", Type.Success);
@@ -312,18 +314,18 @@ const gameSuspend = async (account: string) => {
 
 const createGameWithCaptcha = (slotUUID: string, data: Registry.AddGameForm) => {
     return async (captchaToken: string) => {
-        return await doAddGame(slotUUID, captchaToken, data)
+        return await registryClient.doAddGame(slotUUID, captchaToken, data)
     }
 }
 
 const deleteGameWithCaptcha = (slotUUID: string) => {
     return async (captchaToken: string) => {
-        return await doDelGame(captchaToken, slotUUID);
+        return await registryClient.doDelGame(captchaToken, slotUUID);
     };
 };
 const loginGameWithCaptcha = (gameAccount: string) => {
     return async (captchaToken: string) => {
-        return await doGameLogin(captchaToken, gameAccount);
+        return await apiClient.doGameLogin(captchaToken, gameAccount);
     };
 };
 
