@@ -95,6 +95,10 @@ const menu = [
     to: "/profile/wechat"
   },
   {
+    name: "网络设置",
+    to: "/profile/network"
+  },
+  {
     name: "账号安全",
     to: "/profile/account"
   },

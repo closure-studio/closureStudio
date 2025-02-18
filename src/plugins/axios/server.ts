@@ -1,6 +1,6 @@
 import type { AxiosInstance } from "axios";
 import axios from "axios";
-import { HostServer, RegistryServer } from "./host";
+import { IHostServer, RegistryServer } from "./host";
 
 const version = import.meta.env.VITE_APP_VERSION;
 const user = localStorage.getItem("closureV3_user");
@@ -16,8 +16,8 @@ interface RequestParam {
 
 export class AxiosServer {
   service: AxiosInstance;
-  hostServer: HostServer;
-  constructor(hostServer: HostServer) {
+  hostServer: IHostServer;
+  constructor(hostServer: IHostServer) {
     this.hostServer = hostServer;
     this.service = axios.create({
       baseURL: this.hostServer.baseURL,
@@ -56,7 +56,11 @@ export class AxiosServer {
     this.service.defaults.headers.common["Authorization"] = "Bearer " + token;
   }
 
-  setHostServer(hostServer: HostServer) {
+  getHostServer() {
+    return this.hostServer;
+  }
+
+  setHostServer(hostServer: IHostServer) {
     this.hostServer = hostServer;
     this.service.defaults.baseURL = hostServer.baseURL;
   }

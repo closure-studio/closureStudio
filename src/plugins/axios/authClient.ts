@@ -1,4 +1,4 @@
-import { AuthServer, HostServer } from "./host";
+import { AuthServer, IHostServer } from "./host";
 import { AxiosServer } from "./server";
 
 // const AuthServer: string = "https://passport.ltsc.vip/api/v1/";
@@ -6,10 +6,12 @@ const LOGIN_PATH = "/login";
 
 class AuthClient extends AxiosServer {
   AuthServer: string;
-  constructor(hostServer: HostServer) {
+  constructor(hostServer: IHostServer) {
     super(hostServer);
     this.AuthServer = hostServer.baseURL;
   }
+
+
 
   login(params: { email: string; password: string }) {
     return this.post<ApiUser.Auth>(`${LOGIN_PATH}`, params);

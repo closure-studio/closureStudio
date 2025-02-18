@@ -1,8 +1,8 @@
-import { HostServer, RegistryServer } from "./host";
+import { IHostServer, RegistryServer } from "./host";
 import { AxiosServer } from "./server";
 
 class RegistryClient extends AxiosServer {
-  constructor(hostServer: HostServer) {
+  constructor(hostServer: IHostServer) {
     super(hostServer);
   }
   doAddGame(slot: string, token: string, params: any) {

@@ -58,6 +58,11 @@ export const router = createRouter({
           },
           children: [
             {
+              path: "/profile/network",
+              name: "网络设置",
+              component: () => import("../views/user/ProfileNetwork.vue"),
+            },
+            {
               path: "/profile/account",
               name: "账号安全",
               component: () => import("../views/user/ProfileAccount.vue"),
