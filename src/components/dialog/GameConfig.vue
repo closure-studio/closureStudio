@@ -75,7 +75,7 @@
 </template>
 <script lang="ts" setup>
 import { ref, watch } from "vue";
-import { doUpdateGameConf } from "../../plugins/axios";
+import { doUpdateGameConf } from "../../plugins/axios/axios";
 import { setMsg } from "../../plugins/common";
 import { Type } from "../toast/enum";
 import { findGame } from "../../store/games/myGames";

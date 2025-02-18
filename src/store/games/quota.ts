@@ -1,4 +1,4 @@
-import { fetchUserSlots } from "../../plugins/axios";
+import { fetchUserSlots } from "../../plugins/axios/axios";
 import { getRealGameAccount } from "../../plugins/common";
 import { checkIsMobile } from "../../utils/regex";
 import { myState } from "./myGames";

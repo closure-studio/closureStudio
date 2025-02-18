@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import service from "../plugins/axios";
+import service from "../plugins/axios/axios";
 import { isAdmin } from "../plugins/permission/permission";
 
 interface TicketAuthor {

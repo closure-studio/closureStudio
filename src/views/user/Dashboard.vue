@@ -79,7 +79,7 @@ import GeeTestNotify from "../../components/dialog/GeeTestNotify.vue";
 import UpdateGamePasswd from "../../components/dialog/UpdateGamePasswd.vue";
 import YouMayKnow from "../../components/dialog/YouMayKnow.vue";
 import { Type } from "../../components/toast/enum";
-import { Auth_Send_SMS, doAddGame, doDelGame, doGameLogin, doUpdateGameConf } from "../../plugins/axios";
+import { Auth_Send_SMS, doAddGame, doDelGame, doGameLogin, doUpdateGameConf } from "../../plugins/axios/axios";
 import { startCaptcha } from "../../plugins/captcha/captcha";
 import { getRealGameAccount, setMsg } from "../../plugins/common";
 import { NOTIFY } from "../../plugins/config";

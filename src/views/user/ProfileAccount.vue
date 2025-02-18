@@ -42,7 +42,7 @@
 import { computed, ref } from 'vue';
 import DeleteAccount from '../../components/dialog/DeleteAccount.vue';
 import { Type } from '../../components/toast/enum';
-import { Auth_UpdatePasswd } from '../../plugins/axios';
+import { Auth_UpdatePasswd } from '../../plugins/axios/axios';
 import { setMsg } from '../../plugins/common';
 import showDialog from '../../plugins/dialog/dialog';
 import { userStore } from '../../store/user';

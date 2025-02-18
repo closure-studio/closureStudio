@@ -1,5 +1,5 @@
 import { Type } from "../../components/toast/enum";
-import { doUpdateCaptcha } from "../axios";
+import { doUpdateCaptcha } from "../axios/axios";
 import { setMsg } from "../common";
 import * as Sentry from "@sentry/vue";
 

@@ -1,7 +1,7 @@
 import { computed, ref } from "vue";
 import { setMsg } from "../common";
 import { Type } from "../../components/toast/enum";
-import { load } from "../axios";
+import { load } from "../axios/axios";
 import { constants } from "../config";
 
 const itemData = ref<Gamedata.Items>({});

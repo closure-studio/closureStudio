@@ -28,7 +28,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { Type } from '../../components/toast/enum';
-import { Auth_Verify } from '../../plugins/axios';
+import { Auth_Verify } from '../../plugins/axios/axios';
 import { setMsg } from '../../plugins/common';
 import { myState } from '../../store/games/myGames';
 import { getSMSSendPhone } from '../../store/games/quota';

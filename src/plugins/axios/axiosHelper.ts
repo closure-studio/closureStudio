@@ -7,9 +7,9 @@ import {
     NETWORK_ERROR_MSG,
     REQUEST_TIMEOUT_CODE,
     REQUEST_TIMEOUT_MSG
-} from "./config";
-import {setMsg} from "./common";
-import {Type} from "../components/toast/enum";
+} from "../config";
+import {setMsg} from "../common";
+import {Type} from "../../components/toast/enum";
 
 type ErrorStatus = keyof typeof ERROR_STATUS;
 /**

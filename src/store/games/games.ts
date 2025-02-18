@@ -1,4 +1,4 @@
-import { fetchGameList } from "../../plugins/axios";
+import { fetchGameList } from "../../plugins/axios/axios";
 import { arknigthsGameCaptcha } from "../../plugins/captcha/captcha";
 import { myState } from "./myGames";
 

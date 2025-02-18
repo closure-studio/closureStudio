@@ -41,7 +41,7 @@
 import { ref } from 'vue';
 import { setMsg } from '../../plugins/common';
 import { Type } from '../toast/enum';
-import { doUpdateGamePasswd } from '../../plugins/axios';
+import { doUpdateGamePasswd } from '../../plugins/axios/axios';
 import { DialogComponentProps } from '../../plugins/dialog/dialog';
 import { startCaptcha } from '../../plugins/captcha/captcha';
 import { queryGameList } from '../../store/games/games';

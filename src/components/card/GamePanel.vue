@@ -38,7 +38,7 @@
 </template>
 <script lang="ts" setup>
 import { ref, watch } from "vue";
-import { fetchGameDetails, fetchGameLogs } from "../../plugins/axios";
+import { fetchGameDetails, fetchGameLogs } from "../../plugins/axios/axios";
 import { formatTime, setMsg } from "../../plugins/common";
 import showDialog from "../../plugins/dialog/dialog";
 import { findGame } from "../../store/games/myGames";

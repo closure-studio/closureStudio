@@ -22,7 +22,7 @@ interface Props {
 }
 import { ref, watch } from "vue";
 import { getPermissionName, Permission, hasPermission, addPermission, removePermission } from "../../plugins/permission/permission";
-import { UpdateUserPermission } from "../../plugins/axios";
+import { UpdateUserPermission } from "../../plugins/axios/axios";
 import { setMsg } from "../../plugins/common";
 import { Type } from "../toast/enum";
 

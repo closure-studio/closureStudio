@@ -1,6 +1,6 @@
 import { shallowReactive } from "vue";
 import { Type } from "../../components/toast/enum";
-import { GetReplays, GetTicketById, GetTickets } from "../../plugins/axios";
+import { GetReplays, GetTicketById, GetTickets } from "../../plugins/axios/axios";
 import { setMsg } from "../../plugins/common";
 
 interface State {

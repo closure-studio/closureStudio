@@ -43,7 +43,7 @@
 <script setup lang="ts">
 import axios from "axios";
 import { ref } from "vue";
-import { PostTicket, ReplyTicket } from "../../../plugins/axios";
+import { PostTicket, ReplyTicket } from "../../../plugins/axios/axios";
 import { defaultAuthor, setMsg } from "../../../plugins/common";
 import { queryTicketList } from "../../../store/tickets/myTickets";
 import { userStore } from "../../../store/user";

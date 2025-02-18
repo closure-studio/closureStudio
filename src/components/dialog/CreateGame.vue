@@ -71,7 +71,7 @@
 </template>
 <script lang="ts" setup>
 import { ref } from "vue";
-import { doAddGame } from "../../plugins/axios";
+import { doAddGame } from "../../plugins/axios/axios";
 import { startCaptcha } from "../../plugins/captcha/captcha";
 import { setMsg } from "../../plugins/common";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";

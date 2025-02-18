@@ -160,7 +160,7 @@ import { ref } from "vue";
 import { setMsg } from "../../plugins/common";
 import { Type } from "../toast/enum";
 import Docker from "../toast/Docker.vue";
-import { Auth_Login, Auth_Register, Auth_ResetPassword, SendCodeOnRegister, doFindAccount } from "../../plugins/axios";
+import { Auth_Login, Auth_Register, Auth_ResetPassword, SendCodeOnRegister, doFindAccount } from "../../plugins/axios/axios";
 import { userStore } from "../../store/user";
 import { useRouter } from "vue-router";
 import { checkIsEmail, getEmailUsernameLength } from "../../utils/regex";

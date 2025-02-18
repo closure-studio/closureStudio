@@ -34,7 +34,7 @@
 </template>
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted, computed } from "vue";
-import { fetchQQBindCode } from "../../plugins/axios";
+import { fetchQQBindCode } from "../../plugins/axios/axios";
 import { NOTIFY } from "../../plugins/config";
 import { setMsg, sleep } from "../../plugins/common";
 import { Type } from "../toast/enum";

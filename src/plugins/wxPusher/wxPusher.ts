@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { CreateWXPusherQRCode, QueryWXPusher } from "../axios";
+import { CreateWXPusherQRCode, QueryWXPusher } from "../axios/axios";
 import { setMsg } from "../common";
 import { Type } from "../../components/toast/enum";
 

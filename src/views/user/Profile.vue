@@ -79,7 +79,7 @@
 import { useRoute } from "vue-router";
 import GameAccount from "../../components/card/GameAccount.vue";
 import { computed, onMounted, ref } from "vue";
-import { fetchGameList } from "../../plugins/axios";
+import { fetchGameList } from "../../plugins/axios/axios";
 import { userStore } from "../../store/user";
 import { initializeGameListServerConnection } from "../../store/games/myGames";
 const route = useRoute();

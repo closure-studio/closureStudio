@@ -86,7 +86,7 @@ import { onMounted, ref } from "vue";
 import Login from "../components/card/Login.vue";
 import { userStore } from "../store/user";
 import { isNight } from "../plugins/common";
-import { fetchSystemList } from "../plugins/axios";
+import { fetchSystemList } from "../plugins/axios/axios";
 import APIStatusBoard from "../components/APIStatus/APIStatusBoard.vue";
 const closure = ref(false); // Closure 图标动画
 const textRef = ref();

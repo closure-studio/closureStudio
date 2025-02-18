@@ -192,7 +192,7 @@ import {
     doDelGame,
     fetchGameLogsAdmin,
     fetchUserSlotsAdmin
-} from "../../../plugins/axios";
+} from "../../../plugins/axios/axios";
 import { formatTime, getRealGameAccount, setMsg } from "../../../plugins/common";
 import showDialog from "../../../plugins/dialog/dialog";
 import { getSMSSendPhone, getSMSSlot } from "../../../store/games/quota";

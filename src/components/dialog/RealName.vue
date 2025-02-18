@@ -15,7 +15,7 @@
 </template>
 <script lang="ts" setup>
 import { ref } from "vue";
-import { Auth_Refresh, Auth_Verify } from "../../plugins/axios";
+import { Auth_Refresh, Auth_Verify } from "../../plugins/axios/axios";
 import { setMsg } from "../../plugins/common";
 import { Type } from "../toast/enum";
 import { userStore } from "../../store/user";
