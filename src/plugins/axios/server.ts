@@ -2,6 +2,7 @@ import type { AxiosInstance } from "axios";
 import axios from "axios";
 import { HostServer, RegistryServer } from "./host";
 
+const version = import.meta.env.VITE_APP_VERSION;
 const user = localStorage.getItem("closureV3_user");
 
 type RequestMethod = "get" | "post" | "put" | "delete" | "patch";
@@ -127,6 +128,16 @@ export class AxiosServer {
       this.service.delete(url, { data: params }).then((res) => {
         resolve(res);
       });
+    });
+  }
+
+  load<T>(fileName: string): Promise<T> {
+    const url = `/data/${fileName}.json?v=${version}`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((res) => resolve(res.data as T))
+        .catch((error) => reject(error));
     });
   }
 

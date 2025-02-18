@@ -21,7 +21,7 @@ class AuthClient extends AxiosServer {
     noise: string;
     sign: string;
   }) {
-    return this.post<ApiUser.Auth>(`${AuthServer}/register`, params);
+    return this.post<ApiUser.Auth>(`/register`, params);
   }
 
   Auth_ResetPassword(params: {
@@ -29,10 +29,10 @@ class AuthClient extends AxiosServer {
     code: string;
     newPasswd: string;
   }) {
-    return this.post<ApiUser.Auth>(`${AuthServer}/forget`, params);
+    return this.post<ApiUser.Auth>(`/forget`, params);
   }
   Auth_Send_SMS(params: { phone: string }) {
-    return this.post<ApiUser.Auth>(`${AuthServer}/sms`, params);
+    return this.post<ApiUser.Auth>(`/sms`, params);
   }
 
   Auth_UpdatePasswd(params: {
@@ -40,31 +40,43 @@ class AuthClient extends AxiosServer {
     currentPasswd: string;
     newPasswd: string;
   }) {
-    return this.put<void>(`${AuthServer}password`, params);
+    return this.put<void>(`password`, params);
   }
 
   QueryUser(value: string) {
-    return this.get<ApiUser.User[]>(
-      `${AuthServer}/admin/users/query?value=${value}`
-    );
+    return this.get<ApiUser.User[]>(`/admin/users/query?value=${value}`);
   }
   SendSMS(params: { uuid: string; phone: string }) {
-    return this.post<string>(`${AuthServer}/admin/users/sms`, params);
+    return this.post<string>(`/admin/users/sms`, params);
   }
   UpdateUserPermission(uuid: string, permission: number) {
-    return this.post(
-      `${AuthServer}/admin/permission?uuid=${uuid}&permission=${permission}`
-    );
+    return this.post(`/admin/permission?uuid=${uuid}&permission=${permission}`);
   }
   SendCodeOnRegister(params: { email: string }) {
-    return this.post(`${AuthServer}/mail/register/code`, params);
+    return this.post(`/mail/register/code`, params);
   }
   Auth_Info() {
-    return this.get(`${AuthServer}/info`);
+    return this.get(`/info`);
   }
 
   Auth_Login_Admin(params: { uuid: string }) {
-    return this.post<ApiUser.Auth>(`${AuthServer}/admin/users/login`, params);
+    return this.post<ApiUser.Auth>(`/admin/users/login`, params);
+  }
+  //RefreshToken
+  Auth_Refresh() {
+    return this.get<ApiUser.Auth>(`/refreshToken`);
+  }
+  Auth_Verify(code: string) {
+    return this.post<void>(`/phone`, { code }); // RealSMS
+  }
+  FetchQQBindCode() {
+    return this.get(`/qq`); // QQBindCode // get qqcode
+  }
+  QueryWXPusher() {
+    return this.get<ApiUser.WXPusher>(`/wechat`);
+  }
+  CreateWXPusherQRCode() {
+    return this.post<ApiUser.WXPusherQRCode>(`/wxpusher`);
   }
 }
 
