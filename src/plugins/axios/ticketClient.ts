@@ -1,8 +1,8 @@
-import { HostServer, TicketsServer } from "./host";
+import { IHostServer, TicketsServer } from "./host";
 import { AxiosServer } from "./server";
 
 class TicketClient extends AxiosServer {
-  constructor(hostServer: HostServer) {
+  constructor(hostServer: IHostServer) {
     super(hostServer);
   }
 

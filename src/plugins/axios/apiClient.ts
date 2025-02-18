@@ -1,9 +1,13 @@
-import { APIHostLTSC, HostServer } from "./host";
+import { APIHostLTSC, IHostServer } from "./host";
 import { AxiosServer } from "./server";
 
-class APIClient extends AxiosServer {
-  constructor(hostServer: HostServer) {
+export class APIClient extends AxiosServer {
+  constructor(hostServer: IHostServer) {
     super(hostServer);
+  }
+
+  saveLocalStorage() {
+    localStorage.setItem("apiHost", JSON.stringify(this.hostServer));
   }
   fetchGameLogs(account: string, id: number) {
     return this.get<ApiGame.GameLogs>(`/game/log/${account}/${id}`);
@@ -47,7 +51,7 @@ class APIClient extends AxiosServer {
   }
 }
 
-let hostServer: HostServer;
+let hostServer: IHostServer;
 
 const apiHost = localStorage.getItem("apiHost");
 if (!apiHost) {
