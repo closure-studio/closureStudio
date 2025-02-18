@@ -4,15 +4,15 @@
             :class="show ? 'xl:ml-0 !hidden' : 'lg:ml-[calc((100vw-56rem)/2)] 2xl:ml-[calc((100vw-72rem)/2)]'">
             <div class="bg-base-300 shadow-lg rounded-lg px-4 py-1 blog relative">
                 <div class="text-2xl md:text-4xl font-bold text-info mt-3">📢 今日特价</div>
-                <!-- <p v-for="k in config.announcement?.split('\n') || ['可露希尔逃跑了']">
+                <p v-for="k in config.announcement?.split('\n') || ['可露希尔逃跑了']">
                     {{ k }}
-                </p> -->
-                <p>
+                </p>
+                <!-- <p>
                     https://arknights.host 准备过期。
                 </p>
                 <p>
                     请及时更换到 https://closure.ltsc.vip 或 https://arknights.app
-                </p>
+                </p> -->
                 <div class="divider mt-0">个人信息</div>
                 <StatusMessage />
             </div>
@@ -92,9 +92,11 @@ import { processGameAccount } from "../../utils/account";
 import authClient from "../../plugins/axios/authClient";
 import apiClient from "../../plugins/axios/apiClient";
 import registryClient from "../../plugins/axios/registryClient";
+
 const show = ref(false);
 const user = userStore();
 const selectedSlotUUID = ref("");
+const config = ref({} as ApiSystem.Config);
 const selectedRegisterForm = ref({} as Registry.AddGameForm); // for update password
 const isLoading = ref(false);
 const isAPIStatusBoardShow = ref(true);
@@ -128,8 +130,13 @@ const isGameListCompletedInit = computed(() => {
 
 onMounted(async () => {
     initializeGameListServerConnection();
+    apiClient.fetchSystemConfig().then((resp) => {
+        config.value = resp.data;
+    });
     showDialog(YouMayKnow);
 });
+
+
 
 const createGameButtonOnClick = (slot: Registry.Slot, slotUUID: string) => {
     if (!userQuota.value) {
