@@ -79,9 +79,9 @@
 import { useRoute } from "vue-router";
 import GameAccount from "../../components/card/GameAccount.vue";
 import { computed, onMounted, ref } from "vue";
-import { fetchGameList } from "../../plugins/axios";
 import { userStore } from "../../store/user";
 import { initializeGameListServerConnection } from "../../store/games/myGames";
+import apiClient from "../../plugins/axios/apiClient";
 const route = useRoute();
 const user = userStore();
 const levels = ["杰斯顿", "深海杰斯顿", "海上杰斯顿", "空中杰斯顿", "兽主杰斯顿"];
@@ -104,7 +104,7 @@ const menu = [
   }
 ];
 const gameList = ref<ApiGame.Game[]>([]);
-fetchGameList().then((res) => {
+apiClient.fetchGameList().then((res) => {
   if (res.data) gameList.value = res.data;
 });
 const days = computed(() => {

@@ -1,8 +1,8 @@
 import { computed, ref } from "vue";
 import { setMsg } from "../common";
 import { Type } from "../../components/toast/enum";
-import { load } from "../axios";
 import { constants } from "../config";
+import apiClient from "../axios/apiClient";
 
 const itemData = ref<Gamedata.Items>({});
 const stageData = ref<Gamedata.Stages>({});
@@ -24,23 +24,25 @@ const assets = computed(() => {
   };
 
   const filteredStages = (keyword: string) => {
-    const data = Object.entries(stageData.value).reduce((acc, [key, originalValue]) => {
-      if (Object.keys(acc).length < 10 &&
-        (key.includes(keyword) ||
-          originalValue.code.includes(keyword.toUpperCase()) ||
-          originalValue.name.includes(keyword))) {
+    const data = Object.entries(stageData.value).reduce(
+      (acc, [key, originalValue]) => {
+        if (
+          Object.keys(acc).length < 10 &&
+          (key.includes(keyword) ||
+            originalValue.code.includes(keyword.toUpperCase()) ||
+            originalValue.name.includes(keyword))
+        ) {
+          const value = { ...originalValue, name: originalValue.name };
 
-        const value = { ...originalValue, name: originalValue.name };
-
-        if (key.includes("tough")) {
-          value.name += " (磨难)";
+          if (key.includes("tough")) {
+            value.name += " (磨难)";
+          }
+          acc[key] = value;
         }
-        acc[key] = value;
-      }
-      return acc;
-    }, {} as Gamedata.Stages);
-
-
+        return acc;
+      },
+      {} as Gamedata.Stages
+    );
 
     return data;
   };
@@ -67,7 +69,7 @@ const assets = computed(() => {
 
 const loadItems = async () => {
   try {
-    itemData.value = await load<Gamedata.Items>("items");
+    itemData.value = await apiClient.load<Gamedata.Items>("items");
   } catch (error) {
     console.error("Error loading items data:", error);
     throw error;
@@ -76,7 +78,7 @@ const loadItems = async () => {
 
 const loadStages = async () => {
   try {
-    const stagesData = await load<Gamedata.Stages>("stages");
+    const stagesData = await apiClient.load<Gamedata.Stages>("stages");
     stageData.value = stagesData;
   } catch (error) {
     console.error("Error loading stages data:", error);

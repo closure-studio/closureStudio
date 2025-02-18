@@ -77,19 +77,19 @@
                             UUID:
                             <span class="underline font-bold cursor-pointer">{{
                                 ticket.authorUUID
-                                }}</span>
+                            }}</span>
                         </div>
                         <div @click="copyToClipboard(ticket.gameAccount)">
                             Game:
                             <span class="underline font-bold cursor-pointer">{{
                                 ticket.gameAccount
-                                }}</span>
+                            }}</span>
                         </div>
                         <div @click="copyToClipboard(authorInfo.UserEmail)">
                             邮箱:
                             <span class="underline font-bold cursor-pointer">{{
                                 authorInfo.UserEmail
-                                }}</span>
+                            }}</span>
                         </div>
                         <div>
                             <span v-if="authorInfo.Phone"> 手机: {{ authorInfo.Phone }}</span>
@@ -104,7 +104,7 @@
                             QQ:
                             <span class="underline font-bold cursor-pointer">{{
                                 authorInfo.QQ
-                                }}</span>
+                            }}</span>
                         </div>
                         <div @click="copyToClipboard(String(authorInfo.Permission))">
                             权限:
@@ -184,26 +184,20 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from "vue";
 import VueMarkdown from 'vue-markdown-render';
-import {
-    Auth_Login_Admin,
-    QueryUser,
-    SendSMS,
-    UpdateTicketById,
-    doDelGame,
-    fetchGameLogsAdmin,
-    fetchUserSlotsAdmin
-} from "../../../plugins/axios";
-import { formatTime, getRealGameAccount, setMsg } from "../../../plugins/common";
+import { formatTime, setMsg } from "../../../plugins/common";
 import showDialog from "../../../plugins/dialog/dialog";
-import { getSMSSendPhone, getSMSSlot } from "../../../store/games/quota";
+import { getSMSSendPhone } from "../../../store/games/quota";
 import { queryTicketList, updateTicketStateById } from "../../../store/tickets/myTickets";
 import { userStore } from "../../../store/user";
-import { checkIsMobile } from "../../../utils/regex";
 import SwitchUserByAdmin from "../../dialog/SwitchUserByAdmin.vue";
 import Permission from "../../permission/Permission.vue";
 import { Type } from "../../toast/enum";
 import QA from "./QA.vue";
 import Tags from "./Tags.vue";
+import registryClient from "../../../plugins/axios/registryClient";
+import authClient from "../../../plugins/axios/authClient";
+import apiClient from "../../../plugins/axios/apiClient";
+import ticketClient from "../../../plugins/axios/ticketClient";
 interface Props {
     ticket: TicketSystem.Ticket | null;
 }
@@ -286,7 +280,7 @@ const handleDeleteSlotBtnOnClick = async (slotId: string) => {
     try {
         isLoading.value = true;
         console.log("slotId", slotId);
-        const resp = await doDelGame(slotId, "1");
+        const resp = await registryClient.doDelGame(slotId, "1");
         setMsg(resp.message, resp.code === 1 ? Type.Success : Type.Warning);
     } catch (error) {
         const err = error as Error;
@@ -305,8 +299,8 @@ const getAuthorInfo = async () => {
     // use async method to fetch QueryUser and fetchUserSlotsAdmin
     if (ticket.authorUUID) {
         const [usersInfo, usersSlots] = await Promise.all([
-            QueryUser(ticket.authorUUID),
-            fetchUserSlotsAdmin(ticket.authorUUID),
+            authClient.queryUser(ticket.authorUUID),
+            registryClient.fetchUserSlotsAdmin(ticket.authorUUID),
         ]);
         if (usersInfo.code === 1) {
             const user = findAuthorInfo(ticket.authorUUID, usersInfo.data);
@@ -338,7 +332,7 @@ const getAuthorGameLogs = async () => {
     }
     // use async method to fetch QueryUser and fetchUserSlotsAdmin
     if (ticket.authorUUID && ticket.gameAccount) {
-        const resp = await fetchGameLogsAdmin(
+        const resp = await apiClient.fetchGameLogsAdmin(
             ticket.gameAccount,
             ticket.authorUUID,
             0
@@ -358,7 +352,7 @@ const hiddenTicket = async () => {
     }
     try {
         isUpdating.value = true;
-        const updateResult = await UpdateTicketById(ticket.id, {
+        const updateResult = await ticketClient.UpdateTicketById(ticket.id, {
             isHidden: true,
         });
         if (updateResult.code === 0) {
@@ -385,7 +379,7 @@ const ticketOperation = async () => {
     }
     try {
         isUpdating.value = true;
-        const updateResult = await UpdateTicketById(ticket.id, {
+        const updateResult = await ticketClient.UpdateTicketById(ticket.id, {
             status: ticket.status === 0 ? 1 : 0,
         });
         if (updateResult.code === 0) {
@@ -410,7 +404,7 @@ const sendSMS = async (uuid: string, phone: string) => {
         uuid: uuid,
         phone: phone,
     };
-    const resp = await SendSMS(param);
+    const resp = await authClient.SendSMS(param);
     if (resp.code === 1) {
         setMsg("发送成功 验证码: " + resp.data, Type.Success);
         return;
@@ -441,7 +435,7 @@ const switchUser = async (uuid: string) => {
     }
     try {
         isLoading.value = true;
-        const resp = await Auth_Login_Admin({ uuid: uuid });
+        const resp = await authClient.loginAdmin({ uuid: uuid });
         if (resp.code !== 1) {
             setMsg("切换用户失败: " + resp.message, Type.Warning);
             return;

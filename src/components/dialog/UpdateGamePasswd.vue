@@ -16,13 +16,11 @@
         <div class="w-full mb-3">
             <label class="label cursor-pointer">
                 <span class="text-xl">BiliBili服</span>
-                <input type="radio" :value="2" v-model="form.platform" id="bili"
-                    class="radio checked:bg-blue-500" />
+                <input type="radio" :value="2" v-model="form.platform" id="bili" class="radio checked:bg-blue-500" />
             </label>
             <label class="label cursor-pointer">
                 <span class="text-xl">官服(安卓 / IOS)</span>
-                <input type="radio" :value="1" v-model="form.platform" id="official"
-                    class="radio checked:bg-red-500" />
+                <input type="radio" :value="1" v-model="form.platform" id="official" class="radio checked:bg-red-500" />
             </label>
         </div>
         <div class="flex justify-center space-x-4 mb-3">
@@ -39,13 +37,13 @@
 </template>
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { setMsg } from '../../plugins/common';
-import { Type } from '../toast/enum';
-import { doUpdateGamePasswd } from '../../plugins/axios';
-import { DialogComponentProps } from '../../plugins/dialog/dialog';
+import registryClient from '../../plugins/axios/registryClient';
 import { startCaptcha } from '../../plugins/captcha/captcha';
+import { setMsg } from '../../plugins/common';
+import { DialogComponentProps } from '../../plugins/dialog/dialog';
 import { queryGameList } from '../../store/games/games';
 import { queryUserQuota } from '../../store/games/quota';
+import { Type } from '../toast/enum';
 
 
 export interface UpdateGamePasswdProps extends DialogComponentProps {
@@ -90,7 +88,7 @@ const handleUpdateGamePasswdOnBtnClick = async () => {
 
 const updateGamePasswdWithCaptcha = (uuid: string, data: Registry.AddGameForm) => {
     return async (captchaToken: string) => {
-        return await doUpdateGamePasswd(uuid, captchaToken, data)
+        return await registryClient.doUpdateGamePasswd(uuid, captchaToken, data)
     }
 }
 

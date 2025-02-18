@@ -1,5 +1,8 @@
 import { defineStore } from "pinia";
-import service from "../plugins/axios";
+import apiClient from "../plugins/axios/apiClient";
+import authClient from "../plugins/axios/authClient";
+import registryClient from "../plugins/axios/registryClient";
+import ticketClient from "../plugins/axios/ticketClient";
 import { isAdmin } from "../plugins/permission/permission";
 
 interface TicketAuthor {
@@ -50,7 +53,10 @@ export const userStore = defineStore("user", {
         return decoder.decode(utf8Bytes);
       }
       this.user.Info = JSON.parse(b64(token.split(".")[1]));
-      service.defaults.headers.common["Authorization"] = "Bearer " + token;
+      apiClient.setJWT(token);
+      authClient.setJWT(token);
+      registryClient.setJWT(token);
+      ticketClient.setJWT(token);
     },
     logout() {
       this.$reset();

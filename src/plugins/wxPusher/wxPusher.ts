@@ -1,7 +1,7 @@
 import { ref } from "vue";
-import { CreateWXPusherQRCode, QueryWXPusher } from "../axios";
 import { setMsg } from "../common";
 import { Type } from "../../components/toast/enum";
+import authClient from "../axios/authClient";
 
 export const useWXPusher = () => {
   const isQueryWxPusher = ref(false);
@@ -12,7 +12,7 @@ export const useWXPusher = () => {
     if (isQueryWxPusher.value) return;
     isQueryWxPusher.value = true;
     try {
-      const res = await QueryWXPusher();
+      const res = await authClient.queryWXPusher();
       if (res.code == 1 && res.data) {
         wxPusher.value = res.data;
       }
@@ -27,7 +27,7 @@ export const useWXPusher = () => {
     if (isCreateQRCodes.value) return;
     isCreateQRCodes.value = true;
     try {
-      const res = await CreateWXPusherQRCode();
+      const res = await authClient.createWXPusherQRCode();
       if (res.code == 1 && res.data) {
         QRCode.value = res.data;
       } else {

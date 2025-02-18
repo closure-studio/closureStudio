@@ -3,8 +3,8 @@
         <div class="flex flex-wrap">
             <div v-for="permission in permissionValues" :key="permission">
                 <button @click="togglePermission(Number(permission))" :class="`btn btn-xs m-1 ${hasPermission(myPermission, Number(permission)) ? 'bg-warning text-black'
-                :
-                'btn-outline'}`">
+                    :
+                    'btn-outline'}`">
                     {{ getPermissionName(Number(permission)) }}
                 </button>
             </div>
@@ -22,9 +22,9 @@ interface Props {
 }
 import { ref, watch } from "vue";
 import { getPermissionName, Permission, hasPermission, addPermission, removePermission } from "../../plugins/permission/permission";
-import { UpdateUserPermission } from "../../plugins/axios";
 import { setMsg } from "../../plugins/common";
 import { Type } from "../toast/enum";
+import authClient from "../../plugins/axios/authClient";
 
 const props = withDefaults(defineProps<Props>(), {
     userPermission: 0,
@@ -60,7 +60,7 @@ const handleUpdateBtnOnClick = async () => {
             return;
         }
         isUploading.value = true;
-        const resp = await UpdateUserPermission(props.uuid, myPermission.value);
+        const resp = await authClient.updateUserPermission(props.uuid, myPermission.value);
         if (resp.code === 0) {
             setMsg("更新成功", Type.Success);
         } else {

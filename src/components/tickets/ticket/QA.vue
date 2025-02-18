@@ -6,11 +6,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { defaultTags, setMsg } from "../../../plugins/common";
-import { UpdateTicketById } from "../../../plugins/axios";
-import { Type } from "../../toast/enum";
 import axios from "axios";
+import { ref } from "vue";
 
 interface SSEData {
   msg?: string;
