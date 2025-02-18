@@ -1,4 +1,4 @@
-import { APIHostLTSC, IHostServer } from "./host";
+import { APIHostCloudflare, IHostServer } from "./host";
 import { AxiosServer } from "./server";
 
 export class APIClient extends AxiosServer {
@@ -55,13 +55,13 @@ let hostServer: IHostServer;
 
 const apiHost = localStorage.getItem("apiHost");
 if (!apiHost) {
-  hostServer = APIHostLTSC;
+  hostServer = APIHostCloudflare;
   // save to localStorage
   localStorage.setItem("apiHost", JSON.stringify(hostServer));
 } else {
   const tempHost = JSON.parse(apiHost);
   if (!tempHost.baseURL) {
-    hostServer = APIHostLTSC;
+    hostServer = APIHostCloudflare;
     // save to localStorage
     localStorage.setItem("apiHost", JSON.stringify(hostServer));
   } else {
