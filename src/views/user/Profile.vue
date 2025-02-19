@@ -5,13 +5,17 @@
       <div class="divider my-2" />
     </div>
     <div class="mt-2 flex items-start">
-      <ul class="menu w-[15rem] rounded-box shadow-md mr-4 space-y-2 font-bold s-pro">
-        <li v-for="k in menu">
-          <router-link :to="k.to" :class="{ active: route.path == k.to }">
-            {{ k.name }}
+      <ul class="menu w-12 md:w-[10rem] rounded-box shadow-md mr-4 space-y-2 font-bold s-pro">
+        <li v-for="k in menu" :key="k.to">
+          <router-link :to="k.to" :class="{ active: route.path == k.to }" class="flex items-center space-x-2">
+            <!-- 图标始终显示 -->
+            <Icon :icon="k.icon" class="w-6 h-6" />
+            <!-- 文本仅在 `md` 及更大屏幕显示，小屏幕隐藏 -->
+            <span class="hidden md:block">{{ k.name }}</span>
           </router-link>
         </li>
       </ul>
+
       <div class="grow shadow-md py-4 px-5 rounded-box">
         <div class="p-2 flex items-center">
           <div class="avatar mr-3">
@@ -82,28 +86,35 @@ import { computed, onMounted, ref } from "vue";
 import { userStore } from "../../store/user";
 import { initializeGameListServerConnection } from "../../store/games/myGames";
 import apiClient from "../../plugins/axios/apiClient";
+import { Icon } from "@iconify/vue";
 const route = useRoute();
 const user = userStore();
 const levels = ["杰斯顿", "深海杰斯顿", "海上杰斯顿", "空中杰斯顿", "兽主杰斯顿"];
+
 const menu = [
   {
     name: "平台信息",
+    icon: "mdi-information",
     to: "/profile"
   },
   {
     name: "消息推送",
+    icon: "ic:baseline-wechat",
     to: "/profile/wechat"
   },
   {
     name: "网络设置",
+    icon: "mdi-wifi",
     to: "/profile/network"
   },
   {
     name: "账号安全",
+    icon: "mdi-account-lock",
     to: "/profile/account"
   },
   {
     name: "账号认证",
+    icon: "mdi-shield-check",
     to: "/profile/smsVerify"
   }
 ];
