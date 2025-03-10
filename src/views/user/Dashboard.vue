@@ -45,8 +45,8 @@
                                     @click="handleGameLoginBtnOnClick(slot.gameAccount)"
                                     :disabled="isLoginBtnDisabled(slot.gameAccount)">启动</button>
 
-                                <button class="btn btn-outline btn-sm btn-block btn-primary" :disabled="isLoading"
-                                    @click.stop="handleUpdatePasswdBtnOnClick(slot)">更新密码</button>
+                                <!-- <button class="btn btn-outline btn-sm btn-block btn-primary" :disabled="isLoading"
+                                    @click.stop="handleUpdatePasswdBtnOnClick(slot)">更新密码</button> -->
 
                                 <button :disabled="isLoading" class="btn btn-outline btn-sm btn-block btn-error"
                                     @click.stop="handleDeleteBtnOnClick(slot.uuid, slot.gameAccount)">删除</button>
