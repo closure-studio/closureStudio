@@ -7,12 +7,9 @@
                 <p v-for="k in config.announcement?.split('\n') || ['可露希尔逃跑了']">
                     {{ k }}
                 </p>
-                <!-- <p>
-                    https://arknights.host 准备过期。
-                </p>
                 <p>
-                    请及时更换到 https://closure.ltsc.vip 或 https://arknights.app
-                </p> -->
+                    工单系统已恢复，欢迎大家使用！
+                </p>
                 <div class="divider mt-0">个人信息</div>
                 <StatusMessage />
             </div>
