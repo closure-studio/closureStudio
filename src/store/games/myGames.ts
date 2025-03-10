@@ -18,9 +18,8 @@ interface State {
   isLoadingGameList: boolean;
 }
 
-// 使用 reactive 创建状态
-export const myState = reactive<State>({
-  config: {
+class MyState {
+  config: ApiSystem.Config = {
     isUnderMaintenance: false,
     isDebugMode: false,
     announcement: "",
@@ -28,9 +27,11 @@ export const myState = reactive<State>({
     allowGameCreate: true,
     allowGameUpdate: true,
     allowGameDelete: true,
-  },
-  gameList: [],
-  userQuota: {
+  };
+
+  gameList: ApiGame.Game[] = [];
+
+  userQuota: Registry.UserInfo = {
     createdAt: 0,
     idServerPermission: 0,
     idServerPhone: "",
@@ -41,15 +42,36 @@ export const myState = reactive<State>({
     slots: [],
     updatedAt: 0,
     uuid: "",
-  },
-  globalSSR: [],
+  };
 
-  //
-  isGameListCompletedInit: false,
-  captchaCache: {},
-  isStarted: false,
-  isLoadingGameList: false,
-});
+  globalSSR: ApiGame.SSR[] = [];
+  captchaCache: Record<string, ApiGame.CaptchaInfo> = {};
+
+  isGameListCompletedInit = false;
+  isStarted = false;
+  isLoadingGameList = false;
+
+  get ticketAuthorMap(): Record<string, TicketSystem.Author> {
+    const result: Record<string, TicketSystem.Author> = {};
+
+    this.gameList.forEach((game) => {
+      // ✅ 过滤掉 game.status 不存在 或者 game.status.nick_name 为空的情况
+      if (!game.status || !game.status.nick_name?.trim()) {
+        return;
+      }
+      result[game.status.account] = {
+        uuid: this.userQuota.uuid,
+        title: game.status.nick_name,
+        nickname: game.status.nick_name,
+        avatar: game.status.avatar,
+      };
+    });
+
+    return result;
+  }
+}
+
+export const myState = reactive(new MyState());
 
 export const initializeGameListServerConnection = async () => {
   // check is login

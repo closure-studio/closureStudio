@@ -1,16 +1,14 @@
 <template>
     <div className="join p-1">
-        <div v-for="(author, key) in user.getGames" :key="author.key">
-            <input className="join-item btn btn-xs" type="radio" :checked="isSelectedAuthor(author.value.nickname)"
-                @click="() => {
-                    setSelectAuthor(author.value, author.key);
-                }
-                " name="options" :aria-label="author.value.nickname" />
+        <div v-for="([key, author], index) in Object.entries(myState.ticketAuthorMap)" :key="key + index">
+            <input className="join-item btn btn-xs" type="radio" :checked="isSelectedAuthor(author.nickname)" @click="() => {
+                setSelectAuthor(author, key);
+            }" name="options" :aria-label="author.nickname" />
         </div>
-        <div v-if="!Array.isArray(user.getGames) || user.getGames.length === 0">
-            <input className="join-item btn btn-xs" type="radio" :checked="isSelectedAuthor('匿名玩家')" @click="() => {
-                setSelectAuthor(null, '')
-            }" name="options" aria-label="匿名玩家" />
+        <!-- ✅ 如果 user.getGames 为空 或 ticketAuthorMap 为空，则显示 -->
+        <div v-if="Object.keys(myState.ticketAuthorMap).length === 0">
+            <input className="join-item btn btn-xs" type="radio" :checked="isSelectedAuthor('匿名玩家')"
+                @click="() => setSelectAuthor(null, '')" name="options" aria-label="匿名玩家" />
         </div>
     </div>
     <Tags v-if="!ticket" :tags="tags" @update:tags="updateTags" />
@@ -50,6 +48,7 @@ import { checkIsEmail, checkIsMobile } from "../../../utils/regex";
 import { Type } from "../../toast/enum";
 import Tags from "./Tags.vue";
 import ticketClient from "../../../plugins/axios/ticketClient";
+import { myState } from "../../../store/games/myGames";
 interface Props {
     ticket?: TicketSystem.Ticket | null;
 }
@@ -58,7 +57,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const { ticket } = props;
 const user = userStore();
-const selectedAuthor = ref<TicketSystem.Author | null>(defaultAuthor());
+const selectedAuthor = ref<TicketSystem.Author | null>(null);
 const selectedGame = ref<string>("");
 const ticketTitle = ref<string>("");
 const ticketContent = ref<string>("");
