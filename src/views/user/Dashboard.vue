@@ -53,7 +53,7 @@
                             </div>
                         </div>
                         <div v-if="!findGame(slot.gameAccount) && isGameListCompletedInit">
-                            <button :disabled="isLoading" class="btn btn-outline btn-sm btn-block btn-error mt-2"
+                            <button :disabled="true" class="btn btn-outline btn-sm btn-block btn-error mt-2"
                                 @click.stop="handleRepairBtnOnClick(slot.uuid, slot.gameAccount)">点击进行修复</button>
                         </div>
                     </GameAccount>
