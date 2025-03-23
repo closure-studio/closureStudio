@@ -2,7 +2,7 @@
     <div class="dropdown">
         <div tabindex="0" role="button" class="btn btn-xs m-1 btn-warning"><span v-if="isUpdating"
                 className="loading loading-bars loading-xs"></span>标签修改</div>
-        <ul tabindex="0" class="dropdown-content z-[1] menu shadow bg-base-100 rounded-box w-24">
+        <ul tabindex="0" class="dropdown-content z-1 menu shadow bg-base-100 rounded-box w-24">
             <li v-for="(tag, key) in defaultTags" :key="key">
                 <a :onClick="() => {
                     handleTagsOnClick(tag.name);

@@ -7,7 +7,7 @@
       <p v-if="!users.length" class="text-center text-4xl font-extrabold overflow-y-hidden text-warning h-12 mt-4">
         太神奇了！一个人都没有</p>
       <div v-else class="flex gap-2" :style="`width: ${(users.length) * 156}px`">
-        <div class="rounded shadow-md p-5 w-[148px] h-72 ssr relative" v-for="row in users"
+        <div class="rounded-sm shadow-md p-5 w-[148px] h-72 ssr relative" v-for="row in users"
           :style="`background-image:url('https://assets.ltsc.vip/charpor/${row.charId}_1.png');`">
           <div class="absolute bottom-0 left-0 right-0 ">
             <div class="divider text-info font-extrabold text-shadow">{{ row.nickName }}</div>
