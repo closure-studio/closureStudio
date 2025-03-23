@@ -36,15 +36,5 @@ module.exports = {
       }
     },
   },
-  plugins: [require("@tailwindcss/typography"), require("daisyui")],
-  daisyui: {
-    themes: [{
-      halloween: {
-        ...require("daisyui/src/theming/themes")['halloween'],
-        info: '#5e72e4',
-        neutral: '#5e72e4',
-        'base-300': '#2a2a2a'
-      }
-    }],
-  },
+  plugins: [require("@tailwindcss/typography")],
 }
