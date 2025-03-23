@@ -6,7 +6,7 @@
             <span v-if="isLoading" class="loading loading-bars" />
         </div>
         <div v-if="!isLoading">
-            <div role="alert" class="rounded border-s-4 border-warning bg-warning/10 p-4 space-y-2 my-4">
+            <div role="alert" class="rounded-sm border-s-4 border-warning bg-warning/10 p-4 space-y-2 my-4">
                 请点击下方QQ进行复制(包括verifyCode), 并发送到QQ官方群组 1345795, 450555868 中。</div>
             <input v-model="qqCode" class="input input-bordered join-item input-sm w-full max-w-xs" readonly
                 @click="selectAll" />

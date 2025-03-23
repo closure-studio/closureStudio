@@ -25,7 +25,7 @@
     </div>
 
     <div v-if="isFirst && confirmPhone === false">
-      <div role="alert" class="rounded border-s-4 border-warning bg-warning/10 p-4 space-y-2">
+      <div role="alert" class="rounded-sm border-s-4 border-warning bg-warning/10 p-4 space-y-2">
         <p class="blog">
           您正在添加首个游戏账号，请确保该账号<b class="text-2xl">可接收验证码</b>且在 24 小时内提交以验证账号归属，否则您的平台通行证将被<b>冻结</b>。
         </p>
@@ -44,7 +44,7 @@
     <div v-if="confirmPhone">
       <div class="divider mt-0">必读内容</div>
       <div class="w-full">
-        <div role="alert" class="rounded border-s-4 border-info bg-info/10 px-4 py-2 space-y-2">
+        <div role="alert" class="rounded-sm border-s-4 border-info bg-info/10 px-4 py-2 space-y-2">
           <p class="skd-title">我已阅读理解可露希尔每日生鲜
             <a href="/blog/Terms&Policies" target="_blank" class="s-underline">用户协议</a>、
             <a href="/blog/FAQ" target="_blank" class="s-underline">常见问题</a>

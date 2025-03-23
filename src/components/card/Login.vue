@@ -140,7 +140,7 @@
                             <div class="divider my-2">服务器选择</div>
                         </div>
                         <div v-if="findAccountRespData" role="alert"
-                            class="rounded border-s-4 border-warning bg-warning/10 p-4">
+                            class="rounded-sm border-s-4 border-warning bg-warning/10 p-4">
                             通行证账号: {{ findAccountRespData }}</div>
                         <a class="btn btn-block btn-info" @click="handleFindAccountBtnOnClick"><span
                                 v-if="isFindAccountLoading" class="loading loading-bars" />查找!</a>

@@ -17,7 +17,7 @@
                 <div class="duration-1000" :class="{ 'ml-2 md:ml-6': closure }">智能的</div>
             </div>
             <h1
-                class="text-5xl font-extrabold text-transparent sm:text-6xl my-3 bg-clip-text bg-gradient-to-r from-green-300 via-blue-500 to-purple-600">
+                class="text-5xl font-extrabold text-transparent sm:text-6xl my-3 bg-clip-text bg-linear-to-r from-green-300 via-blue-500 to-purple-600">
                 无人托管</h1>
             <h1 class="text-4xl font-extrabold sm:text-7xl" :class="isNight ? 'font-san' : 'font-en'">Closure Cloud</h1>
             <p
@@ -39,11 +39,11 @@
                 </a>
             </div>
             <div class="flex flex-wrap gap-4 slide-in-bottom delay-75 w-full">
-                <a href="https://jq.qq.com/?_wv=1027&k=FiJjOEe8" class="btn btn-info flex-grow btn-outline">官方 Q1
+                <a href="https://jq.qq.com/?_wv=1027&k=FiJjOEe8" class="btn btn-info grow btn-outline">官方 Q1
                     群（人满）</a>
                 <a href="https://jq.qq.com/?_wv=1027&k=8C3DZiQM"
                     class="btn btn-info w-1/2 md:w-1/3 hover:bg-base-100 hover:text-info">官方 Q2 群</a>
-                <a href="/dashboard" class="btn btn-info flex-grow hover:bg-base-100 hover:text-info">[筹备中] 官方 Q 频</a>
+                <a href="/dashboard" class="btn btn-info grow hover:bg-base-100 hover:text-info">[筹备中] 官方 Q 频</a>
             </div>
         </div>
         <div class="flex flex-col slide-in-bottom delay-75 lg:ml-6 flex-auto">

@@ -34,14 +34,14 @@
             <component :is="Component" v-if="Component" />
             <div v-else>
               <div v-if="user.user.Info.status === 1" role="alert"
-                class="rounded border-s-4 border-success bg-info/10 p-4 mt-4">
+                class="rounded-sm border-s-4 border-success bg-info/10 p-4 mt-4">
                 <strong class="block font-bold text-lg">你已完成身份绑定，可正常使用可露希尔云服务</strong>
                 <p class="mt-4 text-sm">
                   <a class="btn btn-info btn-sm px-4 btn-outline">你的绑定手机号是：可露希尔也不知道(&gt;﹏&lt;)</a>
                 </p>
               </div>
               <div v-if="user.user.Info.status <= 0" role="alert"
-                class="rounded border-s-4 border-warning bg-warning/10 p-4 mt-4">
+                class="rounded-sm border-s-4 border-warning bg-warning/10 p-4 mt-4">
                 <strong class="block font-bold text-lg">你还没有绑定手机号，请先添加游戏/启动游戏</strong>
                 <p class="mt-4 text-sm">
                   <router-link to="/dashboard" class="btn btn-info btn-sm px-4 btn-outline btn-block">点击传送</router-link>
