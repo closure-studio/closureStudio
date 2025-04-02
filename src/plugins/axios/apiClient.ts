@@ -49,6 +49,9 @@ export class APIClient extends AxiosServer {
       captcha_info: captcha,
     });
   }
+  getHostServer(): IHostServer {
+    return this.hostServer;
+  }
 }
 
 let hostServer: IHostServer;
