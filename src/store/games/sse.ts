@@ -5,6 +5,7 @@ import showDialog from "../../plugins/dialog/dialog";
 import { userStore } from "../user";
 import { updateCaptcha, updateGameList } from "./games";
 import { myState } from "./myGames";
+import apiClient from "../../plugins/axios/apiClient";
 
 export const startSSE = async () => {
   const user = userStore();
@@ -25,8 +26,9 @@ export const startSSE = async () => {
 
   try {
     const event = await new Promise<EventSource>((resolve, reject) => {
+      const baseurl = apiClient.getHostServer().baseURL;
       // 创建 EventSource 实例
-      const eventSource = new EventSource(`https://api.ltsc.vip/sse/games?token=${user.token}`);
+      const eventSource = new EventSource(`${baseurl}/sse/games?token=${user.token}`);
 
       // 设置超时逻辑
       const timer = setTimeout(() => {
