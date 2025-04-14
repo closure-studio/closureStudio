@@ -1,7 +1,7 @@
 <template>
     <div class="modal-box">
         <h3 class="font-bold text-2xl">托管配置</h3>
-        <div role="alert" class="rounded border-s-4 border-warning bg-warning/10 p-4 space-y-2 my-4">请在专家指导下使用</div>
+        <div role="alert" class="rounded border-s-4 border-warning bg-warning/10 p-4 space-y-2 my-4">请在普瑞赛斯指导下使用</div>
         <div class="flex">
             <label class="form-control w-full max-w-xs mr-4">
                 <div class="label">
