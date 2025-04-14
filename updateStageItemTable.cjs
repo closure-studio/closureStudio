@@ -13,8 +13,9 @@ fs.readFile("./ArknightsGamedataPure/excel/stage_table.json", "utf8", (err, data
                     }
                 }
                 if (items.length > 0 || k.includes('act24side')) {
+                    const stageName = data['stages'][k]['stageId'].includes('#s') ? '[险地]' + data['stages'][k]['name'] : data['stages'][k]['name']
                     stageTable[k] = {
-                        name: data['stages'][k]['name'],
+                        name: stageName,
                         code: data['stages'][k]['code'],
                         ap: data['stages'][k]['apCost'],
                         items: items
