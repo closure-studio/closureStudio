@@ -119,6 +119,7 @@ const getContent = (m: number): string => {
       return game.value?.status?.ap?.toString() ?? "0";
 
     case 2:
+      if (!game.value?.game_config?.map_id) return "空闲/待定";
       return assets.value.getStageName(game.value?.game_config?.map_id ?? "") || "未选择";
 
     case 3:
