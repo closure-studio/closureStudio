@@ -54,8 +54,8 @@
                             </div>
                         </div>
                         <div v-if="!findGame(slot.gameAccount) && isGameListCompletedInit">
-                            <button :disabled="true" class="btn btn-outline btn-sm btn-block btn-error mt-2"
-                                @click.stop="handleRepairBtnOnClick(slot.uuid, slot.gameAccount)">点击进行修复</button>
+                            <button class="btn btn-outline btn-sm btn-block btn-error mt-2"
+                                @click.stop="handleDeleteBtnOnClick(slot.uuid, slot.gameAccount)">点击进行修复</button>
                         </div>
                     </GameAccount>
                 </div>
