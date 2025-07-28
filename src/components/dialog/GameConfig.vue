@@ -91,9 +91,10 @@
     <div class="flex flex-wrap">
       <button
         v-for="(stage, key) in assets.filteredStages(stageKeyWord)"
+        v-if="!config.battle_maps.includes(key)"
         :key="key"
-        class="btn btn-warning btn-xs"
-        @click="addStageToConfig"
+        class="btn btn-outline btn-warning btn-xs m-1 border-dashed opacity-60"
+        @click="addStageToConfig(key)"
       >
         {{ stage.code }} {{ stage.name }}
       </button>
@@ -161,12 +162,7 @@ const config = ref<ApiGame.GameConfig>(game?.game_config || initConfig);
 const isLoading = ref(false);
 const stageKeyWord = ref("");
 
-const addStageToConfig = (event: Event) => {
-  const selectElement = event.target as HTMLSelectElement;
-  const selectedKey = selectElement.value;
-  if (selectedKey === "-- 请选择地图 --") {
-    return;
-  }
+const addStageToConfig = (selectedKey: string) => {
   if (!config.value.battle_maps.includes(selectedKey)) {
     config.value.battle_maps.unshift(selectedKey);
   }
