@@ -24,6 +24,11 @@ const assets = computed(() => {
   };
 
   const filteredStages = (keyword: string) => {
+    // 如果keyword为空，返回空对象
+    if (!keyword || keyword.trim() === "") {
+      return {} as Gamedata.Stages;
+    }
+
     const data = Object.entries(stageData.value).reduce(
       (acc, [key, originalValue]) => {
         if (
