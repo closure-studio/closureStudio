@@ -1,9 +1,9 @@
 <template>
-  <div class="modal-box">
+  <div class="bg-base-100 mx-4 px-6 py-4 shadow-lg max-w-md rounded-lg blog">
     <h3 class="font-bold text-2xl">托管配置</h3>
     <div
       role="alert"
-      class="rounded border-s-4 border-warning bg-warning/10 p-4 space-y-2 my-4"
+      class="rounded border-s-4 border-warning bg-warning/10 p-2 space-y-2 my-2"
     >
       请在普瑞赛斯指导下使用
     </div>
@@ -78,7 +78,7 @@
     <div class="flex py-2">
       <input
         v-model="stageKeyWord"
-        class="input input-sm input-bordered w-full max-w-xs mr-4"
+        class="input input-sm input-bordered w-full max-w-xs mr-4 text-center"
         placeholder="-- 请输入代号\名称 --"
       />
       <!-- <select class="select select-sm select-warning w-full max-w-xs" @change="addStageToConfig">
@@ -89,15 +89,18 @@
     </div>
     <div class="divider h-0">作战队列</div>
     <div class="flex flex-wrap">
-      <button
+      <template
         v-for="(stage, key) in assets.filteredStages(stageKeyWord)"
-        v-if="!config.battle_maps.includes(key)"
         :key="key"
-        class="btn btn-outline btn-warning btn-xs m-1 border-dashed opacity-60"
-        @click="addStageToConfig(key)"
       >
-        {{ stage.code }} {{ stage.name }}
-      </button>
+        <button
+          v-if="!config.battle_maps.includes(stage.code)"
+          class="btn btn-outline btn-warning btn-xs m-1 border-dashed opacity-60"
+          @click="addStageToConfig(stage.code)"
+        >
+          {{ stage.code }} {{ stage.name }}
+        </button>
+      </template>
       <button
         @click="removeBattleMap(battleMap)"
         v-for="battleMap in config.battle_maps"
@@ -162,9 +165,9 @@ const config = ref<ApiGame.GameConfig>(game?.game_config || initConfig);
 const isLoading = ref(false);
 const stageKeyWord = ref("");
 
-const addStageToConfig = (selectedKey: string) => {
-  if (!config.value.battle_maps.includes(selectedKey)) {
-    config.value.battle_maps.unshift(selectedKey);
+const addStageToConfig = (stageCode: string) => {
+  if (!config.value.battle_maps.includes(stageCode)) {
+    config.value.battle_maps.unshift(stageCode);
   }
 };
 
@@ -201,11 +204,5 @@ const onSubmit = async () => {
 
 const handleCloseBtnOnClick = () => {
   dialogClose();
-};
-
-const addStageToConfigVirtual = (selectedKey: string) => {
-  if (!config.value.battle_maps.includes(selectedKey)) {
-    config.value.battle_maps.unshift(selectedKey);
-  }
 };
 </script>
