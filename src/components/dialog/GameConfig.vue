@@ -1,5 +1,7 @@
 <template>
-  <div class="bg-base-100 mx-4 px-6 py-4 shadow-lg max-w-md rounded-lg blog">
+  <div
+    class="bg-base-100 mx-4 px-6 py-4 shadow-lg w-[90vw] md:w-fit md:min-w-[500px] md:max-w-[500px] rounded-lg blog"
+  >
     <h3 class="font-bold text-2xl">托管配置</h3>
     <div
       role="alert"
