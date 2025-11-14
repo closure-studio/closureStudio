@@ -8,7 +8,9 @@
                     {{ k }}
                 </p>
                 <p>
-                    工单系统已恢复，欢迎大家使用！
+                    恭喜 mrbear 累计出货4次！！！分别是凛御银灰，凛御银灰，凛御银灰和圣聆初雪。
+                    
+                    希望各位用户进行检讨，多向Mr.Bear学习。
                 </p>
                 <div class="divider mt-0">个人信息</div>
                 <StatusMessage />
