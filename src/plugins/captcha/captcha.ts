@@ -48,12 +48,12 @@ export async function startCaptcha<T>(
 }
 
 
-async function startRecaptcha<T>(myFunc: (captchaToken: string) => Promise<Service.RequestResult<T>>): Promise<Service.RequestResult<T>> {
+async function startRecaptcha(): Promise<string> {
     const token = await window.grecaptcha.execute(googleRecaptchaSiteKey, { action: "submit" });
     if (!token) {
         throw new Error("reCAPTCHA token is empty");
     }
-    return await myFunc(token);
+    return token;
 }
 
 async function startGeeTest<T>(myFunc: (captchaToken: string) => Promise<Service.RequestResult<T>>): Promise<Service.RequestResult<T>> {
