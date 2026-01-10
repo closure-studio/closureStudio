@@ -32,7 +32,7 @@ const assets = computed(() => {
     const data = Object.entries(stageData.value).reduce(
       (acc, [key, originalValue]) => {
         if (
-          Object.keys(acc).length < 10 &&
+          Object.keys(acc).length < 18 &&
           (key.includes(keyword) ||
             originalValue.code.includes(keyword.toUpperCase()) ||
             originalValue.name.includes(keyword))
