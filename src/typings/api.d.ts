@@ -200,9 +200,14 @@ declare namespace ApiGame {
     is_verify: boolean;
     ap: number;
   }
-  interface CaptchaInfo {
-    challenge: string;
-    gt: string;
+  interface 入CaptchaInfo {
+    // GT3 字段
+    challenge?: string;
+    gt?: string;
+    // GT4 字段
+    geetestId?: string;
+    riskType?: string;
+    // 通用字段
     created: number;
     captcha_type: string;
   }

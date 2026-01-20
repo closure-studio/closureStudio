@@ -1,6 +1,7 @@
 import { Type } from "../../components/toast/enum";
-import apiClient from "../axios/apiClient";
 import { setMsg } from "../common";
+import { handleGT3Captcha } from "./geetestV3";
+import { handleGT4Captcha } from "./geetestV4";
 
 const googleRecaptchaSiteKey = "6LfrMU0mAAAAADoo9vRBTLwrt5mU0HvykuR3l8uN";
 
@@ -12,13 +13,13 @@ const captchaConfig = {
   handler: (obj: any) => {},
 };
 export async function startCaptcha<T>(
-  myFunc: (captchaToken: string) => Promise<Service.RequestResult<T>>
+  myFunc: (captchaToken: string) => Promise<Service.RequestResult<T>>,
 ): Promise<Service.RequestResult<T>> {
   try {
     if (!window.grecaptcha && !window.initGeetest4) {
       setMsg(
         "Google reCaptcha 和 Geetest 都加载失败了，麻烦你发个工单吧",
-        Type.Warning
+        Type.Warning,
       );
       throw new Error("人机验证加载失败");
     }
@@ -48,7 +49,7 @@ export async function startCaptcha<T>(
 }
 
 async function startRecaptcha<T>(
-  myFunc: (captchaToken: string) => Promise<Service.RequestResult<T>>
+  myFunc: (captchaToken: string) => Promise<Service.RequestResult<T>>,
 ): Promise<Service.RequestResult<T>> {
   const token = await window.grecaptcha.execute(googleRecaptchaSiteKey, {
     action: "submit",
@@ -60,7 +61,7 @@ async function startRecaptcha<T>(
 }
 
 async function startGeeTest<T>(
-  myFunc: (captchaToken: string) => Promise<Service.RequestResult<T>>
+  myFunc: (captchaToken: string) => Promise<Service.RequestResult<T>>,
 ): Promise<Service.RequestResult<T>> {
   // 创建一个新的 Promise 来控制整个 Geetest 流程
   return new Promise<Service.RequestResult<T>>((resolve, reject) => {
@@ -105,104 +106,29 @@ async function startGeeTest<T>(
 
 export const arknigthsGameCaptcha = (
   account: string,
-  data: ApiGame.CaptchaInfo
+  data: ApiGame.CaptchaInfo,
 ): Promise<void> => {
   return new Promise<void>((resolve, reject) => {
-    // 检查 Geetest v3 是否加载
-    if (typeof window.initGeetest !== 'function') {
-      const errorMsg = "Geetest v3 加载失败。请检查网络连接或稍后重试";
-      console.error("[Captcha] initGeetest is not a function:", typeof window.initGeetest);
-      setMsg(errorMsg, Type.Warning);
-      reject(new Error(errorMsg));
-      return;
-    }
-    
-    // 验证输入参数
-    if (!data || !data.gt || !data.challenge) {
-      const errorMsg = "验证码参数无效";
+    // 判断是 GT3 还是 GT4
+    const isGT3 = data.gt && data.challenge;
+    const isGT4 = data.geetestId;
+
+    if (!isGT3 && !isGT4) {
+      const errorMsg = "验证码参数无效：缺少必要字段";
       console.error("[Captcha] Invalid captcha data:", data);
       setMsg(errorMsg, Type.Warning);
       reject(new Error(errorMsg));
       return;
     }
-    
+
     setMsg("加载验证码中...", Type.Info);
-    
-    try {
-      window.initGeetest(
-        {
-          gt: data.gt,
-          challenge: data.challenge,
-          offline: false,
-          product: "bind",
-          width: "300px",
-          https: true,
-        },
-        (captchaObj: any) => {
-          if (!captchaObj) {
-            const errorMsg = "验证码对象初始化失败";
-            console.error("[Captcha] captchaObj is null or undefined");
-            setMsg(errorMsg, Type.Warning);
-            reject(new Error(errorMsg));
-            return;
-          }
-          
-          captchaObj.onReady(() => {
-            try {
-              console.log("[Captcha] Captcha ready, starting verification");
-              captchaObj.verify();
-            } catch (error) {
-              console.error("[Captcha] Error during verify:", error);
-              setMsg("验证码启动失败", Type.Error);
-              reject(error);
-            }
-          });
-          
-          captchaObj.onSuccess(async () => {
-            try {
-              const validate = captchaObj.getValidate();
-              if (!validate) {
-                throw new Error("验证结果为空");
-              }
-              
-              console.log("[Captcha] Validation successful, submitting...");
-              setMsg("提交成功，正在登录...", Type.Success);
-              
-              await apiClient.doUpdateCaptcha(account, {
-                challenge: data.challenge,
-                geetest_challenge: validate.geetest_challenge,
-                geetest_seccode: validate.geetest_seccode,
-                geetest_validate: validate.geetest_validate,
-              });
-              
-              captchaObj.destroy();
-              console.log("[Captcha] Captcha completed successfully");
-              resolve();
-            } catch (error) {
-              console.error("[Captcha] Error during submission:", error);
-              setMsg("验证提交失败: " + (error as Error).message, Type.Error);
-              if (captchaObj && typeof captchaObj.destroy === 'function') {
-                captchaObj.destroy();
-              }
-              reject(error);
-            }
-          });
-          
-          captchaObj.onError((error: any) => {
-            const errorMsg = "验证码加载失败";
-            console.error("[Captcha] Geetest error:", error);
-            setMsg(errorMsg, Type.Warning);
-            if (captchaObj && typeof captchaObj.destroy === 'function') {
-              captchaObj.destroy();
-            }
-            reject(new Error(errorMsg));
-          });
-        }
-      );
-    } catch (error) {
-      console.error("[Captcha] Error initializing Geetest:", error);
-      setMsg("初始化验证码失败: " + (error as Error).message, Type.Error);
-      reject(error);
+
+    if (isGT3) {
+      // Geetest v3 验证流程
+      handleGT3Captcha(account, data, resolve, reject);
+    } else if (isGT4) {
+      // Geetest v4 验证流程
+      handleGT4Captcha(account, data, resolve, reject);
     }
   });
 };
