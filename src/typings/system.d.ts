@@ -62,6 +62,7 @@ interface Window {
     reset: (id: string) => void;
   };
   initGeetest4: (options: any, handle: any) => void;
+  initGeetest: (options: any, handle: any) => void;
   captchaObj: {
     verify: () => void;
     onReady: (callback: () => void) => void;

@@ -81,7 +81,9 @@ export const updateCaptcha = (data: ApiGame.Game[]) => {
       }
       // add this captcha to the cache
       myState.captchaCache[game.captcha_info.challenge] = game.captcha_info;
-      arknigthsGameCaptcha(game.status.account, game.captcha_info);
+      arknigthsGameCaptcha(game.status.account, game.captcha_info).catch((error) => {
+        console.error("Captcha error:", error);
+      });
     }
   });
 };
