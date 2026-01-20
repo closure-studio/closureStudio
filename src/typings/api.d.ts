@@ -200,7 +200,7 @@ declare namespace ApiGame {
     is_verify: boolean;
     ap: number;
   }
-  interface 入CaptchaInfo {
+  interface CaptchaInfo {
     // GT3 字段
     challenge?: string;
     gt?: string;

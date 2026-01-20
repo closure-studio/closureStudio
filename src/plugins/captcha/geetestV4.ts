@@ -71,20 +71,12 @@ export function handleGT4Captcha(
               validate,
             );
             setMsg("提交成功，正在登录...", Type.Success);
-
-            // ⚠️ 注意：GT4 的验证结果格式可能不同于 GT3
-            // GT3 格式: { geetest_challenge, geetest_seccode, geetest_validate }
-            // GT4 格式可能是: { captcha_id, lot_number, pass_token, gen_time, captcha_output }
             // 需要根据后端 API 要求调整
             await apiClient.doUpdateCaptcha(account, {
-              // TODO: 确认 GT4 需要提交的字段
-              // 以下是推测的字段，可能需要调整
-              challenge: data.challenge!,
-              // GT4 可能返回不同的字段名
-              geetest_challenge:
-                validate.lot_number || validate.captcha_output || "",
-              geetest_seccode: validate.pass_token || "",
-              geetest_validate: validate.gen_time || "",
+              lot_number: validate.lot_number || "",
+              pass_token: validate.pass_token || "",
+              gen_time: validate.gen_time || "",
+              captcha_output: validate.captcha_output || "",
             });
 
             captchaObj.destroy();
