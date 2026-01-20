@@ -9,7 +9,6 @@ import * as Sentry from "@sentry/vue";
 import { createApp } from "vue";
 import VueClickAway from "vue3-click-away";
 import App from "./App.vue";
-import "./plugins/captcha/gt.0.5.0";
 import { initSW } from "./swloader";
 import { router } from "./router";
 const pinia = createPinia();
