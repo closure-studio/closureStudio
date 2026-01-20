@@ -123,12 +123,12 @@ export const arknigthsGameCaptcha = (
 
     setMsg("加载验证码中...", Type.Info);
 
-    if (isGT3) {
-      // Geetest v3 验证流程
-      handleGT3Captcha(account, data, resolve, reject);
-    } else if (isGT4) {
+    if (isGT4) {
       // Geetest v4 验证流程
       handleGT4Captcha(account, data, resolve, reject);
+    } else if (isGT3) {
+      // Geetest v3 验证流程
+      handleGT3Captcha(account, data, resolve, reject);
     }
   });
 };
