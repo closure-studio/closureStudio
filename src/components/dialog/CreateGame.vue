@@ -76,7 +76,6 @@ import { setMsg } from "../../plugins/common";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
 import { checkIsMobile } from "../../utils/regex";
 import { Type } from "../toast/enum";
-import * as Sentry from "@sentry/vue";
 import { queryUserQuota } from "../../store/games/quota";
 import { queryGameList } from "../../store/games/games";
 import registryClient from "../../plugins/axios/registryClient";
@@ -112,7 +111,6 @@ const handleCreateBtnOnClick = async () => {
     dialogClose()
   } catch (error) {
     console.error(error)
-    Sentry.captureException(error);
   } finally {
     isLoading.value = false
   }
