@@ -73,16 +73,20 @@ export const updateCaptcha = (data: ApiGame.Game[]) => {
   data.forEach((game) => {
     if (!game) return;
     if (!game.status) return;
-    if (game.status.code === 999 && game.captcha_info.challenge) {
-      // key is challenge
+    if (game.captcha_info.challenge || game.captcha_info.geetestId) {
+      // key is account
       // check if the key is already in the cache
       if (myState.captchaCache[game.status.account]) {
-        return;
+        const cached = myState.captchaCache[game.status.account];
+        if (cached.created === game.captcha_info.created) {
+          return;
+        }
       }
       // add this captcha to the cache
-      myState.captchaCache[game.captcha_info.challenge] = game.captcha_info;
+      myState.captchaCache[game.status.account] = game.captcha_info;
       arknigthsGameCaptcha(game.status.account, game.captcha_info).catch((error) => {
         console.error("Captcha error:", error);
+        delete myState.captchaCache[game.status.account];
       });
     }
   });
