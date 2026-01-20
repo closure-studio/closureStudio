@@ -82,7 +82,7 @@ export function handleGT3Captcha(
         });
 
         captchaObj.onError((error: any) => {
-          const errorMsg = "验证码加载失败";
+          const errorMsg = "验证码加载失败V3";
           console.error("[Captcha GT3] Geetest error:", error);
           setMsg(errorMsg, Type.Warning);
           if (captchaObj && typeof captchaObj.destroy === "function") {
