@@ -7,8 +7,6 @@
     </p>
     <p v-if="user.isVerify && userQuota?.idServerQQ.length === 0">完成QQ账号验证解锁更多槽位。<b class="cursor-pointer"
             @click="handleQQBindDialogOpen()">👉点我解锁👈</b>提升托管数量</p>
-    <p v-if="!isQueryWxPusher && !wxPusher">博士！！！你怎么还没有<b class="cursor-pointer"
-            @click="navigateToWXPusher">👉绑定微信👈</b></p>
     <p>如果博士遇到问题(验证码没有收到，游戏异常等等)，使用<b class="cursor-pointer" @click="navigateToTicket">👉工单系统👈</b>请求协助。</p>
 
 </template>
