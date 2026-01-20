@@ -73,6 +73,7 @@ export function handleGT4Captcha(
             setMsg("提交成功，正在登录...", Type.Success);
             // 需要根据后端 API 要求调整
             await apiClient.doUpdateCaptcha(account, {
+              challenge: validate.captcha_id || "",
               lot_number: validate.lot_number || "",
               pass_token: validate.pass_token || "",
               gen_time: validate.gen_time || "",
