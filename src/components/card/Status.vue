@@ -3,7 +3,7 @@
     <span class="font-bold text-2xl">欢迎来到可露希尔线上零售店</span>
     <div class="mt-8">
       <div class="flex flex-col md:flex-row md:items-end gap-2 md:gap-6 font-bold text-base md:text-lg z-10 relative">
-        <span>当前版本: {{ version }} <span class="text-xs opacity-60 font-normal">(居然还能跑)</span></span>
+        <span>当前版本: {{ version }} <span class="text-xs opacity-60 font-normal">(居然还能跑?)</span></span>
         <div class="flex items-end gap-2 group w-fit"
           :class="{ 'cursor-pointer': !isLatest }"
           @click="!isLatest && !isLoading ? handleClickVersion() : null">
