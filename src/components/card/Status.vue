@@ -3,21 +3,21 @@
     <span class="font-bold text-2xl">欢迎来到可露希尔线上零售店</span>
     <div class="mt-8">
       <div class="flex flex-col md:flex-row md:items-end gap-2 md:gap-6 font-bold text-base md:text-lg z-10 relative">
-        <span>当前版本：{{ version }} <span class="text-xs opacity-60 font-normal">(居然还能跑)</span></span>
+        <span>当前版本: {{ version }} <span class="text-xs opacity-60 font-normal">(居然还能跑)</span></span>
         <div class="flex items-end gap-2 cursor-pointer group w-fit" @click="handleClickVersion">
-          <span>最新版本：</span>
+          <span>最新版本: </span>
           <template v-if="isLatest">
             <span class="text-green-600 font-semibold flex items-end gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-              {{ latestVersion }}
+              {{ latestVersion }} <span class="text-xs opacity-60 font-normal">(已是最新)</span>
             </span>
-            <span class="text-xs opacity-60 font-normal ml-1">(已是最新)</span>
           </template>
           <template v-else>
             <span v-if="isLoading" class="loading loading-dots loading-md text-info"></span>
-            <span v-else class="text-info group-hover:underline decoration-wavy decoration-2 underline-offset-4">{{ latestVersion }}</span>
-            <span v-if="!isLoading"
-              class="text-xs opacity-60 font-normal group-hover:text-info transition-colors ml-1 self-end">(点我看看新货)</span>
+            <span v-else>
+              <span class="text-info group-hover:underline decoration-wavy decoration-2 underline-offset-4">{{
+                latestVersion }}</span>
+              <span class="text-xs opacity-60 font-normal group-hover:text-info transition-colors">(点我看看新货)</span>
+            </span>
           </template>
         </div>
       </div>
