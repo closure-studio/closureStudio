@@ -74,10 +74,11 @@ export function handleGT4Captcha(
             // 需要根据后端 API 要求调整
             await apiClient.doUpdateCaptcha(account, {
               challenge: data.challenge || "",
-              lot_number: validate.lot_number || "",
               pass_token: validate.pass_token || "",
               gen_time: validate.gen_time || "",
               captcha_output: validate.captcha_output || "",
+              captcha_id:validate.captcha_id || "",
+              lot_number: validate.lot_number || "",
             });
 
             captchaObj.destroy();
