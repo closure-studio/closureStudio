@@ -7,9 +7,6 @@
                 <p v-for="k in config.announcement?.split('\n') || ['可露希尔逃跑了']">
                     {{ k }}
                 </p>
-                <p>
-                    工单系统已恢复，欢迎大家使用！
-                </p>
                 <div class="divider mt-0">个人信息</div>
                 <StatusMessage />
             </div>
