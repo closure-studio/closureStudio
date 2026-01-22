@@ -1,0 +1,30 @@
+# .github/workflows/deploy.yml
+name: Deploy Version API
+
+on:
+  push:
+    branches: [main]
+    paths: ['.env']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Get version from .env
+        id: version
+        run: |
+          VERSION=$(grep "VITE_APP_VERSION" .env | cut -d'=' -f2 | tr -d '[:space:]')
+          echo "ver=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION (number)"
+      
+      - name: Update worker with number version
+        run: |
+          sed -i "s/VITE_APP_VERSION_PLACEHOLDER/${{ steps.version.outputs.ver }}/" worker.js
+          echo "Updated worker.js with version number: ${{ steps.version.outputs.ver }}"
+      
+      - name: Deploy to Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

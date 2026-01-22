@@ -1,0 +1,4 @@
+# wrangler.toml (放在 repo 根目录)
+name = "closure-studio-version-api"
+main = "worker.js"
+compatibility_date = "2024-01-01"
