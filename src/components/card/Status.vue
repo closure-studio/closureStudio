@@ -8,7 +8,7 @@
           <span>最新版本: </span>
           <template>
             <span v-if="isLoading" class="loading loading-dots loading-md text-info"></span>
-            <span v-else>
+            <span>
               <span class="text-info group-hover:underline decoration-wavy decoration-2 underline-offset-4">{{
                 latestVersion }}</span>
               <span class="text-xs opacity-60 font-normal group-hover:text-info transition-colors">(点我看看新货)</span>
