@@ -6,12 +6,7 @@
         <span>当前版本: {{ version }} <span class="text-xs opacity-60 font-normal">(居然还能跑)</span></span>
         <div class="flex items-end gap-2 cursor-pointer group w-fit" @click="handleClickVersion">
           <span>最新版本: </span>
-          <template v-if="isLatest">
-            <span class="text-green-600 font-semibold flex items-end gap-1">
-              {{ latestVersion }} <span class="text-xs opacity-60 font-normal">(已是最新)</span>
-            </span>
-          </template>
-          <template v-else>
+          <template v-if="!isLatest">
             <span v-if="isLoading" class="loading loading-dots loading-md text-info"></span>
             <span v-else>
               <span class="text-info group-hover:underline decoration-wavy decoration-2 underline-offset-4">{{
