@@ -3,8 +3,7 @@ name: Deploy Version API
 
 on:
   push:
-    branches: [main]
-    paths: ['.env']
+    branches: [master]
 
 jobs:
   deploy:
