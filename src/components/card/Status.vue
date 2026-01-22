@@ -4,16 +4,15 @@
     <div class="mt-8">
       <div class="flex flex-col md:flex-row md:items-end gap-2 md:gap-6 font-bold text-base md:text-lg z-10 relative">
         <span>当前版本: {{ version }} <span class="text-xs opacity-60 font-normal">(居然还能跑)</span></span>
-        <div class="flex items-end gap-2 cursor-pointer group w-fit" @click="handleClickVersion">
+        <div class="flex items-end gap-2 group w-fit"
+          :class="{ 'cursor-pointer': !isLatest }"
+          @click="!isLatest && !isLoading ? handleClickVersion() : null">
           <span>最新版本: </span>
-          <template>
+          <span class="flex items-end gap-1">
             <span v-if="isLoading" class="loading loading-dots loading-md text-info"></span>
-            <span>
-              <span class="text-info group-hover:underline decoration-wavy decoration-2 underline-offset-4">{{
-                latestVersion }}</span>
-              <span class="text-xs opacity-60 font-normal group-hover:text-info transition-colors">(点我看看新货)</span>
-            </span>
-          </template>
+            <span v-else class="text-info group-hover:underline decoration-wavy decoration-2 underline-offset-4">{{ latestVersion }}</span>
+            <span v-if="!isLatest && !isLoading" class="text-xs opacity-60 font-normal group-hover:text-info transition-colors">(点我看看新货)</span>
+          </span>
         </div>
       </div>
       <img
