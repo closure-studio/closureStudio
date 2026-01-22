@@ -26,7 +26,7 @@ export function handleGT4Captcha(
       {
         captchaId: data.geetestId!,
         product: "bind",
-        riskType: data.riskType!,
+        riskType: data.riskType?.split('|')[0] || "",
       },
       (captchaObj: any) => {
         if (!captchaObj) {
