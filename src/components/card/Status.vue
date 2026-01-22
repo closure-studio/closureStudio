@@ -2,15 +2,23 @@
   <div class="my-5 bg-info/5 shadow-md px-4 py-5 flex flex-col relative rounded-lg">
     <span class="font-bold text-2xl">欢迎来到可露希尔线上零售店</span>
     <div class="mt-8">
-      <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 font-bold text-xl md:text-2xl z-10 relative">
-        <span>当前版本：{{ version }} <span class="text-sm opacity-60 font-normal">(居然还能跑)</span></span>
-        <div class="flex items-center gap-2 cursor-pointer group w-fit" @click="refreshVersion">
+      <div class="flex flex-col md:flex-row md:items-end gap-2 md:gap-6 font-bold text-base md:text-lg z-10 relative">
+        <span>当前版本：{{ version }} <span class="text-xs opacity-60 font-normal">(居然还能跑)</span></span>
+        <div class="flex items-end gap-2 cursor-pointer group w-fit" @click="handleClickVersion">
           <span>最新版本：</span>
-          <span v-if="isLoading" class="loading loading-dots loading-md text-info"></span>
-          <span v-else class="text-info group-hover:underline decoration-wavy decoration-2 underline-offset-4">{{
-            latestVersion }}</span>
-          <span v-if="!isLoading"
-            class="text-sm opacity-60 font-normal group-hover:text-info transition-colors">(点我看看新货)</span>
+          <template v-if="isLatest">
+            <span class="text-green-600 font-semibold flex items-end gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+              {{ latestVersion }}
+            </span>
+            <span class="text-xs opacity-60 font-normal ml-1">(已是最新)</span>
+          </template>
+          <template v-else>
+            <span v-if="isLoading" class="loading loading-dots loading-md text-info"></span>
+            <span v-else class="text-info group-hover:underline decoration-wavy decoration-2 underline-offset-4">{{ latestVersion }}</span>
+            <span v-if="!isLoading"
+              class="text-xs opacity-60 font-normal group-hover:text-info transition-colors ml-1 self-end">(点我看看新货)</span>
+          </template>
         </div>
       </div>
       <img
@@ -21,15 +29,43 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { checkVersion } from '../../checkVersion';
 
-const version = import.meta.env.VITE_APP_VERSION;
+const version = Number(import.meta.env.VITE_APP_VERSION);
 const latestVersion = ref<number | string>('?');
 const isLoading = ref(false);
 
+const isLatest = computed(() => {
+  if (typeof latestVersion.value !== 'number') return false;
+  return version >= latestVersion.value;
+});
+
+// 持续 loading 的标志
+const infiniteLoading = ref(false);
+
+const handleClickVersion = async () => {
+  if (isLatest.value) return;
+  if (isLoading.value || infiniteLoading.value) return;
+  isLoading.value = true;
+  try {
+    const v = await checkVersion();
+    latestVersion.value = v;
+    // 如果当前版本小于最新版本，进入无限 loading
+    if (typeof v === 'number' && version < v) {
+      infiniteLoading.value = true;
+      // 保持 loading 状态
+      isLoading.value = true;
+      return;
+    }
+  } catch (e) {
+    latestVersion.value = '获取失败';
+  } finally {
+    if (!infiniteLoading.value) isLoading.value = false;
+  }
+};
+
 const refreshVersion = async () => {
-  if (isLoading.value) return;
   isLoading.value = true;
   try {
     const v = await checkVersion();
