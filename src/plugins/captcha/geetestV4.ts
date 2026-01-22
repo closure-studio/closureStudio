@@ -26,7 +26,7 @@ export function handleGT4Captcha(
       {
         captchaId: data.geetestId!,
         product: "bind",
-        riskType: data.riskType!,
+        riskType: data.riskType?.split('|')[0] || "" 
       },
       (captchaObj: any) => {
         if (!captchaObj) {
@@ -79,6 +79,7 @@ export function handleGT4Captcha(
               captcha_output: validate.captcha_output || "",
               captcha_id:validate.captcha_id || "",
               lot_number: validate.lot_number || "",
+
             });
 
             captchaObj.destroy();
