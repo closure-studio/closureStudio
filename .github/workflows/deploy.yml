@@ -2,9 +2,11 @@
 name: Deploy Version API
 
 on:
-  push:
-    branches: [main]
-    paths: ['.env']
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
 
 jobs:
   deploy:
