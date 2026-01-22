@@ -2,12 +2,12 @@
   <div class="my-5 bg-info/5 shadow-md px-4 py-5 flex flex-col relative rounded-lg">
     <span class="font-bold text-2xl">欢迎来到可露希尔线上零售店</span>
     <div class="mt-8">
-      <div class="flex flex-col gap-2 font-bold text-xl md:text-2xl z-10 relative">
-        <span>当前版本：v{{ version }} <span class="text-sm opacity-60 font-normal">(居然还能跑)</span></span>
+      <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 font-bold text-xl md:text-2xl z-10 relative">
+        <span>当前版本：{{ version }} <span class="text-sm opacity-60 font-normal">(居然还能跑)</span></span>
         <div class="flex items-center gap-2 cursor-pointer group w-fit" @click="refreshVersion">
           <span>最新版本：</span>
           <span v-if="isLoading" class="loading loading-dots loading-md text-info"></span>
-          <span v-else class="text-info group-hover:underline decoration-wavy decoration-2 underline-offset-4">v{{
+          <span v-else class="text-info group-hover:underline decoration-wavy decoration-2 underline-offset-4">{{
             latestVersion }}</span>
           <span v-if="!isLoading"
             class="text-sm opacity-60 font-normal group-hover:text-info transition-colors">(点我看看新货)</span>
