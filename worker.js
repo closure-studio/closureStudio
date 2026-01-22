@@ -2,7 +2,7 @@
 export default {
   async fetch(request) {
     const corsHeaders = {
-      'Access-Control-Allow-Origin': 'closure.ltsc.vip',
+      'Access-Control-Allow-Origin': 'https://closure.ltsc.vip',
       'Access-Control-Allow-Methods': 'GET',
       'Content-Type': 'application/json',
       'Cache-Control': 'no-cache'
