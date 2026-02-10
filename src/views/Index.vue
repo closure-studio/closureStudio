@@ -2,7 +2,7 @@
     <div class="flex flex-col lg:flex-row pt-6 lg:pt-12 px-2 lg:px-10w h-full">
         <div class="flex flex-col justify-center items-start slide-in-bottom">
             <div class="gap-2 mb-4 hidden md:flex">
-                <div class="badge bg-info/80 text-xl py-8 px-6 md:p-4">当前版本：V3.0.2</div>
+                <div class="badge bg-info/80 text-xl py-8 px-6 md:p-4">当前版本：V{{ version }}</div>
                 <div class="badge badge-info badge-outline text-xl py-8 px-6 md:p-4">游戏版本：2.1.01</div>
             </div>
             <div class="text-6xl font-extrabold md:text-7xl flex duration-200">
@@ -88,6 +88,7 @@ import { userStore } from "../store/user";
 import { isNight } from "../plugins/common";
 import APIStatusBoard from "../components/APIStatus/APIStatusBoard.vue";
 import apiClient from "../plugins/axios/apiClient";
+const version = import.meta.env.VITE_APP_VERSION;
 const closure = ref(false); // Closure 图标动画
 const textRef = ref();
 const user = userStore();

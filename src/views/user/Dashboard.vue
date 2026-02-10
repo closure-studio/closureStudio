@@ -7,9 +7,6 @@
                 <p v-for="k in config.announcement?.split('\n') || ['可露希尔逃跑了']">
                     {{ k }}
                 </p>
-                <p>
-                    工单系统已恢复，欢迎大家使用！
-                </p>
                 <div class="divider mt-0">个人信息</div>
                 <StatusMessage />
             </div>
@@ -29,36 +26,41 @@
                 <span className="loading loading-ring loading-lg"></span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <div v-for="(slot, key) in userQuota?.slots" :key="key">
-                    <GameAddCard v-if="!slot.gameAccount" :slot="slot" :userQuota="userQuota" :key="key"
-                        @click="createGameButtonOnClick(slot, slot.uuid)" />
-                    <GameAccount v-else :gameAccount="slot.gameAccount" @click="openGameConf(slot.gameAccount)">
+                <div v-for="(game, key) in userGameList" :key="game.status.account">
+                    <GameAccount :gameAccount="game.status.account" @click="openGameConf(game.status.account)">
                         <div class="divider mt-2 mb-3 text-info font-arknigths text-xl">START</div>
-                        <div v-if="findGame(slot.gameAccount)">
-                            <div class="grid gap-4 grid-cols-2 mt-2">
-                                <button class="btn btn-outline btn-sm btn-block btn-primary"
-                                    v-if="isSuspendStatus(slot.gameAccount)"
-                                    @click="handleGameSuspendBtnOnClick(slot.gameAccount)"
-                                    :disabled="isLoading">暂停</button>
+                        <div class="grid gap-4 grid-cols-2 mt-2">
+                            <button class="btn btn-outline btn-sm btn-block btn-primary"
+                                v-if="isSuspendStatus(game.status.account)"
+                                @click="handleGameSuspendBtnOnClick(game.status.account)"
+                                :disabled="isLoading">暂停</button>
 
-                                <button class="btn btn-outline btn-sm btn-block btn-primary"
-                                    v-else-if="isUpdateStatus(slot.gameAccount)"
-                                    @click="handleUpdatePasswdBtnOnClick(slot)" :disabled="isLoading">更新密码</button>
+                            <button class="btn btn-outline btn-sm btn-block btn-primary"
+                                v-else-if="isUpdateStatus(game.status.account)"
+                                @click="handleUpdatePasswdBtnOnClick(getSlot(game.status.account))"
+                                :disabled="isLoading">更新密码</button>
 
-                                <button class="btn btn-outline btn-sm btn-block btn-info" v-else
-                                    @click="handleGameLoginBtnOnClick(slot.gameAccount)"
-                                    :disabled="isLoginBtnDisabled(slot.gameAccount)">启动</button>
+                            <button class="btn btn-outline btn-sm btn-block btn-info" v-else
+                                @click="handleGameLoginBtnOnClick(game.status.account)"
+                                :disabled="isLoginBtnDisabled(game.status.account)">启动</button>
 
-                                <button :disabled="isLoading" class="btn btn-outline btn-sm btn-block btn-error"
-                                    @click.stop="handleDeleteBtnOnClick(slot.uuid, slot.gameAccount)">删除</button>
-                            </div>
+                            <button :disabled="isLoading" class="btn btn-outline btn-sm btn-block btn-error"
+                                @click.stop="handleDeleteBtnOnClick(getSlot(game.status.account)?.uuid || '', game.status.account)">删除</button>
                         </div>
-                        <div v-if="!findGame(slot.gameAccount) && isGameListCompletedInit">
+                    </GameAccount>
+                </div>
+                <template v-for="(slot, key) in userQuota?.slots" :key="slot.uuid">
+                    <GameAddCard v-if="!slot.gameAccount" :slot="slot" :userQuota="userQuota"
+                        @click="createGameButtonOnClick(slot, slot.uuid)" />
+                    <GameAccount v-else-if="!findGame(slot.gameAccount) && isGameListCompletedInit"
+                        :gameAccount="slot.gameAccount">
+                        <div class="divider mt-2 mb-3 text-info font-arknigths text-xl">START</div>
+                        <div>
                             <button :disabled="isLoading" class="btn btn-outline btn-sm btn-block btn-error mt-2"
                                 @click.stop="handleDeleteBtnOnClick(slot.uuid, slot.gameAccount)">点击进行修复</button>
                         </div>
                     </GameAccount>
-                </div>
+                </template>
             </div>
         </div>
         <div class="bg-base-300 flex-1 flex flex-col md:ml-8 max-w-xl p-4 shadow-lg rounded-lg items-center animate__animated"
@@ -98,6 +100,10 @@ const config = ref({} as ApiSystem.Config);
 const selectedRegisterForm = ref({} as Registry.AddGameForm); // for update password
 const isLoading = ref(false);
 const isAPIStatusBoardShow = ref(true);
+
+const userGameList = computed(() => {
+    return myState.gameList;
+});
 const userQuota = computed(() => {
     return myState.userQuota;
 });
@@ -125,6 +131,10 @@ watch(firstGame, (value) => {
 const isGameListCompletedInit = computed(() => {
     return myState.isGameListCompletedInit;
 });
+
+const getSlot = (account: string) => {
+    return userQuota.value?.slots.find((slot: Registry.Slot) => slot.gameAccount === account);
+}
 
 onMounted(async () => {
     initializeGameListServerConnection();
@@ -262,8 +272,9 @@ const handleRepairBtnOnClick = async (slotUUID: string, gameAccount: string) => 
 
 
 
-const handleUpdatePasswdBtnOnClick = async (slot: Registry.Slot) => {
+const handleUpdatePasswdBtnOnClick = async (slot: Registry.Slot | undefined) => {
     // can you delete it?
+    if (!slot) return;
     if (!slot.gameAccount) return;
     const game = findGame(slot.gameAccount);
     if (!game) return;
