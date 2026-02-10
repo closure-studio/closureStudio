@@ -67,15 +67,13 @@ watch(
     () => props.account,
     (newVal) => {
         selectedGame.value = findGame(newVal);
-        if (selectedGame.value?.status?.code && selectedGame.value?.status?.code > 0) {
-            getGameDetails();
-            // clear logs
-            gameLogs.value = {
-                logs: [],
-                hasMore: false
-            };
-            getLogs();
-        }
+        getGameDetails();
+        // clear logs
+        gameLogs.value = {
+            logs: [],
+            hasMore: false
+        };
+        getLogs();
     }
 );
 
