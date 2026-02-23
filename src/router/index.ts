@@ -68,11 +68,6 @@ export const router = createRouter({
               component: () => import("../views/user/ProfileAccount.vue"),
             },
             {
-              path: "/profile/wechat",
-              name: "消息推送",
-              component: () => import("../views/user/Wechat.vue"),
-            },
-            {
               path: "/profile/smsVerify",
               name: "账号认证",
               component: () => import("../views/user/ProfileSMS.vue"),

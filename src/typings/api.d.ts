@@ -100,24 +100,6 @@ declare namespace ApiUser {
     CreatedTs: number;
     UpdateTs: number;
   }
-
-  interface WXPusher {
-    uuid: string;
-    wxUID: string;
-    createdAt: number;
-    isDeleted: boolean;
-    deletedAt: number;
-    userHeadImg: string;
-    userName: string;
-  }
-
-  interface WXPusherQRCode {
-    expires: number;
-    code: string;
-    shortUrl: string;
-    url: string;
-    extra: string;
-  }
 }
 declare namespace ApiGame {
   interface Config {

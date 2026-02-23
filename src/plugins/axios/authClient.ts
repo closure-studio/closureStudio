@@ -71,12 +71,6 @@ class AuthClient extends AxiosServer {
   fetchQQBindCode() {
     return this.get(`/qq`); // QQBindCode // get qqcode
   }
-  queryWXPusher() {
-    return this.get<ApiUser.WXPusher>(`/wechat`);
-  }
-  createWXPusherQRCode() {
-    return this.post<ApiUser.WXPusherQRCode>(`/wxpusher`);
-  }
 }
 
 const authClient = new AuthClient(AuthServer);

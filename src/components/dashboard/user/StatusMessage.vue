@@ -11,24 +11,18 @@
 
 </template>
 <script lang="ts" setup>
-import { computed, onMounted } from "vue";
+import { computed } from "vue";
 import showDialog from "../../../plugins/dialog/dialog";
 import { myState } from "../../../store/games/myGames";
-import { useWXPusher } from "../../../plugins/wxPusher/wxPusher";
 import { userStore } from "../../../store/user";
 import QQBind from "../../dialog/QQBind.vue";
 import RealName from "../../dialog/RealName.vue";
 import { router } from "../../../router";
 
 const user = userStore();
-const { isQueryWxPusher, wxPusher, queryWxPusher } = useWXPusher();
 
 const gameList = computed(() => myState.gameList);
 const userQuota = computed(() => myState.userQuota);
-
-onMounted(() => {
-    queryWxPusher();
-});
 
 const now = Math.round(Date.now() / 1000);
 
@@ -40,11 +34,6 @@ const calc = (ts1: number, ts2: number) => {
     const hours = Math.floor(during / (60 * 60));
     const minutes = Math.abs(Math.floor((during % (60 * 60)) / 60));
     return `${hours}小时${minutes}分钟`;
-};
-
-const navigateToWXPusher = () => {
-    // using vue-router
-    router.push("/profile/wechat");
 };
 
 const navigateToTicket = () => {

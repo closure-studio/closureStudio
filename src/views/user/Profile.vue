@@ -98,11 +98,6 @@ const menu = [
     to: "/profile"
   },
   {
-    name: "消息推送",
-    icon: "ic:baseline-wechat",
-    to: "/profile/wechat"
-  },
-  {
     name: "网络设置",
     icon: "mdi-wifi",
     to: "/profile/network"
