@@ -17,7 +17,6 @@ import { myState } from "../../../store/games/myGames";
 import { userStore } from "../../../store/user";
 import QQBind from "../../dialog/QQBind.vue";
 import RealName from "../../dialog/RealName.vue";
-import { router } from "../../../router";
 
 const user = userStore();
 
@@ -34,11 +33,6 @@ const calc = (ts1: number, ts2: number) => {
     const hours = Math.floor(during / (60 * 60));
     const minutes = Math.abs(Math.floor((during % (60 * 60)) / 60));
     return `${hours}小时${minutes}分钟`;
-};
-
-const navigateToTicket = () => {
-    // using vue-router
-    router.push("/ticket");
 };
 
 const handleQQBindDialogOpen = () => {

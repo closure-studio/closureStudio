@@ -50,25 +50,6 @@ class MyState {
   isGameListCompletedInit = false;
   isStarted = false;
   isLoadingGameList = false;
-
-  get ticketAuthorMap(): Record<string, TicketSystem.Author> {
-    const result: Record<string, TicketSystem.Author> = {};
-
-    this.gameList.forEach((game) => {
-      // ✅ 过滤掉 game.status 不存在 或者 game.status.nick_name 为空的情况
-      if (!game.status || !game.status.nick_name?.trim()) {
-        return;
-      }
-      result[game.status.account] = {
-        uuid: this.userQuota.uuid,
-        title: game.status.nick_name,
-        nickname: game.status.nick_name,
-        avatar: game.status.avatar,
-      };
-    });
-
-    return result;
-  }
 }
 
 export const myState = reactive(new MyState());

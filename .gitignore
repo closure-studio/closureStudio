@@ -31,8 +31,5 @@ package-lock.json
 pnpm-lock.yaml
 stats.html
 
-# Sentry Config File
-.env.sentry-build-plugin
-
 ArknightsGamedataPure
 .omc

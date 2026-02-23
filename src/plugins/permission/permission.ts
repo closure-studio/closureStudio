@@ -1,8 +1,5 @@
 export enum Permission {
     SuperAdmin = 1 << 0,
-    TicketCreate = 1 << 1,
-    TicketUpdate = 1 << 2,
-    TicketOperate = 1 << 3,
     CreateGame = 1 << 4,
     QueryGame = 1 << 5,
     UpdateGame = 1 << 6,

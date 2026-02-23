@@ -46,10 +46,6 @@
                     <span class="text-xs"> {{ RegistryServer.label }}</span>
                     <input type="radio" disabled checked class="radio checked:bg-blue-500 radio-xs" />
                 </label>
-                <label class="label ">
-                    <span class="text-xs"> {{ TicketsServer.label }}</span>
-                    <input type="radio" disabled checked class="radio checked:bg-blue-500 radio-xs" />
-                </label>
             </div>
         </div>
     </div>
@@ -58,7 +54,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import apiClient, { APIClient } from '../../plugins/axios/apiClient';
-import { APIHostCloudflare, APIHostLTSC, AuthServer, IHostServer, RegistryServer, TicketsServer } from '../../plugins/axios/host';
+import { APIHostCloudflare, APIHostLTSC, AuthServer, IHostServer, RegistryServer } from '../../plugins/axios/host';
 
 import { setMsg } from '../../plugins/common';
 import { Type } from '../toast/enum';

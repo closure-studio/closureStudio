@@ -20,8 +20,6 @@
           <li><router-link to="/dashboard">托管账号</router-link></li>
           <li><router-link :to="dynamicPath"
               :class="{ 'bg-info': router.currentRoute.value.name === '账号安全' }">账号设置</router-link></li>
-          <li><router-link to="/ticket"
-              :class="{ 'bg-info': router.currentRoute.value.name === '在线工单' }">在线工单</router-link></li>
           <li><router-link to="/admin"
               :class="{ 'bg-info': router.currentRoute.value.name === '系统管理' }">系统管理</router-link></li>
         </ul>

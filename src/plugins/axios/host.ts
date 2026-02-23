@@ -27,9 +27,3 @@ export const RegistryServer: IHostServer = {
   description: "Registry Server",
   baseURL: "https://registry.ltsc.vip",
 };
-
-export const TicketsServer: IHostServer = {
-  label: "工单系统",
-  description: "Tickets Server",
-  baseURL: "https://ticket.arknights.app",
-};

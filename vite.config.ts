@@ -1,4 +1,3 @@
-import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { defineConfig, type PluginOption } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { VitePWA } from "vite-plugin-pwa";
@@ -73,13 +72,7 @@ export default defineConfig({
             threshold: 10240,
             algorithm: "gzip",
             ext: ".gz",
-        }), visualizer() as any, sentryVitePlugin({
-            org: "closure-studio",
-            project: "closure-studio"
-        }), sentryVitePlugin({
-            org: "closure-studio",
-            project: "closure-studio"
-        })],
+        }), visualizer() as any],
     build: {
         rollupOptions: {
             output: {

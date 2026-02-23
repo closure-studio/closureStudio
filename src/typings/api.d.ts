@@ -20,58 +20,6 @@ declare namespace ApiSystem {
   }
 }
 
-declare namespace TicketSystem {
-  interface Ticket {
-    createdAt: number;
-    updatedAt: number;
-    id: string;
-    replyTo: string;
-    status: number;
-    tags: string[];
-    attachments: string[];
-    isHidden: boolean;
-    isPinned: boolean;
-    authorUUID: string;
-    author: Author;
-    content: content;
-    votes: number;
-    isAnonymous: boolean;
-    gameAccount: string;
-  }
-
-  interface Author {
-    uuid: string;
-    title: string;
-    nickname: string;
-    avatar: ApiGame.Avatar;
-  }
-  interface content {
-    id: string;
-    title: string;
-    content: string;
-  }
-  interface updateTicket {
-    status?: 0 | 1;
-    tags?: string[];
-    attachments?: string[];
-    isHidden?: boolean;
-    isPinned?: boolean;
-    content?: content;
-    IsAnonymous?: boolean;
-  }
-
-  interface createTicket {
-    replyTo: string;
-    tags: string[];
-    attachments: string[];
-    isPinned: boolean;
-    author: Author | null;
-    content: content;
-    isAnonymous: boolean;
-    gameAccount: string;
-  }
-}
-
 declare namespace ApiUser {
   interface Auth {
     token: string;

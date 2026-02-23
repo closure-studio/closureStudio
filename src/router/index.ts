@@ -86,18 +86,6 @@ export const router = createRouter({
             }
           },
         },
-        {
-          path: "/ticket",
-          name: "在线工单",
-          component: () => import("../views/ticket/ticket.vue"),
-          beforeEnter: (to, from, next) => {
-            if (checkAuth()) {
-              next();
-            } else {
-              next({ name: "首页" });
-            }
-          },
-        },
       ],
     },
   ],

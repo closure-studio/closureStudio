@@ -2,17 +2,10 @@ import { defineStore } from "pinia";
 import apiClient from "../plugins/axios/apiClient";
 import authClient from "../plugins/axios/authClient";
 import registryClient from "../plugins/axios/registryClient";
-import ticketClient from "../plugins/axios/ticketClient";
 import { isAdmin } from "../plugins/permission/permission";
 
-interface TicketAuthor {
-  [key: string]: TicketSystem.Author;
-}
 export const userStore = defineStore("user", {
   state: () => ({
-    games: {
-      author: {} as TicketAuthor,
-    },
     user: {
       isLogin: false,
       max_slot: 0,
@@ -30,15 +23,6 @@ export const userStore = defineStore("user", {
     },
   }),
   actions: {
-    setGame(gameAccount: string, nickname: string, avatar: ApiGame.Avatar) {
-      const data: TicketSystem.Author = {
-        uuid: "",
-        title: "",
-        nickname: nickname,
-        avatar: avatar,
-      };
-      this.games.author[gameAccount] = data;
-    },
     login(token: string) {
       this.user.isLogin = true;
       this.user.Token = token;
@@ -56,7 +40,6 @@ export const userStore = defineStore("user", {
       apiClient.setJWT(token);
       authClient.setJWT(token);
       registryClient.setJWT(token);
-      ticketClient.setJWT(token);
     },
     logout() {
       this.$reset();
@@ -69,13 +52,5 @@ export const userStore = defineStore("user", {
     info: (state) => state.user.Info,
     isVerify: (state) =>
       state.user.Info.status === 1 || state.user.Info.status === 2,
-    getGame: (state) => (gameAccount: string) =>
-      state.games.author[gameAccount],
-    getGames: (state) => {
-      return Object.entries(state.games.author).map(([key, value]) => ({
-        key,
-        value,
-      }));
-    },
   },
 });

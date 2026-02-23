@@ -2,7 +2,6 @@ import { createPinia } from "pinia";
 import { persist } from "pinia-persists";
 import "./assets/main.css";
 import "./assets/style.css";
-import BaseLayout from "./components/layout/BaseLayout.vue";
 import "./plugins/hook";
 // @ts-ignore
 import { createApp } from "vue";
@@ -19,7 +18,6 @@ pinia.use(
 
 const app = createApp(App);
 
-app.component("layout", BaseLayout);
 app.use(VueClickAway).use(router).use(pinia).mount("#app");
 
 if (import.meta.env.MODE !== "development") {
