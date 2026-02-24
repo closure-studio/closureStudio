@@ -170,7 +170,7 @@ declare namespace ApiGame {
   }
   interface LogEvent extends MessageEvent {
     name: string;
-    content: number;
+    content: string;
   }
 }
 declare namespace Registry {
@@ -208,4 +208,9 @@ declare namespace Registry {
 
 declare namespace HealthMonitor {
   export type HealthRecord = Record<string, string>;
+}
+
+interface Window {
+  idaks?: string[];
+  skadi: (payload: string) => string;
 }

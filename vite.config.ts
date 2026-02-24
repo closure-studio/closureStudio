@@ -1,27 +1,21 @@
+import path from "node:path";
 import { defineConfig, type PluginOption } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { VitePWA } from "vite-plugin-pwa";
 import viteCompression from "vite-plugin-compression";
 import { visualizer } from "rollup-plugin-visualizer";
-import basicSsl from '@vitejs/plugin-basic-ssl';
+import basicSsl from "@vitejs/plugin-basic-ssl";
 // https://vitejs.dev/config/
-export default defineConfig({
-    define: {
-        __VUE_PROD_DEVTOOLS__: true,
-        __APP_VERSION__: process.env.VITE_APP_VERSION,
-    },
-    css: {
-        preprocessorOptions: {
-            scss: {
-                api: "modern-compiler",
-            },
-        },
-    },
-    plugins: [
-        basicSsl(),
+export default defineConfig(() => {
+    const isProduction = process.env.NODE_ENV === "production";
+    const isAnalyze = process.env.ANALYZE === "true";
+
+    const plugins: PluginOption[] = [
+        !isProduction && basicSsl(),
         vue({
             isProduction: true,
-        }), VitePWA({
+        }),
+        VitePWA({
             filename: "sw.ts",
             registerType: "autoUpdate",
             strategies: "injectManifest",
@@ -66,25 +60,47 @@ export default defineConfig({
                 background_color: "#212121",
                 description: "ClosureApp",
             },
-        }), viteCompression({
+        }),
+        viteCompression({
             verbose: true,
             disable: false,
             threshold: 10240,
             algorithm: "gzip",
             ext: ".gz",
-        }), visualizer() as any],
-    build: {
-        rollupOptions: {
-            output: {
-                chunkFileNames: "static/js/[hash].js",
-                entryFileNames: "static/js/[hash].js",
-                assetFileNames: "static/[ext]/[hash].[ext]",
+        }),
+        isAnalyze && (visualizer() as PluginOption),
+    ].filter(Boolean);
+
+    return {
+        define: {
+            __VUE_PROD_DEVTOOLS__: !isProduction,
+            __APP_VERSION__: process.env.VITE_APP_VERSION,
+        },
+        resolve: {
+            alias: {
+                "@": path.resolve(__dirname, "src"),
             },
         },
-
-        sourcemap: true
-    },
-    server: {
-        //host: "192.168.8.238"
-    },
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    api: "modern-compiler",
+                },
+            },
+        },
+        plugins,
+        build: {
+            rollupOptions: {
+                output: {
+                    chunkFileNames: "static/js/[hash].js",
+                    entryFileNames: "static/js/[hash].js",
+                    assetFileNames: "static/[ext]/[hash].[ext]",
+                },
+            },
+            sourcemap: !isProduction,
+        },
+        server: {
+            //host: "192.168.8.238"
+        },
+    };
 });

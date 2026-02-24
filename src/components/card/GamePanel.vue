@@ -1,6 +1,6 @@
 <template>
     <a class="text-3xl mt-2 text-info font-bold">托管详情</a>
-    <template v-if="selectedGame?.status.code > 0">
+    <template v-if="(selectedGame?.status?.code ?? 0) > 0">
         <div class="divider">账号信息</div>
         <div class="w-full grid grid-cols-3 justify-items-center">
             <div class="flex flex-col" v-for="m in 3">
