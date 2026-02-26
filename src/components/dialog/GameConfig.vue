@@ -3,10 +3,7 @@
     class="bg-base-100 mx-4 px-6 py-4 shadow-lg w-[90vw] md:w-fit md:min-w-[500px] md:max-w-[500px] rounded-lg blog"
   >
     <h3 class="font-bold text-2xl">托管配置</h3>
-    <div
-      role="alert"
-      class="rounded border-s-4 border-warning bg-warning/10 p-3 space-y-2 my-3"
-    >
+    <div role="alert" class="rounded border-s-4 border-warning bg-warning/10 p-3 space-y-2 my-3">
       请在普瑞赛斯指导下使用
     </div>
     <div class="overflow-y-auto max-h-[80vh]">
@@ -45,22 +42,14 @@
 
         <label class="label cursor-pointer mb-4">
           <span class="label-text">自动作战</span>
-          <input
-            v-model="config.is_auto_battle"
-            type="checkbox"
-            class="toggle toggle-sm"
-          />
+          <input v-model="config.is_auto_battle" type="checkbox" class="toggle toggle-sm" />
         </label>
       </div>
 
       <div class="grid grid-cols-2 gap-4 h-8">
         <label class="label cursor-pointer mb-4">
           <span class="label-text">忽略小车</span>
-          <input
-            v-model="config.recruit_ignore_robot"
-            type="checkbox"
-            class="toggle toggle-sm"
-          />
+          <input v-model="config.recruit_ignore_robot" type="checkbox" class="toggle toggle-sm" />
         </label>
 
         <label class="label cursor-pointer mb-4">
@@ -86,10 +75,7 @@
       />
       <div class="divider h-0">作战队列</div>
       <div class="flex flex-wrap">
-        <template
-          v-for="(stage, key) in assets.filteredStages(stageKeyWord)"
-          :key="key"
-        >
+        <template v-for="(stage, key) in assets.filteredStages(stageKeyWord)" :key="key">
           <button
             v-if="!config.battle_maps.includes(String(key))"
             class="btn btn-outline btn-warning btn-xs m-1 border-dashed opacity-60"
@@ -108,10 +94,7 @@
         </button>
       </div>
       <div class="grid gap-4 grid-cols-2 mt-2">
-        <button
-          class="btn btn-error btn-outline btn-block mt-4"
-          @click="handleCloseBtnOnClick"
-        >
+        <button class="btn btn-error btn-outline btn-block mt-4" @click="handleCloseBtnOnClick">
           <span v-if="isLoading" class="loading loading-bars loading-md"></span>
           关闭
         </button>
@@ -125,13 +108,15 @@
 </template>
 <script lang="ts" setup>
 import { ref } from "vue";
+import type { ApiGameGameConfig } from "@/shared/types/api";
 import { assets } from "../../plugins/assets/assets";
-import apiClient from "../../plugins/axios/apiClient";
-import { setMsg } from "../../plugins/common";
+import apiClient from "@/shared/services/apiClient";
+import { setMsg } from "@/shared/utils/toast";
+import { useLoading } from "@/shared/composables/useLoading";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
 import { findGame } from "../../store/games/myGames";
 import BaseDesign from "../BaseDesign.vue";
-import { Type } from "../toast/enum";
+import { Type } from "@/shared/components/toast/enum";
 
 interface Props extends DialogComponentProps {
   account: string;
@@ -158,9 +143,9 @@ const initConfig = {
   allow_login_assist: false,
 };
 const game = findGame(account);
-const config = ref<ApiGame.GameConfig>(game?.game_config || initConfig);
+const config = ref<ApiGameGameConfig>(game?.game_config || initConfig);
 
-const isLoading = ref(false);
+const { isLoading } = useLoading();
 const stageKeyWord = ref("");
 
 const addStageToConfig = (stageCode: string) => {
@@ -170,9 +155,7 @@ const addStageToConfig = (stageCode: string) => {
 };
 
 const removeBattleMap = (battleMap: string) => {
-  config.value.battle_maps = config.value.battle_maps.filter(
-    (item: string) => item !== battleMap
-  );
+  config.value.battle_maps = config.value.battle_maps.filter((item: string) => item !== battleMap);
 };
 const onSubmit = async () => {
   if (config.value.keeping_ap < 0) {

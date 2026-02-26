@@ -1,21 +1,19 @@
-import { Type } from "../../components/toast/enum";
-import apiClient from "../axios/apiClient";
-import { setMsg } from "../common";
+import type { ApiGameCaptchaInfo } from "@/shared/types/api";
+import { Type } from "@/shared/components/toast/enum";
+import apiClient from "@/shared/services/apiClient";
+import { setMsg } from "@/shared/utils/toast";
 
 // GT3 验证处理函数
 export function handleGT3Captcha(
   account: string,
-  data: ApiGame.CaptchaInfo,
+  data: ApiGameCaptchaInfo,
   resolve: (value: void | PromiseLike<void>) => void,
-  reject: (reason?: any) => void,
+  reject: (reason?: any) => void
 ) {
   // 检查 Geetest v3 是否加载
   if (typeof window.initGeetest !== "function") {
     const errorMsg = "Geetest v3 加载失败。请检查网络连接或稍后重试";
-    console.error(
-      "[Captcha] initGeetest is not a function:",
-      typeof window.initGeetest,
-    );
+    console.error("[Captcha] initGeetest is not a function:", typeof window.initGeetest);
     setMsg(errorMsg, Type.Warning);
     reject(new Error(errorMsg));
     return;
@@ -90,7 +88,7 @@ export function handleGT3Captcha(
           }
           reject(new Error(errorMsg));
         });
-      },
+      }
     );
   } catch (error) {
     console.error("[Captcha GT3] Error initializing Geetest:", error);

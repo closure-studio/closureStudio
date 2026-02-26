@@ -1,11 +1,12 @@
+import type { ApiGameGame, ApiGameLogEvent } from "@/shared/types/api";
 import NewSSRNotice from "../../components/dialog/NewSSRNotice.vue";
-import { Type } from "../../components/toast/enum";
-import { setMsg } from "../../plugins/common";
+import { Type } from "@/shared/components/toast/enum";
+import { setMsg } from "@/shared/utils/toast";
 import showDialog from "../../plugins/dialog/dialog";
 import { userStore } from "../user";
 import { updateCaptcha, updateGameList } from "./games";
 import { myState } from "./myGames";
-import apiClient from "../../plugins/axios/apiClient";
+import apiClient from "@/shared/services/apiClient";
 
 export const startSSE = async () => {
   const user = userStore();
@@ -54,16 +55,16 @@ export const startSSE = async () => {
     event.addEventListener("game", (event) => {
       if (!event.data) return;
       if (myState.isLoadingGameList) return;
-      const data = JSON.parse(event.data) as ApiGame.Game[];
+      const data = JSON.parse(event.data) as ApiGameGame[];
       updateGameList(data);
       updateCaptcha(data);
     });
     event.addEventListener("log", (event) => {
       if (!event.data) return;
-      const parsedData = JSON.parse(event.data) as ApiGame.LogEvent;
+      const parsedData = JSON.parse(event.data) as ApiGameLogEvent;
       setMsg(parsedData.content, Type.Success);
     });
-    window.addEventListener('beforeunload', function () {
+    window.addEventListener("beforeunload", function () {
       event?.close();
     });
     event.addEventListener("close", () => {
@@ -74,9 +75,7 @@ export const startSSE = async () => {
     event.addEventListener("ssr", (event) => {
       myState.globalSSR = JSON.parse(event.data) ?? [];
       const lastReadTs = Number(localStorage.getItem("lastReadTs")) || 0;
-      myState.globalSSR = myState.globalSSR.filter(
-        (item) => item.createdAt > lastReadTs
-      );
+      myState.globalSSR = myState.globalSSR.filter((item) => item.createdAt > lastReadTs);
       if (myState.globalSSR.length > 0) {
         setMsg("可露希尔又双叒叕抽到 6 星干员啦!!!", Type.Info);
         showDialog(NewSSRNotice, { users: myState.globalSSR });

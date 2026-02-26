@@ -1,25 +1,32 @@
 import { computed, reactive } from "vue";
-import { Type } from "../../components/toast/enum";
-import { setMsg } from "../../plugins/common";
+import type {
+  ApiSystemConfig,
+  RegistryUserInfo,
+  ApiGameGame,
+  ApiGameSSR,
+  ApiGameCaptchaInfo,
+} from "@/shared/types/api";
+import { Type } from "@/shared/components/toast/enum";
+import { setMsg } from "@/shared/utils/toast";
 import { queryGameList, startGameListPolling } from "./games";
 import { startSSE } from "./sse";
 import { queryUserQuota } from "./quota";
 
 // 定义 State 的类型
 interface State {
-  config: ApiSystem.Config;
-  userQuota: Registry.UserInfo;
-  gameList: ApiGame.Game[];
-  globalSSR: ApiGame.SSR[];
+  config: ApiSystemConfig;
+  userQuota: RegistryUserInfo;
+  gameList: ApiGameGame[];
+  globalSSR: ApiGameSSR[];
   isGameListCompletedInit: boolean;
   // others
-  captchaCache: Record<string, ApiGame.CaptchaInfo>;
+  captchaCache: Record<string, ApiGameCaptchaInfo>;
   isStarted: boolean;
   isLoadingGameList: boolean;
 }
 
 class MyState {
-  config: ApiSystem.Config = {
+  config: ApiSystemConfig = {
     isUnderMaintenance: false,
     isDebugMode: false,
     announcement: "",
@@ -29,9 +36,9 @@ class MyState {
     allowGameDelete: true,
   };
 
-  gameList: ApiGame.Game[] = [];
+  gameList: ApiGameGame[] = [];
 
-  userQuota: Registry.UserInfo = {
+  userQuota: RegistryUserInfo = {
     createdAt: 0,
     idServerPermission: 0,
     idServerPhone: "",
@@ -44,8 +51,8 @@ class MyState {
     uuid: "",
   };
 
-  globalSSR: ApiGame.SSR[] = [];
-  captchaCache: Record<string, ApiGame.CaptchaInfo> = {};
+  globalSSR: ApiGameSSR[] = [];
+  captchaCache: Record<string, ApiGameCaptchaInfo> = {};
 
   isGameListCompletedInit = false;
   isStarted = false;
@@ -60,10 +67,7 @@ export const initializeGameListServerConnection = async () => {
     return;
   }
   myState.isStarted = true;
-  const [quotaResult, gameListResult] = await Promise.all([
-    queryUserQuota(),
-    queryGameList(),
-  ]);
+  const [quotaResult, gameListResult] = await Promise.all([queryUserQuota(), queryGameList()]);
   // 检查返回值是否都为 true
   if (!quotaResult || !gameListResult) {
     setMsg("初始化失败, 请刷新网页或稍后再尝试", Type.Warning);

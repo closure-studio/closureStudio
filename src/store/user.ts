@@ -1,7 +1,8 @@
 import { defineStore } from "pinia";
-import apiClient from "../plugins/axios/apiClient";
-import authClient from "../plugins/axios/authClient";
-import registryClient from "../plugins/axios/registryClient";
+import type { ApiUserInfo } from "@/shared/types/api";
+import apiClient from "@/shared/services/apiClient";
+import authClient from "@/shared/services/authClient";
+import registryClient from "@/shared/services/registryClient";
 import { isAdmin } from "../plugins/permission/permission";
 
 export const userStore = defineStore("user", {
@@ -19,7 +20,7 @@ export const userStore = defineStore("user", {
         isAdmin: false,
         exp: 0,
         slot: 0,
-      } as ApiUser.Info,
+      } as ApiUserInfo,
     },
   }),
   actions: {
@@ -50,7 +51,6 @@ export const userStore = defineStore("user", {
     token: (state) => state.user.Token,
     isAdmin: (state) => isAdmin(state),
     info: (state) => state.user.Info,
-    isVerify: (state) =>
-      state.user.Info.status === 1 || state.user.Info.status === 2,
+    isVerify: (state) => state.user.Info.status === 1 || state.user.Info.status === 2,
   },
 });

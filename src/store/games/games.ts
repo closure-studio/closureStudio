@@ -1,4 +1,5 @@
-import apiClient from "../../plugins/axios/apiClient";
+import type { ApiGameGame } from "@/shared/types/api";
+import apiClient from "@/shared/services/apiClient";
 import { arknigthsGameCaptcha } from "../../plugins/captcha/captcha";
 import { myState } from "./myGames";
 
@@ -54,7 +55,7 @@ export const stopGameListPolling = () => {
     pollingTimeout = null;
   }
 };
-export const updateGameList = (data: ApiGame.Game[]) => {
+export const updateGameList = (data: ApiGameGame[]) => {
   try {
     if (!myState) return;
     if (!data) {
@@ -67,7 +68,7 @@ export const updateGameList = (data: ApiGame.Game[]) => {
   }
 };
 
-export const updateCaptcha = (data: ApiGame.Game[]) => {
+export const updateCaptcha = (data: ApiGameGame[]) => {
   if (!data) return;
   if (data.length === 0) return;
   data.forEach((game) => {

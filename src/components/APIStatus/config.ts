@@ -1,4 +1,6 @@
-export const healthRecords: HealthMonitor.HealthRecord = {
+import type { HealthRecord } from "@/shared/types/api";
+
+export const healthRecords: HealthRecord = {
   游戏管理:
     "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm50pgv0r01fc38mwr7zski3d/badge.svg",
   主控中心:

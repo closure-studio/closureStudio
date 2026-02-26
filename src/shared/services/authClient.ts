@@ -1,7 +1,7 @@
 import { AuthServer, IHostServer } from "./host";
 import { AxiosServer } from "./server";
+import type { ApiUserAuth, ApiUserUser } from "@/shared/types/api";
 
-// const AuthServer: string = "https://passport.ltsc.vip/api/v1/";
 const LOGIN_PATH = "/login";
 
 class AuthClient extends AxiosServer {
@@ -11,41 +11,30 @@ class AuthClient extends AxiosServer {
     this.AuthServer = hostServer.baseURL;
   }
 
-
-
   login(params: { email: string; password: string }) {
-    return this.post<ApiUser.Auth>(`${LOGIN_PATH}`, params);
+    return this.post<ApiUserAuth>(`${LOGIN_PATH}`, params);
   }
 
-  register(params: {
-    email: string;
-    password: string;
-    code: string;
-    noise: string;
-    sign: string;
-  }) {
-    return this.post<ApiUser.Auth>(`/register`, params);
+  register(params: { email: string; password: string; code: string; noise: string; sign: string }) {
+    return this.post<ApiUserAuth>(`/register`, params);
   }
 
   resetPassword(params: { email: string; code: string; newPasswd: string }) {
-    return this.post<ApiUser.Auth>(`/forget`, params);
-  }
-  Send_SMS(params: { phone: string }) {
-    return this.post<ApiUser.Auth>(`/sms`, params);
+    return this.post<ApiUserAuth>(`/forget`, params);
   }
 
-  updatePasswd(params: {
-    email: string;
-    currentPasswd: string;
-    newPasswd: string;
-  }) {
+  sendSms(params: { phone: string }) {
+    return this.post<ApiUserAuth>(`/sms`, params);
+  }
+
+  updatePasswd(params: { email: string; currentPasswd: string; newPasswd: string }) {
     return this.put<void>(`/password`, params);
   }
 
   queryUser(value: string) {
-    return this.get<ApiUser.User[]>(`/admin/users/query?value=${value}`);
+    return this.get<ApiUserUser[]>(`/admin/users/query?value=${value}`);
   }
-  SendSMS(params: { uuid: string; phone: string }) {
+  sendSmsAdmin(params: { uuid: string; phone: string }) {
     return this.post<string>(`/admin/users/sms`, params);
   }
   updateUserPermission(uuid: string, permission: number) {
@@ -59,17 +48,16 @@ class AuthClient extends AxiosServer {
   }
 
   loginAdmin(params: { uuid: string }) {
-    return this.post<ApiUser.Auth>(`/admin/users/login`, params);
+    return this.post<ApiUserAuth>(`/admin/users/login`, params);
   }
-  //RefreshToken
   refresh() {
-    return this.get<ApiUser.Auth>(`/refreshToken`);
+    return this.get<ApiUserAuth>(`/refreshToken`);
   }
   verify(code: string) {
-    return this.post<void>(`/phone`, { code }); // RealSMS
+    return this.post<void>(`/phone`, { code });
   }
   fetchQQBindCode() {
-    return this.get(`/qq`); // QQBindCode // get qqcode
+    return this.get(`/qq`);
   }
 }
 

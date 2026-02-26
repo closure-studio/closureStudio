@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { ROUTE_NAMES } from "@/shared/constants/routes";
 import { userStore } from "../store/user";
 declare module "vue-router" {
   interface RouteMeta {
@@ -28,61 +29,61 @@ export const router = createRouter({
   routes: [
     {
       path: "/",
-      component: () => import("../components/layout/BaseLayout.vue"),
+      component: () => import("../shared/components/layout/BaseLayout.vue"),
       children: [
         {
           path: "/",
-          name: "首页",
+          name: ROUTE_NAMES.HOME,
           component: () => import("../views/Index.vue"),
         },
         {
           path: "/blog/Terms&Policies",
-          name: "用户条款及隐私政策",
+          name: ROUTE_NAMES.TERMS_POLICIES,
           component: () => import("../views/blog/TermsPolicies.vue"),
         },
         {
           path: "/blog/FAQ",
-          name: "常见问题",
+          name: ROUTE_NAMES.FAQ,
           component: () => import("../views/blog/FAQ.vue"),
         },
         {
           path: "/profile",
-          name: "个人设置",
+          name: ROUTE_NAMES.PROFILE,
           component: () => import("../views/user/Profile.vue"),
           beforeEnter: (to, from, next) => {
             if (checkAuth()) {
               next(); // 用户已认证
             } else {
-              next({ name: "首页" }); // 跳转到首页或其他未认证的页面
+              next({ name: ROUTE_NAMES.HOME }); // 跳转到首页或其他未认证的页面
             }
           },
           children: [
             {
               path: "/profile/network",
-              name: "网络设置",
+              name: ROUTE_NAMES.PROFILE_NETWORK,
               component: () => import("../views/user/ProfileNetwork.vue"),
             },
             {
               path: "/profile/account",
-              name: "账号安全",
+              name: ROUTE_NAMES.PROFILE_ACCOUNT,
               component: () => import("../views/user/ProfileAccount.vue"),
             },
             {
               path: "/profile/smsVerify",
-              name: "账号认证",
+              name: ROUTE_NAMES.PROFILE_SMS_VERIFY,
               component: () => import("../views/user/ProfileSMS.vue"),
             },
           ],
         },
         {
           path: "/dashboard",
-          name: "控制面板",
+          name: ROUTE_NAMES.DASHBOARD,
           component: () => import("../views/user/Dashboard.vue"),
           beforeEnter: (to, from, next) => {
             if (checkAuth()) {
               next();
             } else {
-              next({ name: "首页" });
+              next({ name: ROUTE_NAMES.HOME });
             }
           },
         },

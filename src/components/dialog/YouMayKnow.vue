@@ -6,20 +6,20 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
-import { selectRandomElement, YouMayKnowArray } from '../../plugins/common';
-import { DialogComponentProps } from '../../plugins/dialog/dialog';
+import { onMounted, ref } from "vue";
+import { selectRandomElement, YouMayKnowArray } from "@/shared/utils/misc";
+import { DialogComponentProps } from "../../plugins/dialog/dialog";
 // export interface YouMayKnowProps extends DialogComponentProps {
 //   message: string;
 // }
 const props = defineProps<DialogComponentProps>();
 const { dialogClose } = props;
-const message = ref('');
+const message = ref("");
 onMounted(() => {
   const element = selectRandomElement<string>(YouMayKnowArray);
   if (element) message.value = element;
-})
+});
 const iknow = () => {
   dialogClose();
-}
+};
 </script>

@@ -10,11 +10,14 @@
         <div class="label">
           <span class="label-text">请输入【{{ phone }}】收到的验证码</span>
         </div>
-        <input type="text" placeholder="验证码" class="input input-bordered max-w-xs" v-model="smsCode" />
+        <input
+          type="text"
+          placeholder="验证码"
+          class="input input-bordered max-w-xs"
+          v-model="smsCode"
+        />
       </label>
-      <button class="btn btn-outline btn-error mt-auto" @click="handleCloseBtnOnClick">
-        取消
-      </button>
+      <button class="btn btn-outline btn-error mt-auto" @click="handleCloseBtnOnClick">取消</button>
       <button class="btn btn-info mt-auto" @click="handleSubmitBtnOnClick">
         <span v-if="isLoading" className="loading loading-spinner"></span>
         确认
@@ -26,23 +29,24 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { Type } from '../../components/toast/enum';
-import { setMsg } from '../../plugins/common';
-import { myState } from '../../store/games/myGames';
-import { getSMSSendPhone } from '../../store/games/quota';
-import { userStore } from '../../store/user';
-import authClient from '../../plugins/axios/authClient';
+import { computed, ref } from "vue";
+import { Type } from "@/shared/components/toast/enum";
+import { setMsg } from "@/shared/utils/toast";
+import { useLoading } from "@/shared/composables/useLoading";
+import { myState } from "../../store/games/myGames";
+import { getSMSSendPhone } from "../../store/games/quota";
+import { userStore } from "../../store/user";
+import authClient from "@/shared/services/authClient";
 
 const smsCode = ref("");
 
 const user = userStore();
-const isLoading = ref(false);
+const { isLoading } = useLoading();
 const phone = computed(() => getSMSSendPhone());
 const isGameListCompletedInit = computed(() => myState.isGameListCompletedInit);
 const handleCloseBtnOnClick = () => {
   smsCode.value = "";
-}
+};
 
 const handleSubmitBtnOnClick = async () => {
   if (smsCode.value === "") {
@@ -67,8 +71,6 @@ const handleSubmitBtnOnClick = async () => {
     return;
   } catch (error) {
     console.error(error);
-
   }
 };
-
 </script>

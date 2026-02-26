@@ -1,12 +1,13 @@
-import registryClient from "../../plugins/axios/registryClient";
-import { getRealGameAccount } from "../../plugins/common";
-import { checkIsMobile } from "../../utils/regex";
+import type { RegistrySlot, RegistryUserInfo } from "@/shared/types/api";
+import registryClient from "@/shared/services/registryClient";
+import { getRealGameAccount } from "@/shared/utils/account";
+import { checkIsMobile } from "@/shared/utils/regex";
 import { myState } from "./myGames";
 
 export const queryUserQuota = async () => {
   try {
     const resp = await registryClient.fetchUserSlots();
-    if (resp.code == 1 && resp.data) {
+    if (resp.code === 1 && resp.data) {
       resp.data.slots = quotaSlotsSort(resp.data.slots);
       if (!myState) return true;
       myState.userQuota = resp.data;
@@ -19,11 +20,9 @@ export const queryUserQuota = async () => {
   }
 };
 
-const quotaSlotsSort = (slotArray: Registry.Slot[]) => {
+const quotaSlotsSort = (slotArray: RegistrySlot[]) => {
   // 分离gameAccount不为null的元素
-  const gameAccountNotNull = slotArray.filter(
-    (item) => item.gameAccount !== null
-  );
+  const gameAccountNotNull = slotArray.filter((item) => item.gameAccount !== null);
   // 分离gameAccount为null的元素
   const gameAccountNull = slotArray.filter((item) => item.gameAccount === null);
   gameAccountNotNull.sort((a, b) => a.createdAt - b.createdAt);
@@ -43,7 +42,7 @@ const quotaSlotsSort = (slotArray: Registry.Slot[]) => {
   return [...gameAccountNotNull, ...gameAccountNull];
 };
 
-export const getSMSSlot = (slotArray: Registry.Slot[]) => {
+export const getSMSSlot = (slotArray: RegistrySlot[]) => {
   //  "slot_account_format_is_phone",
   // "slot_account_sms_verified"
   return slotArray.find(
@@ -58,10 +57,7 @@ export interface canAddGameResult {
   isLocked: boolean;
 }
 
-export const canDeleteGame = (
-  userQuota: Registry.UserInfo,
-  gameAccount: string
-) => {
+export const canDeleteGame = (userQuota: RegistryUserInfo, gameAccount: string) => {
   if (!userQuota) {
     return false;
   }
@@ -75,8 +71,8 @@ export const canDeleteGame = (
 };
 
 export const allowGameCreate = (
-  slot: Registry.Slot,
-  userQuota: Registry.UserInfo,
+  slot: RegistrySlot,
+  userQuota: RegistryUserInfo,
   isVerify: boolean
 ) => {
   let response: canAddGameResult = {

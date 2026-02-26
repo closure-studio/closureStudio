@@ -5,24 +5,20 @@
       <input class="s-input peer focus:ring-info" v-model="smsCode" />
       <label class="s-label peer-focus:text-info">请输入收到的验证码</label>
     </div>
-    <button class="btn btn-block btn-info mt-2" @click="handleCloseBtnOnClick">
-      取消
-    </button>
-    <button class="btn btn-block btn-info mt-2" @click="handleSubmitBtnOnClick">
-      确认
-    </button>
+    <button class="btn btn-block btn-info mt-2" @click="handleCloseBtnOnClick">取消</button>
+    <button class="btn btn-block btn-info mt-2" @click="handleSubmitBtnOnClick">确认</button>
   </div>
 </template>
 <script lang="ts" setup>
 import { ref } from "vue";
-import { setMsg } from "../../plugins/common";
-import { Type } from "../toast/enum";
+import { setMsg } from "@/shared/utils/toast";
+import { Type } from "@/shared/components/toast/enum";
 import { userStore } from "../../store/user";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
-import authClient from "../../plugins/axios/authClient";
+import authClient from "@/shared/services/authClient";
 
 const props = withDefaults(defineProps<DialogComponentProps>(), {
-  dialogClose: () => { }
+  dialogClose: () => {},
 });
 const { dialogClose } = props;
 
@@ -31,7 +27,7 @@ const user = userStore();
 
 const handleCloseBtnOnClick = () => {
   dialogClose();
-}
+};
 const handleSubmitBtnOnClick = async () => {
   if (smsCode.value === "") {
     setMsg("请输入验证码", Type.Warning);
@@ -52,7 +48,6 @@ const handleSubmitBtnOnClick = async () => {
     }
   } catch (error) {
     console.error(error);
-
   }
 };
 </script>

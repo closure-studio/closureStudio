@@ -1,5 +1,13 @@
 import { APIHostCloudflare, IHostServer } from "./host";
 import { AxiosServer } from "./server";
+import type {
+  ApiGameLogs,
+  ApiGameGame,
+  ApiGameDetail,
+  ApiGameConfig,
+  ApiSystemConfig,
+  ApiSystemHall,
+} from "@/shared/types/api";
 
 export class APIClient extends AxiosServer {
   constructor(hostServer: IHostServer) {
@@ -10,36 +18,34 @@ export class APIClient extends AxiosServer {
     localStorage.setItem("apiHost", JSON.stringify(this.hostServer));
   }
   fetchGameLogs(account: string, id: number) {
-    return this.get<ApiGame.GameLogs>(`/game/log/${account}/${id}`);
+    return this.get<ApiGameLogs>(`/game/log/${account}/${id}`);
   }
   fetchGameLogsAdmin(account: string, uuid: string, id: number) {
-    return this.get<ApiGame.GameLogs>(
-      `/game/log/${account}/${id}?uuid=${uuid}`
-    );
+    return this.get<ApiGameLogs>(`/game/log/${account}/${id}?uuid=${uuid}`);
   }
   fetchGameList() {
-    return this.get<ApiGame.Game[]>(`/game`); // GameList
+    return this.get<ApiGameGame[]>(`/game`);
   }
   fetchGameDetails(account: string) {
-    return this.get<ApiGame.Detail>(`/game/${account}`);
+    return this.get<ApiGameDetail>(`/game/${account}`);
   }
 
   fetchSystemConfig() {
-    return this.get<ApiSystem.Config>("/system/config");
+    return this.get<ApiSystemConfig>("/system/config");
   }
 
   fetchSystemList() {
-    return this.get<ApiSystem.Hall[]>("/system/apCostList");
+    return this.get<ApiSystemHall[]>("/system/apCostList");
   }
   doGameLogin(token: string, account: string) {
-    return this.captchaPost<void>(`/game/login/${account}`, token, null); // GameLogin
+    return this.captchaPost<void>(`/game/login/${account}`, token, null);
   }
 
   fetchGameListBySSE() {
-    return this.sse<ApiGame.Game[]>("/sse/game"); // 实验性获取 GameList
+    return this.sse<ApiGameGame[]>("/sse/game");
   }
 
-  doUpdateGameConf(account: string, game: ApiGame.Config) {
+  doUpdateGameConf(account: string, game: ApiGameConfig) {
     return this.post(`/game/config/${account}`, {
       config: game,
     });
@@ -59,13 +65,11 @@ let hostServer: IHostServer;
 const apiHost = localStorage.getItem("apiHost");
 if (!apiHost) {
   hostServer = APIHostCloudflare;
-  // save to localStorage
   localStorage.setItem("apiHost", JSON.stringify(hostServer));
 } else {
   const tempHost = JSON.parse(apiHost);
   if (!tempHost.baseURL) {
     hostServer = APIHostCloudflare;
-    // save to localStorage
     localStorage.setItem("apiHost", JSON.stringify(hostServer));
   } else {
     hostServer = tempHost;
