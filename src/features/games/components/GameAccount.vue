@@ -43,7 +43,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { assets } from "../../plugins/assets/assets";
+import { assets } from "@/plugins/assets/assets";
 import { maskPhoneNumber } from "@/shared/utils/format";
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useGamesStore } from "@/stores/useGamesStore";

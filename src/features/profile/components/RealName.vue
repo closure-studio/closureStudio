@@ -14,7 +14,7 @@ import { ref } from "vue";
 import { setMsg } from "@/shared/utils/toast";
 import { Type } from "@/shared/components/toast/enum";
 import { useUserStore } from "@/stores/useUserStore";
-import { DialogComponentProps } from "../../plugins/dialog/dialog";
+import { DialogComponentProps } from "@/plugins/dialog/dialog";
 import authClient from "@/shared/services/authClient";
 
 const props = withDefaults(defineProps<DialogComponentProps>(), {

@@ -78,7 +78,7 @@ export const router = createRouter({
         {
           path: "/dashboard",
           name: ROUTE_NAMES.DASHBOARD,
-          component: () => import("../views/user/Dashboard.vue"),
+          component: () => import("../views/Dashboard.vue"),
           beforeEnter: (to, from, next) => {
             if (checkAuth()) {
               next();

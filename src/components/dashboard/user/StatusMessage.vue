@@ -31,8 +31,8 @@ import { computed } from "vue";
 import showDialog from "../../../plugins/dialog/dialog";
 import { useUserStore } from "@/stores/useUserStore";
 import { useGamesStore } from "@/stores/useGamesStore";
-import QQBind from "../../dialog/QQBind.vue";
-import RealName from "../../dialog/RealName.vue";
+import QQBind from "@/features/profile/components/QQBind.vue";
+import RealName from "@/features/profile/components/RealName.vue";
 
 const user = useUserStore();
 const gamesStore = useGamesStore();

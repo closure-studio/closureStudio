@@ -109,13 +109,13 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import type { ApiGameGameConfig } from "@/shared/types/api";
-import { assets } from "../../plugins/assets/assets";
+import { assets } from "@/plugins/assets/assets";
 import apiClient from "@/shared/services/apiClient";
 import { setMsg } from "@/shared/utils/toast";
 import { useLoading } from "@/shared/composables/useLoading";
 import { useGamesStore } from "@/stores/useGamesStore";
-import { DialogComponentProps } from "../../plugins/dialog/dialog";
-import BaseDesign from "../BaseDesign.vue";
+import { DialogComponentProps } from "@/plugins/dialog/dialog";
+import BaseDesign from "@/components/BaseDesign.vue";
 import { Type } from "@/shared/components/toast/enum";
 
 interface Props extends DialogComponentProps {

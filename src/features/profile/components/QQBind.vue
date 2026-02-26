@@ -54,7 +54,7 @@ import { sleep } from "@/shared/utils/misc";
 import { Type } from "@/shared/components/toast/enum";
 import { Icon } from "@iconify/vue";
 import { useGamesStore } from "@/stores/useGamesStore";
-import { DialogComponentProps } from "../../plugins/dialog/dialog";
+import { DialogComponentProps } from "@/plugins/dialog/dialog";
 import authClient from "@/shared/services/authClient";
 
 const props = defineProps<DialogComponentProps>();
@@ -99,29 +99,26 @@ const copyQQCode = async () => {
   }
 };
 
-const getQQBindCode = () => {
+const getQQBindCode = async () => {
   if (userQuota?.value?.idServerQQ) {
     qqCode.value = userQuota.value.idServerQQ;
     return;
   }
-  authClient
-    .fetchQQBindCode()
-    .then((res) => {
-      if (res.code === 1) {
-        qqCode.value = ("verifyCode:" + res.data) as string;
-        return;
+  try {
+    const res = await authClient.fetchQQBindCode();
+    if (res.code === 1) {
+      qqCode.value = ("verifyCode:" + res.data) as string;
+      return;
+    }
+    if (res.code === 2) {
+      qqCode.value = NOTIFY.ALREADY_BIND_QQ;
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
       }
-      if (res.code === 2) {
-        qqCode.value = NOTIFY.ALREADY_BIND_QQ;
-        if (intervalId) {
-          clearInterval(intervalId);
-          intervalId = null;
-        }
-        return;
-      }
-    })
-    .finally(() => {
-      isLoading.value = false;
-    });
+    }
+  } finally {
+    isLoading.value = false;
+  }
 };
 </script>

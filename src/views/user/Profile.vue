@@ -112,17 +112,17 @@
 
 <script setup lang="ts">
 import { useRoute } from "vue-router";
-import GameAccount from "../../components/card/GameAccount.vue";
-import { computed, onMounted, ref } from "vue";
-import type { ApiGameGame } from "@/shared/types/api";
+import GameAccount from "@/features/games/components/GameAccount.vue";
+import { onMounted } from "vue";
 import { useUserStore } from "@/stores/useUserStore";
 import { useGamesStore } from "@/stores/useGamesStore";
-import apiClient from "@/shared/services/apiClient";
+import { useProfileData } from "@/features/profile/composables/useProfileData";
 import { Icon } from "@iconify/vue";
 const route = useRoute();
 const user = useUserStore();
 const gamesStore = useGamesStore();
 const levels = ["杰斯顿", "深海杰斯顿", "海上杰斯顿", "空中杰斯顿", "兽主杰斯顿"];
+const { gameList, days, fetchProfileGameList } = useProfileData();
 
 const menu = [
   {
@@ -146,17 +146,8 @@ const menu = [
     to: "/profile/smsVerify",
   },
 ];
-const gameList = ref<ApiGameGame[]>([]);
-apiClient.fetchGameList().then((res) => {
-  if (res.data) gameList.value = res.data;
-});
-const days = computed(() => {
-  if (!gameList.value.length) return 1;
-  return Math.ceil(
-    (Math.floor(Date.now() / 1000) - gameList.value[0].status.created_at) / 60 / 60 / 24
-  );
-});
 onMounted(async () => {
+  await fetchProfileGameList();
   gamesStore.initializeGameListServerConnection();
 });
 </script>

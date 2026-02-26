@@ -112,7 +112,7 @@ import type { ApiSystemHall } from "@/shared/types/api";
 import Login from "../components/card/Login.vue";
 import { useUserStore } from "@/stores/useUserStore";
 import { isNight } from "@/shared/utils/misc";
-import APIStatusBoard from "../components/APIStatus/APIStatusBoard.vue";
+import APIStatusBoard from "@/features/system/components/APIStatus/APIStatusBoard.vue";
 import apiClient from "@/shared/services/apiClient";
 const version = import.meta.env.VITE_APP_VERSION;
 const closure = ref(false); // Closure 图标动画

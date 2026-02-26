@@ -11,7 +11,7 @@ import type {
 } from "@/shared/types/api";
 import apiClient from "@/shared/services/apiClient";
 import registryClient from "@/shared/services/registryClient";
-import { arknigthsGameCaptcha } from "@/plugins/captcha/captcha";
+import { arknightsGameCaptcha } from "@/plugins/captcha/captcha";
 import { setMsg } from "@/shared/utils/toast";
 import { Type } from "@/shared/components/toast/enum";
 import showDialog from "@/plugins/dialog/dialog";
@@ -86,7 +86,7 @@ export const useGamesStore = defineStore("games", () => {
           }
         }
         captchaCache.value[game.status.account] = game.captcha_info;
-        arknigthsGameCaptcha(game.status.account, game.captcha_info).catch(() => {
+        arknightsGameCaptcha(game.status.account, game.captcha_info).catch(() => {
           delete captchaCache.value[game.status.account];
         });
       }

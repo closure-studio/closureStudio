@@ -3,7 +3,6 @@ import { persist } from "pinia-persists";
 import "./assets/main.css";
 import "./assets/style.css";
 import "./plugins/hook";
-// @ts-ignore
 import { createApp } from "vue";
 import VueClickAway from "vue3-click-away";
 import App from "./App.vue";

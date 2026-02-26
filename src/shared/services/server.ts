@@ -118,15 +118,15 @@ export class AxiosServer {
   get<T>(url: string) {
     return this.asyncRequest<T>({ url, method: "get" });
   }
-  del<T>(url: string, params: any): Promise<RequestResult<T>> {
-    return this.service
-      .delete(url, { data: params })
-      .then((res) => res as unknown as RequestResult<T>);
+  async del<T>(url: string, params: any): Promise<RequestResult<T>> {
+    const response = await this.service.delete(url, { data: params });
+    return response as unknown as RequestResult<T>;
   }
 
-  load<T>(fileName: string): Promise<T> {
+  async load<T>(fileName: string): Promise<T> {
     const url = `/data/${fileName}.json?v=${version}`;
-    return axios.get(url).then((res) => res.data as T);
+    const response = await axios.get(url);
+    return response.data as T;
   }
 
   captchaGet<T>(url: string, token: string, data?: any) {

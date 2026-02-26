@@ -33,80 +33,24 @@
         <span className="loading loading-ring loading-lg"></span>
         <span className="loading loading-ring loading-lg"></span>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        <div v-for="(game, key) in userGameList" :key="game.status.account">
-          <GameAccount
-            :gameAccount="game.status.account"
-            @click="openGameConf(game.status.account)"
-          >
-            <div class="divider mt-2 mb-3 text-info font-arknigths text-xl">START</div>
-            <div class="grid gap-4 grid-cols-2 mt-2">
-              <button
-                class="btn btn-outline btn-sm btn-block btn-primary"
-                v-if="isSuspendStatus(game.status.account)"
-                @click="handleGameSuspendBtnOnClick(game.status.account)"
-                :disabled="isLoading"
-              >
-                暂停
-              </button>
-
-              <button
-                class="btn btn-outline btn-sm btn-block btn-primary"
-                v-else-if="isUpdateStatus(game.status.account)"
-                @click="handleUpdatePasswdBtnOnClick(getSlot(game.status.account))"
-                :disabled="isLoading"
-              >
-                更新密码
-              </button>
-
-              <button
-                class="btn btn-outline btn-sm btn-block btn-info"
-                v-else
-                @click="handleGameLoginBtnOnClick(game.status.account)"
-                :disabled="isLoginBtnDisabled(game.status.account)"
-              >
-                启动
-              </button>
-
-              <button
-                :disabled="isLoading"
-                class="btn btn-outline btn-sm btn-block btn-error"
-                @click.stop="
-                  handleDeleteBtnOnClick(
-                    getSlot(game.status.account)?.uuid || '',
-                    game.status.account
-                  )
-                "
-              >
-                删除
-              </button>
-            </div>
-          </GameAccount>
-        </div>
-        <template v-for="(slot, key) in userQuota?.slots" :key="slot.uuid">
-          <GameAddCard
-            v-if="!slot.gameAccount"
-            :slot="slot"
-            :userQuota="userQuota"
-            @click="createGameButtonOnClick(slot, slot.uuid)"
-          />
-          <GameAccount
-            v-else-if="!findGame(slot.gameAccount) && isGameListCompletedInit"
-            :gameAccount="slot.gameAccount"
-          >
-            <div class="divider mt-2 mb-3 text-info font-arknigths text-xl">START</div>
-            <div>
-              <button
-                :disabled="isLoading"
-                class="btn btn-outline btn-sm btn-block btn-error mt-2"
-                @click.stop="handleDeleteBtnOnClick(slot.uuid, slot.gameAccount)"
-              >
-                点击进行修复
-              </button>
-            </div>
-          </GameAccount>
-        </template>
-      </div>
+      <GameList
+        :user-game-list="userGameList"
+        :user-quota="userQuota"
+        :is-game-list-completed-init="isGameListCompletedInit"
+        :is-loading="isLoading"
+        :find-game="findGame"
+        :get-slot="getSlot"
+        :is-suspend-status="isSuspendStatus"
+        :is-update-status="isUpdateStatus"
+        :is-login-btn-disabled="isLoginBtnDisabled"
+        @open-game-conf="openGameConf"
+        @suspend="handleGameSuspendBtnOnClick"
+        @update-passwd="handleUpdatePasswdBtnOnClick"
+        @login="handleGameLoginBtnOnClick"
+        @delete="handleDeleteBtnOnClick"
+        @create="handleCreateGame"
+        @repair="handleRepairBtnOnClick"
+      />
     </div>
     <div
       class="bg-base-300 flex-1 flex flex-col md:ml-8 max-w-xl p-4 shadow-lg rounded-lg items-center animate__animated"
@@ -128,23 +72,18 @@
 import "animate.css";
 import { computed, onMounted, ref, watch } from "vue";
 import type { ApiSystemConfig, RegistrySlot, RegistryAddGameForm } from "@/shared/types/api";
-import { GameAccount, GameAddCard, GamePanel, IndexStatus } from "../../components/card/index";
+import { GamePanel, IndexStatus } from "../../components/card/index";
 import { StatusMessage } from "../../components/dashboard/user";
-import CreateGame from "../../components/dialog/CreateGame.vue";
-import GeeTestNotify from "../../components/dialog/GeeTestNotify.vue";
-import UpdateGamePasswd from "../../components/dialog/UpdateGamePasswd.vue";
+import GameList from "@/features/games/components/GameList.vue";
 import YouMayKnow from "../../components/dialog/YouMayKnow.vue";
-import { Type } from "@/shared/components/toast/enum";
 import { useLoading } from "@/shared/composables/useLoading";
 import { useCaptcha } from "@/shared/composables/useCaptcha";
-import { getRealGameAccount, processGameAccount } from "@/shared/utils/account";
-import { setMsg } from "@/shared/utils/toast";
-import { NOTIFY } from "@/shared/constants/config";
 import { useGamesStore } from "@/stores/useGamesStore";
 import { useUserStore } from "@/stores/useUserStore";
-import { allowGameCreate, canDeleteGame } from "@/features/games/composables/useGameQuota";
+import { useGameActions } from "@/features/games/composables/useGameActions";
+import { useGameTransitions } from "@/features/games/composables/useGameTransitions";
 import showDialog from "../../plugins/dialog/dialog";
-import APIStatusBoard from "../../components/APIStatus/APIStatusBoard.vue";
+import APIStatusBoard from "@/features/system/components/APIStatus/APIStatusBoard.vue";
 import authClient from "@/shared/services/authClient";
 import apiClient from "@/shared/services/apiClient";
 
@@ -164,90 +103,50 @@ const userGameList = computed(() => {
 const userQuota = computed(() => {
   return gamesStore.userQuota;
 });
-// start
 const firstGame = computed(() => gamesStore.firstGame);
-const findGame = (gameAccount: string) => gamesStore.findGame(gameAccount);
-// 补发验证码
+const isGameListCompletedInit = computed(() => gamesStore.isGameListCompletedInit);
+
+const {
+  findGame,
+  getSlot,
+  createGameButtonOnClick,
+  isUpdateStatus,
+  isSuspendStatus,
+  isLoginBtnDisabled,
+  handleDeleteBtnOnClick,
+  handleRepairBtnOnClick,
+  handleUpdatePasswdBtnOnClick,
+  gameLogin,
+  gameSuspend,
+} = useGameActions({
+  user,
+  gamesStore,
+  captcha,
+  isLoading,
+  selectedSlotUUID,
+  selectedRegisterForm,
+});
+
+const { beforeEnter, enter, leave } = useGameTransitions();
+
 watch(firstGame, (value) => {
-  if (user.isVerify) {
-    return;
-  }
-  if (!value) {
-    return;
-  }
+  if (user.isVerify) return;
+  if (!value) return;
   if (value.status.created_at > 0) {
     let phone = value.status.account;
-    // account is G18319999999
-    // if the first character is not a number, split it
     if (isNaN(parseInt(phone[0]))) {
       phone = phone.slice(1);
     }
-    authClient.sendSms({ phone: phone });
+    authClient.sendSms({ phone });
   }
 });
-
-const isGameListCompletedInit = computed(() => {
-  return gamesStore.isGameListCompletedInit;
-});
-
-const getSlot = (account: string) => {
-  return userQuota.value?.slots.find((slot: RegistrySlot) => slot.gameAccount === account);
-};
 
 onMounted(async () => {
   gamesStore.initializeGameListServerConnection();
-  apiClient.fetchSystemConfig().then((resp) => {
-    config.value = resp.data;
-  });
+  const response = await apiClient.fetchSystemConfig();
+  config.value = response.data;
   showDialog(YouMayKnow);
 });
-
-const createGameButtonOnClick = (slot: RegistrySlot, slotUUID: string) => {
-  if (!userQuota.value) {
-    setMsg("游戏托管槽位数据异常，无法提交", Type.Warning);
-    return;
-  }
-  const response = allowGameCreate(
-    slot,
-    userQuota.value,
-    user.isVerify // status code == 1 || 2
-  );
-  if (response.isLocked) {
-    setMsg(response.message, Type.Warning);
-    return;
-  }
-  showDialog(CreateGame, {
-    slotUUID: slotUUID,
-    isFirst: !user.isVerify,
-    loginFunc: gameLogin,
-  });
-};
-
-const isUpdateStatus = (gameAccount: string) => {
-  const game = findGame(gameAccount);
-  if (!game) return false;
-  if (
-    !game.status.password ||
-    game.status.text.includes("密码错误") ||
-    game.status.text.includes("无法解密密码")
-  ) {
-    return true;
-  }
-  return false;
-};
-
-const isSuspendStatus = (gameAccount: string) => {
-  const game = findGame(gameAccount);
-  if (!game) return false;
-  return game.status.code === 2;
-};
-
-const isLoginBtnDisabled = (gameAccount: string) => {
-  const game = findGame(gameAccount);
-  if (isLoading.value) return true;
-  if (!game) return false;
-  return game.status.code === 1;
-};
 
 const handleAPIStatusBoardOnClick = () => {
   isAPIStatusBoardShow.value = false;
@@ -262,121 +161,8 @@ const handleGameLoginBtnOnClick = (gameAccount: string) => {
   gameLogin(gameAccount);
 };
 
-const handleDeleteBtnOnClick = async (slotUUID: string, gameAccount: string) => {
-  // can you delete it?
-  if (userQuota.value === undefined) {
-    setMsg("游戏托管槽位数据异常，无法提交", Type.Warning);
-    return;
-  }
-  if (!canDeleteGame(userQuota.value, gameAccount)) {
-    setMsg(NOTIFY.NOT_ALLOW_DELETE_GAME, Type.Warning);
-    return;
-  }
-  isLoading.value = true;
-  try {
-    const deleteResp = await captcha.deleteGame(slotUUID);
-    await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
-    if (deleteResp.code === 1) {
-      setMsg("删除成功", Type.Success);
-    } else {
-      setMsg(deleteResp.message, Type.Warning);
-    }
-  } catch (error) {
-    setMsg("删除失败", Type.Warning);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-const handleRepairBtnOnClick = async (slotUUID: string, gameAccount: string) => {
-  // can you delete it?
-  if (userQuota.value === undefined) {
-    setMsg("游戏托管槽位数据异常，无法提交", Type.Warning);
-    return;
-  }
-  if (!canDeleteGame(userQuota.value, gameAccount)) {
-    setMsg(NOTIFY.NOT_ALLOW_DELETE_GAME, Type.Warning);
-    return;
-  }
-  isLoading.value = true;
-  try {
-    const accountInfo = processGameAccount(gameAccount);
-    if (!accountInfo) {
-      setMsg("账号格式不正确", Type.Warning);
-      return;
-    }
-    const form: RegistryAddGameForm = {
-      account: accountInfo.remaining,
-      password: "123456",
-      platform: accountInfo.code,
-    };
-    const createGameResp = await captcha.createGame(slotUUID, form);
-    if (createGameResp.code === 1) {
-      return createGameResp;
-    }
-    setMsg(createGameResp.message, Type.Error);
-    await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
-    if (createGameResp.code === 1) {
-      setMsg("修复成功", Type.Success);
-    } else {
-      setMsg(createGameResp.message, Type.Warning);
-    }
-  } catch (error) {
-    setMsg("修复失败", Type.Warning);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-const handleUpdatePasswdBtnOnClick = async (slot: RegistrySlot | undefined) => {
-  // can you delete it?
-  if (!slot) return;
-  if (!slot.gameAccount) return;
-  const game = findGame(slot.gameAccount);
-  if (!game) return;
-  selectedSlotUUID.value = slot.uuid;
-  selectedRegisterForm.value.account = getRealGameAccount(game.status.account);
-  selectedRegisterForm.value.platform = game.status.platform;
-  selectedRegisterForm.value.password = "";
-  showDialog(UpdateGamePasswd, {
-    slotUUID: slot.uuid,
-    form: selectedRegisterForm.value,
-  });
-};
-
-const gameLogin = async (account: string) => {
-  try {
-    isLoading.value = true;
-    const loginResp = await captcha.loginGame(account);
-    await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
-    if (loginResp.code === 1) {
-      setMsg("启动成功", Type.Success);
-      showDialog(GeeTestNotify);
-    } else {
-      setMsg(loginResp.message, Type.Warning);
-    }
-  } catch (e) {
-    setMsg("启动失败", Type.Warning);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-const gameSuspend = async (account: string) => {
-  isLoading.value = true;
-  try {
-    const resp = await gamesStore.gameSuspend(account);
-    await gamesStore.queryGameList();
-    if (resp.code === 1) {
-      setMsg("暂停成功", Type.Success);
-    } else {
-      setMsg(resp.message, Type.Warning);
-    }
-  } catch (error) {
-    setMsg("暂停失败", Type.Warning);
-  } finally {
-    isLoading.value = false;
-  }
+const handleCreateGame = (slot: RegistrySlot, slotUUID: string) => {
+  createGameButtonOnClick(slot, slotUUID, gameLogin);
 };
 
 const selectGame = ref("");
@@ -389,27 +175,6 @@ const openGameConf = (account: string) => {
   // 这些感觉可以再优化下
   selectGame.value = show.value ? "" : game.status.account;
   show.value = !show.value;
-};
-const beforeEnter = (el: Element): void => {
-  (el as HTMLElement).style.height = "0";
-  (el as HTMLElement).style.opacity = "0";
-};
-
-const enter = (el: Element, done: () => void): void => {
-  (el as HTMLElement).style.transition = "all 0.3s ease";
-  (el as HTMLElement).style.height = (el as HTMLElement).scrollHeight + "px";
-  (el as HTMLElement).style.opacity = "1";
-  setTimeout(done, 300); // 动画持续时间 0.3s
-};
-
-const leave = (el: Element, done: () => void): void => {
-  (el as HTMLElement).style.transition = "all 0.2s ease";
-  (el as HTMLElement).style.height = (el as HTMLElement).scrollHeight + "px"; // 确保在消失前先设置高度
-  setTimeout(() => {
-    (el as HTMLElement).style.height = "0"; // 折叠动画
-    (el as HTMLElement).style.opacity = "0"; // 渐隐动画
-    setTimeout(done, 100); // 等待动画完成再移除元素
-  }, 0);
 };
 </script>
 <style>

@@ -35,8 +35,7 @@ export async function startCaptcha<T>(
       }
       return recaptchaResult;
     }
-    // @ts-ignore
-    if (window["initGeetest"] === undefined) {
+    if (window.initGeetest === undefined) {
       setMsg("不知道为什么, Geetest加载失败。麻烦你发个工单吧", Type.Warning);
       throw new Error("Geetest加载失败");
     }
@@ -103,7 +102,7 @@ async function startGeeTest<T>(
   });
 }
 
-export const arknigthsGameCaptcha = (account: string, data: ApiGameCaptchaInfo): Promise<void> => {
+export const arknightsGameCaptcha = (account: string, data: ApiGameCaptchaInfo): Promise<void> => {
   return new Promise<void>((resolve, reject) => {
     // 判断是 GT3 还是 GT4
     const isGT3 = data.gt && data.challenge;
