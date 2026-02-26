@@ -53,8 +53,8 @@ import { setMsg } from "@/shared/utils/toast";
 import { sleep } from "@/shared/utils/misc";
 import { Type } from "@/shared/components/toast/enum";
 import { Icon } from "@iconify/vue";
+import { useGamesStore } from "@/stores/useGamesStore";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
-import { myState } from "../../store/games/myGames";
 import authClient from "@/shared/services/authClient";
 
 const props = defineProps<DialogComponentProps>();
@@ -62,9 +62,10 @@ const { dialogClose } = props;
 const qqCode = ref("");
 const isLoading = ref(true);
 let intervalId: number | null = null;
+const gamesStore = useGamesStore();
 
 const userQuota = computed(() => {
-  return myState.userQuota;
+  return gamesStore.userQuota;
 });
 
 onMounted(() => {

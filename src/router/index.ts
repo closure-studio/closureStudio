@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { ROUTE_NAMES } from "@/shared/constants/routes";
-import { userStore } from "../store/user";
+import { useUserStore } from "@/stores/useUserStore";
 declare module "vue-router" {
   interface RouteMeta {
     noAuth?: boolean;
@@ -9,14 +9,14 @@ declare module "vue-router" {
 }
 
 export const checkAuth = () => {
-  const user = userStore();
+  const user = useUserStore();
   if (!user) {
     return false;
   }
   if (!user.isLogin) {
     return false;
   }
-  if (user.user.Info && user.user.Info.exp < Math.floor(Date.now() / 1000)) {
+  if (user.info && user.info.exp < Math.floor(Date.now() / 1000)) {
     user.logout();
     window.location.reload();
     return false;

@@ -13,7 +13,7 @@
 import { ref } from "vue";
 import { setMsg } from "@/shared/utils/toast";
 import { Type } from "@/shared/components/toast/enum";
-import { userStore } from "../../store/user";
+import { useUserStore } from "@/stores/useUserStore";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
 import authClient from "@/shared/services/authClient";
 
@@ -23,7 +23,7 @@ const props = withDefaults(defineProps<DialogComponentProps>(), {
 const { dialogClose } = props;
 
 const smsCode = ref("");
-const user = userStore();
+const user = useUserStore();
 
 const handleCloseBtnOnClick = () => {
   dialogClose();

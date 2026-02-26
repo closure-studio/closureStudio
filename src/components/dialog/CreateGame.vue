@@ -104,11 +104,10 @@ import { buildGameAccount } from "@/shared/utils/account";
 import { useLoading } from "@/shared/composables/useLoading";
 import { useCaptcha } from "@/shared/composables/useCaptcha";
 import { setMsg } from "@/shared/utils/toast";
+import { useGamesStore } from "@/stores/useGamesStore";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
 import { checkIsMobile } from "@/shared/utils/regex";
 import { Type } from "@/shared/components/toast/enum";
-import { queryUserQuota } from "../../store/games/quota";
-import { queryGameList } from "../../store/games/games";
 
 interface Props extends DialogComponentProps {
   slotUUID: string;
@@ -117,6 +116,7 @@ interface Props extends DialogComponentProps {
 }
 const props = defineProps<Props>();
 const { dialogClose, slotUUID, isFirst, loginFunc } = props;
+const gamesStore = useGamesStore();
 const confirmPhone = ref(isFirst === undefined || isFirst ? false : true);
 const { isLoading } = useLoading();
 const captcha = useCaptcha();
@@ -134,11 +134,11 @@ const handleCreateBtnOnClick = async () => {
     isLoading.value = true;
     // createGame
     await createGame();
-    await Promise.all([queryGameList(), queryUserQuota()]);
+    await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
     setMsg("创建账号成功。开始自动登录", Type.Success);
     // loginFunc()
     await loginFunc(buildGameAccount(form.value.account, form.value.platform));
-    await queryGameList();
+    await gamesStore.queryGameList();
     dialogClose();
   } catch (error) {
     console.error(error);

@@ -53,9 +53,8 @@ import type { RegistryAddGameForm } from "@/shared/types/api";
 import { useLoading } from "@/shared/composables/useLoading";
 import { useCaptcha } from "@/shared/composables/useCaptcha";
 import { setMsg } from "@/shared/utils/toast";
+import { useGamesStore } from "@/stores/useGamesStore";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
-import { queryGameList } from "../../store/games/games";
-import { queryUserQuota } from "../../store/games/quota";
 import { Type } from "@/shared/components/toast/enum";
 
 export interface UpdateGamePasswdProps extends DialogComponentProps {
@@ -65,6 +64,7 @@ export interface UpdateGamePasswdProps extends DialogComponentProps {
 
 const props = defineProps<UpdateGamePasswdProps>();
 const { dialogClose, slotUUID, form } = props;
+const gamesStore = useGamesStore();
 
 const myForm = ref<RegistryAddGameForm>(props.form);
 const { isLoading } = useLoading();
@@ -84,7 +84,7 @@ const handleUpdateGamePasswdOnBtnClick = async () => {
     isLoading.value = true;
     const data = myForm.value;
     const resp = await captcha.updateGamePasswd(slotUUID, data);
-    await Promise.all([queryGameList(), queryUserQuota()]);
+    await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
     if (resp.code === 1) {
       setMsg("更新密码成功", Type.Success);
       window.location.reload();

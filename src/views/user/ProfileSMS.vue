@@ -33,17 +33,18 @@ import { computed, ref } from "vue";
 import { Type } from "@/shared/components/toast/enum";
 import { setMsg } from "@/shared/utils/toast";
 import { useLoading } from "@/shared/composables/useLoading";
-import { myState } from "../../store/games/myGames";
-import { getSMSSendPhone } from "../../store/games/quota";
-import { userStore } from "../../store/user";
+import { useUserStore } from "@/stores/useUserStore";
+import { useGamesStore } from "@/stores/useGamesStore";
+import { getSMSSendPhone } from "@/features/games/composables/useGameQuota";
 import authClient from "@/shared/services/authClient";
 
 const smsCode = ref("");
 
-const user = userStore();
+const user = useUserStore();
+const gamesStore = useGamesStore();
 const { isLoading } = useLoading();
-const phone = computed(() => getSMSSendPhone());
-const isGameListCompletedInit = computed(() => myState.isGameListCompletedInit);
+const phone = computed(() => getSMSSendPhone(gamesStore.userQuota));
+const isGameListCompletedInit = computed(() => gamesStore.isGameListCompletedInit);
 const handleCloseBtnOnClick = () => {
   smsCode.value = "";
 };

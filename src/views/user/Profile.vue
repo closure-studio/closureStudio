@@ -115,12 +115,13 @@ import { useRoute } from "vue-router";
 import GameAccount from "../../components/card/GameAccount.vue";
 import { computed, onMounted, ref } from "vue";
 import type { ApiGameGame } from "@/shared/types/api";
-import { userStore } from "../../store/user";
-import { initializeGameListServerConnection } from "../../store/games/myGames";
+import { useUserStore } from "@/stores/useUserStore";
+import { useGamesStore } from "@/stores/useGamesStore";
 import apiClient from "@/shared/services/apiClient";
 import { Icon } from "@iconify/vue";
 const route = useRoute();
-const user = userStore();
+const user = useUserStore();
+const gamesStore = useGamesStore();
 const levels = ["杰斯顿", "深海杰斯顿", "海上杰斯顿", "空中杰斯顿", "兽主杰斯顿"];
 
 const menu = [
@@ -156,6 +157,6 @@ const days = computed(() => {
   );
 });
 onMounted(async () => {
-  initializeGameListServerConnection();
+  gamesStore.initializeGameListServerConnection();
 });
 </script>

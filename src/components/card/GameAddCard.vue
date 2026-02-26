@@ -12,8 +12,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type { RegistrySlot, RegistryUserInfo } from "@/shared/types/api";
-import { userStore } from "../../store/user";
-import { allowGameCreate } from "../../store/games/quota";
+import { useUserStore } from "@/stores/useUserStore";
+import { allowGameCreate } from "@/features/games/composables/useGameQuota";
 interface Props {
   slot: RegistrySlot | undefined;
   userQuota: RegistryUserInfo | undefined;
@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
   slot: undefined,
   userQuota: undefined,
 });
-const user = userStore();
+const user = useUserStore();
 const isLocked = ref(false);
 
 const message = computed(() => {

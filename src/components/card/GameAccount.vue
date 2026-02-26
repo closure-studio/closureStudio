@@ -46,16 +46,17 @@
 import { assets } from "../../plugins/assets/assets";
 import { maskPhoneNumber } from "@/shared/utils/format";
 import { ref, onMounted, onUnmounted, computed } from "vue";
-import { myState } from "../../store/games/myGames";
+import { useGamesStore } from "@/stores/useGamesStore";
 interface Props {
   gameAccount?: string;
 }
 const props = defineProps<Props>();
 const { gameAccount } = props;
+const gamesStore = useGamesStore();
 
 const game = computed(() => {
   if (!gameAccount) return null;
-  return myState.gameList.find((game) => game.status.account === gameAccount);
+  return gamesStore.gameList.find((game) => game.status.account === gameAccount);
 });
 
 const getAvatarId = () => {

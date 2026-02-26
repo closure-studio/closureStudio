@@ -47,12 +47,12 @@
 </template>
 <script setup lang="ts">
 import Header from "./Header.vue";
-import { userStore } from "@/store/user";
+import { useUserStore } from "@/stores/useUserStore";
 import { useRouter } from "vue-router";
 import { setMsg } from "@/shared/utils/toast";
 import { Type } from "../toast/enum";
 import { computed } from "vue";
-const user = userStore();
+const user = useUserStore();
 const router = useRouter();
 const dynamicPath = computed(() => {
   return user.isVerify ? "/profile/account" : "/profile/smsVerify";

@@ -63,8 +63,8 @@ import type { ApiGameLogs, ApiGameGame, ApiGameDetail } from "@/shared/types/api
 import apiClient from "@/shared/services/apiClient";
 import { formatTime } from "@/shared/utils/format";
 import { setMsg } from "@/shared/utils/toast";
+import { useGamesStore } from "@/stores/useGamesStore";
 import showDialog from "../../plugins/dialog/dialog";
-import { findGame } from "../../store/games/myGames";
 import BattleScreenShots from "../dialog/BattleScreenShots.vue";
 import GameConfig from "../dialog/GameConfig.vue";
 import { Type } from "@/shared/components/toast/enum";
@@ -76,6 +76,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   account: "",
 });
+const gamesStore = useGamesStore();
 
 const gameLogs = ref<ApiGameLogs>({
   logs: [],
@@ -89,7 +90,7 @@ const details = ref<ApiGameDetail>();
 watch(
   () => props.account,
   (newVal) => {
-    selectedGame.value = findGame(newVal);
+    selectedGame.value = gamesStore.findGame(newVal);
     getGameDetails();
     // clear logs
     gameLogs.value = {

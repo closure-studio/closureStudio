@@ -127,12 +127,7 @@
 <script setup lang="ts">
 import "animate.css";
 import { computed, onMounted, ref, watch } from "vue";
-import type {
-  ApiSystemConfig,
-  ApiGameConfig,
-  RegistrySlot,
-  RegistryAddGameForm,
-} from "@/shared/types/api";
+import type { ApiSystemConfig, RegistrySlot, RegistryAddGameForm } from "@/shared/types/api";
 import { GameAccount, GameAddCard, GamePanel, IndexStatus } from "../../components/card/index";
 import { StatusMessage } from "../../components/dashboard/user";
 import CreateGame from "../../components/dialog/CreateGame.vue";
@@ -145,37 +140,33 @@ import { useCaptcha } from "@/shared/composables/useCaptcha";
 import { getRealGameAccount, processGameAccount } from "@/shared/utils/account";
 import { setMsg } from "@/shared/utils/toast";
 import { NOTIFY } from "@/shared/constants/config";
+import { useGamesStore } from "@/stores/useGamesStore";
+import { useUserStore } from "@/stores/useUserStore";
+import { allowGameCreate, canDeleteGame } from "@/features/games/composables/useGameQuota";
 import showDialog from "../../plugins/dialog/dialog";
-import {
-  findGame,
-  getFirstGame,
-  initializeGameListServerConnection,
-  myState,
-} from "../../store/games/myGames";
-import { allowGameCreate, canDeleteGame, queryUserQuota } from "../../store/games/quota";
-import { userStore } from "../../store/user";
-import { queryGameList } from "../../store/games/games";
 import APIStatusBoard from "../../components/APIStatus/APIStatusBoard.vue";
 import authClient from "@/shared/services/authClient";
 import apiClient from "@/shared/services/apiClient";
 
 const show = ref(false);
-const user = userStore();
+const user = useUserStore();
+const gamesStore = useGamesStore();
 const selectedSlotUUID = ref("");
 const config = ref({} as ApiSystemConfig);
 const selectedRegisterForm = ref({} as RegistryAddGameForm); // for update password
-const { isLoading, withLoading } = useLoading();
+const { isLoading } = useLoading();
 const captcha = useCaptcha();
 const isAPIStatusBoardShow = ref(true);
 
 const userGameList = computed(() => {
-  return myState.gameList;
+  return gamesStore.gameList;
 });
 const userQuota = computed(() => {
-  return myState.userQuota;
+  return gamesStore.userQuota;
 });
 // start
-const firstGame = getFirstGame;
+const firstGame = computed(() => gamesStore.firstGame);
+const findGame = (gameAccount: string) => gamesStore.findGame(gameAccount);
 // 补发验证码
 watch(firstGame, (value) => {
   if (user.isVerify) {
@@ -196,7 +187,7 @@ watch(firstGame, (value) => {
 });
 
 const isGameListCompletedInit = computed(() => {
-  return myState.isGameListCompletedInit;
+  return gamesStore.isGameListCompletedInit;
 });
 
 const getSlot = (account: string) => {
@@ -204,7 +195,7 @@ const getSlot = (account: string) => {
 };
 
 onMounted(async () => {
-  initializeGameListServerConnection();
+  gamesStore.initializeGameListServerConnection();
   apiClient.fetchSystemConfig().then((resp) => {
     config.value = resp.data;
   });
@@ -284,7 +275,7 @@ const handleDeleteBtnOnClick = async (slotUUID: string, gameAccount: string) => 
   isLoading.value = true;
   try {
     const deleteResp = await captcha.deleteGame(slotUUID);
-    await Promise.all([queryGameList(), queryUserQuota()]);
+    await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
     if (deleteResp.code === 1) {
       setMsg("删除成功", Type.Success);
     } else {
@@ -324,7 +315,7 @@ const handleRepairBtnOnClick = async (slotUUID: string, gameAccount: string) => 
       return createGameResp;
     }
     setMsg(createGameResp.message, Type.Error);
-    await Promise.all([queryGameList(), queryUserQuota()]);
+    await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
     if (createGameResp.code === 1) {
       setMsg("修复成功", Type.Success);
     } else {
@@ -357,7 +348,7 @@ const gameLogin = async (account: string) => {
   try {
     isLoading.value = true;
     const loginResp = await captcha.loginGame(account);
-    await Promise.all([queryGameList(), queryUserQuota()]);
+    await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
     if (loginResp.code === 1) {
       setMsg("启动成功", Type.Success);
       showDialog(GeeTestNotify);
@@ -373,12 +364,9 @@ const gameLogin = async (account: string) => {
 
 const gameSuspend = async (account: string) => {
   isLoading.value = true;
-  const config: ApiGameConfig = {
-    is_stopped: true,
-  };
   try {
-    const resp = await apiClient.doUpdateGameConf(account, config);
-    await queryGameList();
+    const resp = await gamesStore.gameSuspend(account);
+    await gamesStore.queryGameList();
     if (resp.code === 1) {
       setMsg("暂停成功", Type.Success);
     } else {

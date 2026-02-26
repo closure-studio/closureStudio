@@ -27,7 +27,7 @@ import { useLoading } from "@/shared/composables/useLoading";
 import { setMsg } from "@/shared/utils/toast";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
 import { Type } from "@/shared/components/toast/enum";
-import { userStore } from "../../store/user";
+import { useUserStore } from "@/stores/useUserStore";
 
 interface Props extends DialogComponentProps {
   deleteFunc: () => Promise<boolean>;
@@ -35,7 +35,7 @@ interface Props extends DialogComponentProps {
 const props = defineProps<Props>();
 const { deleteFunc, dialogClose } = props;
 const { isLoading } = useLoading();
-const user = userStore();
+const user = useUserStore();
 const email = user.info.email;
 
 const handleCloseBtnOnClick = () => {

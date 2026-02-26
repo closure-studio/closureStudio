@@ -58,10 +58,10 @@ import { Type } from "@/shared/components/toast/enum";
 import { setMsg } from "@/shared/utils/toast";
 import { useLoading } from "@/shared/composables/useLoading";
 import showDialog from "../../plugins/dialog/dialog";
-import { userStore } from "../../store/user";
+import { useUserStore } from "@/stores/useUserStore";
 import authClient from "@/shared/services/authClient";
 
-const user = userStore();
+const user = useUserStore();
 const createdAt = computed(() => new Date(user.info.createdAt * 1000).toLocaleString());
 // current password
 const currentPassword = ref("");

@@ -110,14 +110,14 @@
 import { onMounted, ref } from "vue";
 import type { ApiSystemHall } from "@/shared/types/api";
 import Login from "../components/card/Login.vue";
-import { userStore } from "../store/user";
+import { useUserStore } from "@/stores/useUserStore";
 import { isNight } from "@/shared/utils/misc";
 import APIStatusBoard from "../components/APIStatus/APIStatusBoard.vue";
 import apiClient from "@/shared/services/apiClient";
 const version = import.meta.env.VITE_APP_VERSION;
 const closure = ref(false); // Closure 图标动画
 const textRef = ref();
-const user = userStore();
+const user = useUserStore();
 const list = ref<ApiSystemHall[]>([]);
 onMounted(async () => {
   textRef.value.addEventListener("animationend", function () {

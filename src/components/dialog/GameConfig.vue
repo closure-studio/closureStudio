@@ -113,8 +113,8 @@ import { assets } from "../../plugins/assets/assets";
 import apiClient from "@/shared/services/apiClient";
 import { setMsg } from "@/shared/utils/toast";
 import { useLoading } from "@/shared/composables/useLoading";
+import { useGamesStore } from "@/stores/useGamesStore";
 import { DialogComponentProps } from "../../plugins/dialog/dialog";
-import { findGame } from "../../store/games/myGames";
 import BaseDesign from "../BaseDesign.vue";
 import { Type } from "@/shared/components/toast/enum";
 
@@ -128,6 +128,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const { dialogClose, account } = props;
+const gamesStore = useGamesStore();
 const initConfig = {
   account: "",
   accelerate_slot: "",
@@ -142,7 +143,7 @@ const initConfig = {
   map_id: "",
   allow_login_assist: false,
 };
-const game = findGame(account);
+const game = gamesStore.findGame(account);
 const config = ref<ApiGameGameConfig>(game?.game_config || initConfig);
 
 const { isLoading } = useLoading();

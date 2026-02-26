@@ -225,7 +225,7 @@ import authClient from "@/shared/services/authClient";
 import registryClient from "@/shared/services/registryClient";
 import { startCaptcha } from "../../plugins/captcha/captcha";
 import { setMsg } from "@/shared/utils/toast";
-import { userStore } from "../../store/user";
+import { useUserStore } from "@/stores/useUserStore";
 import { checkIsEmail, getEmailUsernameLength } from "@/shared/utils/regex";
 import Docker from "@/shared/components/toast/Docker.vue";
 import { Type } from "@/shared/components/toast/enum";
@@ -257,7 +257,7 @@ const findAccountParams = ref({
   gameAccount: "",
   platform: 1,
 });
-const user = userStore();
+const user = useUserStore();
 const router = useRouter();
 const isLoading = ref(false);
 const agreeTerms = ref(false);
