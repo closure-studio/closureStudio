@@ -53,11 +53,11 @@
 </template>
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import DeleteAccount from "../../components/dialog/DeleteAccount.vue";
+import DeleteAccount from "@/features/profile/components/DeleteAccount.vue";
 import { Type } from "@/shared/components/toast/enum";
 import { setMsg } from "@/shared/utils/toast";
 import { useLoading } from "@/shared/composables/useLoading";
-import showDialog from "../../plugins/dialog/dialog";
+import showDialog from "@/shared/components/dialog/dialog";
 import { useUserStore } from "@/stores/useUserStore";
 import authClient from "@/shared/services/authClient";
 

@@ -26,7 +26,7 @@
 <script lang="ts" setup>
 import { useLoading } from "@/shared/composables/useLoading";
 import { setMsg } from "@/shared/utils/toast";
-import { DialogComponentProps } from "../../plugins/dialog/dialog";
+import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
 import { Type } from "@/shared/components/toast/enum";
 
 interface Props extends DialogComponentProps {

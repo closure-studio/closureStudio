@@ -11,11 +11,11 @@ import type {
 } from "@/shared/types/api";
 import apiClient from "@/shared/services/apiClient";
 import registryClient from "@/shared/services/registryClient";
-import { arknightsGameCaptcha } from "@/plugins/captcha/captcha";
+import { arknightsGameCaptcha } from "@/shared/services/captcha";
 import { setMsg } from "@/shared/utils/toast";
 import { Type } from "@/shared/components/toast/enum";
-import showDialog from "@/plugins/dialog/dialog";
-import NewSSRNotice from "@/components/dialog/NewSSRNotice.vue";
+import showDialog from "@/shared/components/dialog/dialog";
+import NewSSRNotice from "@/features/games/components/NewSSRNotice.vue";
 import { useUserStore } from "@/stores/useUserStore";
 import { quotaSlotsSort } from "@/features/games/composables/useGameQuota";
 

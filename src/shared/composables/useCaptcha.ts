@@ -1,5 +1,4 @@
-import type { RequestResult } from "@/shared/types/service";
-import { startCaptcha } from "@/plugins/captcha/captcha";
+import { startCaptcha } from "@/shared/services/captcha";
 import apiClient from "@/shared/services/apiClient";
 import registryClient from "@/shared/services/registryClient";
 import type { RegistryAddGameForm } from "@/shared/types/api";

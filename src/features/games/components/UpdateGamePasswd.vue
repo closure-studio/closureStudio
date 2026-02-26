@@ -54,7 +54,7 @@ import { useLoading } from "@/shared/composables/useLoading";
 import { useCaptcha } from "@/shared/composables/useCaptcha";
 import { setMsg } from "@/shared/utils/toast";
 import { useGamesStore } from "@/stores/useGamesStore";
-import { DialogComponentProps } from "@/plugins/dialog/dialog";
+import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
 import { Type } from "@/shared/components/toast/enum";
 
 export interface UpdateGamePasswdProps extends DialogComponentProps {

@@ -32,7 +32,7 @@ import {
   hasPermission,
   addPermission,
   removePermission,
-} from "../../plugins/permission/permission";
+} from "@/shared/utils/permission";
 import { setMsg } from "@/shared/utils/toast";
 import { Type } from "@/shared/components/toast/enum";
 import authClient from "@/shared/services/authClient";

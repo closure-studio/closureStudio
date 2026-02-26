@@ -85,8 +85,7 @@ export function initSW() {
 
       if ("periodicSync" in registration) {
         const status = await navigator.permissions.query({
-          // @ts-expect-error periodic sync is not included in default PermissionName.
-          name: "periodic-background-sync",
+          name: "periodic-background-sync" as PermissionName,
         });
 
         if (status.state === "granted") {

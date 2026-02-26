@@ -64,8 +64,8 @@ import apiClient from "@/shared/services/apiClient";
 import { formatTime } from "@/shared/utils/format";
 import { setMsg } from "@/shared/utils/toast";
 import { useGamesStore } from "@/stores/useGamesStore";
-import showDialog from "@/plugins/dialog/dialog";
-import BattleScreenShots from "@/components/dialog/BattleScreenShots.vue";
+import showDialog from "@/shared/components/dialog/dialog";
+import BattleScreenShots from "@/features/games/components/BattleScreenShots.vue";
 import GameConfig from "@/features/games/components/GameConfig.vue";
 import { Type } from "@/shared/components/toast/enum";
 interface Props {

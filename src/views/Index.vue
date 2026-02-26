@@ -109,7 +109,7 @@
 <script lang="ts" setup>
 import { onMounted, ref } from "vue";
 import type { ApiSystemHall } from "@/shared/types/api";
-import Login from "../components/card/Login.vue";
+import Login from "@/features/auth/components/LoginDialog.vue";
 import { useUserStore } from "@/stores/useUserStore";
 import { isNight } from "@/shared/utils/misc";
 import APIStatusBoard from "@/features/system/components/APIStatus/APIStatusBoard.vue";

@@ -5,9 +5,9 @@ import { getRealGameAccount, processGameAccount } from "@/shared/utils/account";
 import { setMsg } from "@/shared/utils/toast";
 import { NOTIFY } from "@/shared/constants/config";
 import { allowGameCreate, canDeleteGame } from "@/features/games/composables/useGameQuota";
-import showDialog from "@/plugins/dialog/dialog";
+import showDialog from "@/shared/components/dialog/dialog";
 import CreateGame from "@/features/games/components/CreateGame.vue";
-import GeeTestNotify from "@/components/dialog/GeeTestNotify.vue";
+import GeeTestNotify from "@/features/games/components/GeeTestNotify.vue";
 import UpdateGamePasswd from "@/features/games/components/UpdateGamePasswd.vue";
 
 interface UseGameActionsOptions {

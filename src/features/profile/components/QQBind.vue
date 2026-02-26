@@ -54,7 +54,7 @@ import { sleep } from "@/shared/utils/misc";
 import { Type } from "@/shared/components/toast/enum";
 import { Icon } from "@iconify/vue";
 import { useGamesStore } from "@/stores/useGamesStore";
-import { DialogComponentProps } from "@/plugins/dialog/dialog";
+import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
 import authClient from "@/shared/services/authClient";
 
 const props = defineProps<DialogComponentProps>();

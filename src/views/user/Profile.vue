@@ -117,6 +117,7 @@ import { onMounted } from "vue";
 import { useUserStore } from "@/stores/useUserStore";
 import { useGamesStore } from "@/stores/useGamesStore";
 import { useProfileData } from "@/features/profile/composables/useProfileData";
+import { ROUTE_NAMES } from "@/shared/constants/routes";
 import { Icon } from "@iconify/vue";
 const route = useRoute();
 const user = useUserStore();
@@ -126,22 +127,22 @@ const { gameList, days, fetchProfileGameList } = useProfileData();
 
 const menu = [
   {
-    name: "平台信息",
+    name: ROUTE_NAMES.PROFILE,
     icon: "mdi-information",
     to: "/profile",
   },
   {
-    name: "网络设置",
+    name: ROUTE_NAMES.PROFILE_NETWORK,
     icon: "mdi-wifi",
     to: "/profile/network",
   },
   {
-    name: "账号安全",
+    name: ROUTE_NAMES.PROFILE_ACCOUNT,
     icon: "mdi-account-lock",
     to: "/profile/account",
   },
   {
-    name: "账号认证",
+    name: ROUTE_NAMES.PROFILE_SMS_VERIFY,
     icon: "mdi-shield-check",
     to: "/profile/smsVerify",
   },

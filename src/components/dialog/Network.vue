@@ -11,7 +11,7 @@
 import { watch, ref } from "vue";
 import { useUserStore } from "@/stores/useUserStore";
 import { useGamesStore } from "@/stores/useGamesStore";
-import { DialogComponentProps } from "../../plugins/dialog/dialog";
+import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
 const props = defineProps<DialogComponentProps>();
 const { dialogClose } = props;
 const closeAnn = ref();
