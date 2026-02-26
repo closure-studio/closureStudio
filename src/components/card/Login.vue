@@ -227,7 +227,7 @@ import { startCaptcha } from "../../plugins/captcha/captcha";
 import { setMsg } from "@/shared/utils/toast";
 import { userStore } from "../../store/user";
 import { checkIsEmail, getEmailUsernameLength } from "@/shared/utils/regex";
-import Docker from "../toast/Docker.vue";
+import Docker from "@/shared/components/toast/Docker.vue";
 import { Type } from "@/shared/components/toast/enum";
 
 enum ModelType {
