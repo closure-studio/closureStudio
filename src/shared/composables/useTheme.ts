@@ -1,4 +1,4 @@
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { loadTheme, setTheme, getTheme } from "@/shared/utils/theme";
 
 /**

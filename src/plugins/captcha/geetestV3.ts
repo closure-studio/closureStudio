@@ -3,12 +3,25 @@ import { Type } from "@/shared/components/toast/enum";
 import apiClient from "@/shared/services/apiClient";
 import { setMsg } from "@/shared/utils/toast";
 
+interface GeetestV3Obj {
+  onReady: (callback: () => void) => void;
+  onSuccess: (callback: () => void) => void;
+  onError: (callback: (error: unknown) => void) => void;
+  verify: () => void;
+  getValidate: () => {
+    geetest_challenge: string;
+    geetest_seccode: string;
+    geetest_validate: string;
+  } | null;
+  destroy: () => void;
+}
+
 // GT3 验证处理函数
 export function handleGT3Captcha(
   account: string,
   data: ApiGameCaptchaInfo,
   resolve: (value: void | PromiseLike<void>) => void,
-  reject: (reason?: any) => void
+  reject: (reason?: unknown) => void
 ) {
   // 检查 Geetest v3 是否加载
   if (typeof window.initGeetest !== "function") {
@@ -29,7 +42,7 @@ export function handleGT3Captcha(
         width: "300px",
         https: true,
       },
-      (captchaObj: any) => {
+      (captchaObj: GeetestV3Obj) => {
         if (!captchaObj) {
           const errorMsg = "验证码对象初始化失败";
           console.error("[Captcha] captchaObj is null or undefined");
@@ -79,7 +92,7 @@ export function handleGT3Captcha(
           }
         });
 
-        captchaObj.onError((error: any) => {
+        captchaObj.onError((error: unknown) => {
           const errorMsg = "验证码加载失败V3";
           console.error("[Captcha GT3] Geetest error:", error);
           setMsg(errorMsg, Type.Warning);

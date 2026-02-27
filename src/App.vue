@@ -23,7 +23,7 @@ initTheme();
 loadAssets();
 const page = () => {
   isLarge.value = document.documentElement.clientWidth >= 1024;
-  let vh = window.innerHeight * 0.01;
+  const vh = window.innerHeight * 0.01;
   document.documentElement.style.setProperty("--vh", `${vh}px`);
 };
 onMounted(() => {

@@ -69,7 +69,7 @@ const handleClickVersion = async () => {
       isLoading.value = true;
       return;
     }
-  } catch (e) {
+  } catch {
     latestVersion.value = "获取失败";
   } finally {
     if (!infiniteLoading.value) isLoading.value = false;
@@ -81,7 +81,7 @@ const refreshVersion = async () => {
   try {
     const v = await checkVersion();
     latestVersion.value = v;
-  } catch (e) {
+  } catch {
     latestVersion.value = "获取失败";
   } finally {
     isLoading.value = false;

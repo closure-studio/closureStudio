@@ -12,16 +12,16 @@ interface Window {
     render: (id: string, options: { sitekey: string; callback: (token: string) => void }) => void;
     reset: (id: string) => void;
   };
-  initGeetest4: (options: any, handle: any) => void;
-  initGeetest: (options: any, handle: any) => void;
+  initGeetest4: <T>(options: unknown, handle: (obj: T) => void) => void;
+  initGeetest: <T>(options: unknown, handle: (obj: T) => void) => void;
   captchaObj: {
     verify: () => void;
     onReady: (callback: () => void) => void;
     onRefresh: (callback: () => void) => void;
-    onError: (callback: () => void) => void;
+    onError: (callback: (error?: unknown) => void) => void;
     onSuccess: (callback: () => void) => void;
-    appendTo: (id: string) => any;
-    getValidate: () => any;
+    appendTo: (id: string) => unknown;
+    getValidate: () => unknown;
     showCaptcha: () => void;
   };
 }

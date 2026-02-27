@@ -9,9 +9,20 @@ type RequestMethod = "get" | "post" | "put" | "delete" | "patch";
 interface RequestParam {
   url: string;
   method: RequestMethod;
-  data?: any;
+  data?: unknown;
   token?: string;
   isSSE?: boolean;
+}
+
+interface RegistryResponseData {
+  err?: string | number;
+  code?: number;
+  available?: unknown;
+  results?: unknown;
+}
+
+interface RegistryResponse {
+  data: RegistryResponseData;
 }
 
 export class AxiosServer {
@@ -34,7 +45,7 @@ export class AxiosServer {
       switch (this.hostServer.baseURL) {
         case RegistryServer.baseURL: {
           const code = this.buildCodeFromRegisterResp(response);
-          const data: any = {
+          const data: RequestResult<unknown> = {
             message: code === 0 ? (response.data.err ? response.data.err : "大失败") : "成功",
             code,
             data: response.data,
@@ -70,7 +81,7 @@ export class AxiosServer {
     this.service.defaults.baseURL = hostServer.baseURL;
   }
 
-  buildCodeFromRegisterResp(resp: any): number {
+  buildCodeFromRegisterResp(resp: RegistryResponse): number {
     if (!resp.data.err && !resp.data.code) return 1;
     return resp.data.err || resp.data.code !== 1
       ? 0
@@ -96,7 +107,7 @@ export class AxiosServer {
     }
     const method = param.method || "get";
 
-    let res: any;
+    let res: unknown;
     if (method === "get" || method === "delete") {
       res = await this.service[method](url);
     } else {
@@ -106,19 +117,19 @@ export class AxiosServer {
     return res as RequestResult<T>;
   }
 
-  put<T>(url: string, data?: any) {
+  put<T>(url: string, data?: unknown) {
     return this.asyncRequest<T>({ url, method: "put", data });
   }
-  post<T>(url: string, data?: any) {
+  post<T>(url: string, data?: unknown) {
     return this.asyncRequest<T>({ url, method: "post", data });
   }
-  patch<T>(url: string, data?: any) {
+  patch<T>(url: string, data?: unknown) {
     return this.asyncRequest<T>({ url, method: "patch", data });
   }
   get<T>(url: string) {
     return this.asyncRequest<T>({ url, method: "get" });
   }
-  async del<T>(url: string, params: any): Promise<RequestResult<T>> {
+  async del<T>(url: string, params: unknown): Promise<RequestResult<T>> {
     const response = await this.service.delete(url, { data: params });
     return response as unknown as RequestResult<T>;
   }
@@ -129,10 +140,10 @@ export class AxiosServer {
     return response.data as T;
   }
 
-  captchaGet<T>(url: string, token: string, data?: any) {
+  captchaGet<T>(url: string, token: string, data?: unknown) {
     return this.asyncRequest<T>({ url, method: "get", token, data });
   }
-  captchaPost<T>(url: string, token: string, data?: any) {
+  captchaPost<T>(url: string, token: string, data?: unknown) {
     return this.asyncRequest<T>({ url, method: "post", token, data });
   }
   sse<T>(url: string) {

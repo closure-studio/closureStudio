@@ -101,7 +101,7 @@ const handleUpdatePasswordBtnOnClick = async () => {
       user.logout();
       window.location.reload();
     }
-  } catch (e) {
+  } catch {
     setMsg("密码修改失败", Type.Error);
   } finally {
     isLoading.value = false;
@@ -114,7 +114,7 @@ const deleteFunc = async () => {
     await new Promise((resolve) => setTimeout(resolve, 5000));
     setMsg("未实装", Type.Success);
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 };

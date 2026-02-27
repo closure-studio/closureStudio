@@ -11,11 +11,11 @@ class RegistryClient extends AxiosServer {
   constructor(hostServer: IHostServer) {
     super(hostServer);
   }
-  doAddGame(slot: string, token: string, params: any) {
+  doAddGame(slot: string, token: string, params: object) {
     return this.captchaPost<void>(`/api/slots/gameAccount?uuid=${slot}`, token, params);
   }
 
-  doUpdateGamePasswd(slot: string, token: string, params: any) {
+  doUpdateGamePasswd(slot: string, token: string, params: object) {
     return this.captchaPost(`/api/slots/gameAccount?uuid=${slot}`, token, params);
   }
   doDelGame(token: string, slot: string) {

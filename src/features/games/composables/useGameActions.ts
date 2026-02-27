@@ -5,15 +5,31 @@ import { getRealGameAccount, processGameAccount } from "@/shared/utils/account";
 import { setMsg } from "@/shared/utils/toast";
 import { NOTIFY } from "@/shared/constants/config";
 import { allowGameCreate, canDeleteGame } from "@/features/games/composables/useGameQuota";
+import type { useGamesStore } from "@/stores/useGamesStore";
 import showDialog from "@/shared/components/dialog/dialog";
 import CreateGame from "@/features/games/components/CreateGame.vue";
 import GeeTestNotify from "@/features/games/components/GeeTestNotify.vue";
 import UpdateGamePasswd from "@/features/games/components/UpdateGamePasswd.vue";
 
+interface ActionResult {
+  code: number;
+  message: string;
+}
+
+interface GameActionsCaptcha {
+  deleteGame: (slotUUID: string) => Promise<ActionResult>;
+  createGame: (slotUUID: string, form: RegistryAddGameForm) => Promise<ActionResult>;
+  loginGame: (account: string) => Promise<ActionResult>;
+}
+
+interface GameActionsUser {
+  isVerify: boolean;
+}
+
 interface UseGameActionsOptions {
-  user: any;
-  gamesStore: any;
-  captcha: any;
+  user: GameActionsUser;
+  gamesStore: ReturnType<typeof useGamesStore>;
+  captcha: GameActionsCaptcha;
   isLoading: Ref<boolean>;
   selectedSlotUUID: Ref<string>;
   selectedRegisterForm: Ref<RegistryAddGameForm>;
@@ -46,7 +62,7 @@ export function useGameActions(options: UseGameActionsOptions) {
       slotUUID,
       isFirst: !user.isVerify,
       loginFunc,
-    } as any);
+    } as Record<string, unknown>);
   };
 
   const isUpdateStatus = (gameAccount: string) => {
@@ -152,7 +168,7 @@ export function useGameActions(options: UseGameActionsOptions) {
     showDialog(UpdateGamePasswd, {
       slotUUID: slot.uuid,
       form: selectedRegisterForm.value,
-    } as any);
+    } as Record<string, unknown>);
   };
 
   const gameLogin = async (account: string) => {

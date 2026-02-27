@@ -211,7 +211,7 @@ export const useGamesStore = defineStore("games", () => {
         globalSSR.value = globalSSR.value.filter((item) => item.createdAt > lastReadTs);
         if (globalSSR.value.length > 0) {
           setMsg("可露希尔又双叒叕抽到 6 星干员啦!!!", Type.Info);
-          showDialog(NewSSRNotice, { users: globalSSR.value } as any);
+          showDialog(NewSSRNotice, { users: globalSSR.value } as Record<string, unknown>);
         }
       });
 

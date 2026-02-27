@@ -94,7 +94,7 @@ const copyQQCode = async () => {
     setMsg("绑定代码已复制到剪贴板", Type.Success);
     await sleep(500);
     setMsg("准备打开QQ群组", Type.Success);
-  } catch (err) {
+  } catch {
     setMsg("复制失败", Type.Warning);
   }
 };

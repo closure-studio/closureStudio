@@ -109,12 +109,12 @@ export interface ApiGameStatus {
 
 export interface ApiGameDetail {
   config: ApiGameConfig;
-  consumable?: any;
-  inventory?: any;
+  consumable?: unknown;
+  inventory?: unknown;
   lastFreshTs: number;
   screenshot: ApiGameScreenshot[];
   status: ApiGameStatus;
-  troop?: any;
+  troop?: unknown;
 }
 
 export interface ApiGameLogs {

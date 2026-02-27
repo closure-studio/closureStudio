@@ -12,8 +12,20 @@ const captchaConfig = {
     captchaId: "3d50c20b712aaf5c4390a663f1912941",
     product: "bind",
   },
-  handler: (obj: any) => {},
+  handler: () => {},
 };
+
+interface CaptchaObj {
+  verify: () => void;
+  appendTo: (selector: string) => void;
+  onReady: (callback: () => void) => void;
+  onRefresh: (callback: () => void) => void;
+  onSuccess: (callback: () => void) => void;
+  onError: (callback: () => void) => void;
+  getValidate: () => unknown;
+  showCaptcha: () => void;
+  destroy: () => void;
+}
 export async function startCaptcha<T>(
   myFunc: (captchaToken: string) => Promise<RequestResult<T>>
 ): Promise<RequestResult<T>> {
@@ -66,7 +78,7 @@ async function startGeeTest<T>(
     let myFuncResult: RequestResult<T> | null = null; // 存储 myFunc 的执行结果
 
     // 初始化 Geetest 验证组件
-    window.initGeetest4(captchaConfig.config, (obj: any) => {
+    window.initGeetest4(captchaConfig.config, (obj: CaptchaObj) => {
       window.captchaObj = obj;
       obj.appendTo("#captcha");
 

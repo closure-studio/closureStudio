@@ -50,7 +50,7 @@ export class APIClient extends AxiosServer {
       config: game,
     });
   }
-  doUpdateCaptcha(account: string, captcha: any) {
+  doUpdateCaptcha(account: string, captcha: Record<string, unknown>) {
     return this.post(`/game/config/${account}`, {
       captcha_info: captcha,
     });
