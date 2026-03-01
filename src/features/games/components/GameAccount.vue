@@ -1,7 +1,6 @@
 <template>
   <div
-    class="hover:scale-105 hover:shadow-lg hover:bg-info/10 active:bg-info/10 active:scale-95 duration-300 shadow-lg rounded-2xl px-4 py-3 s-pro"
-  >
+    class="hover:scale-105 hover:shadow-lg hover:bg-info/10 active:bg-info/10 active:scale-95 duration-300 shadow-lg rounded-2xl px-4 py-3 s-pro">
     <div class="flex items-center">
       <div class="avatar mr-2">
         <div class="w-12 rounded-md">
@@ -32,8 +31,7 @@
     </div>
     <div class="grid grid-cols-3">
       <div class="flex flex-col" v-for="m in 3">
-        <span class="text-base-content/70"
-          >{{ ["理智", "地图", "状态"][m - 1] }}
+        <span class="text-base-content/70">{{ ["理智", "地图", "状态"][m - 1] }}
           <b class="text-info">//</b>
         </span>
         <span class="text-md font-bold font-en" v-html="getContent(m)"></span>
@@ -68,8 +66,9 @@ const getAvatarId = () => {
 };
 
 const getAvatarType = () => {
+  return "DEFAULT";
   if (!game.value) return "DEFAULT";
-  return game.value.status?.avatar.type || "DEFAULT";
+  // return game.value.status?.avatar.type || "DEFAULT";
 };
 
 const getGameLevel = () => {

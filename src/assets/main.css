@@ -1,11 +1,15 @@
 @reference "./style.css";
 
+.modal-box {
+  background-color: #212121;
+}
 .s-combo {
   @apply flex flex-col-reverse;
 }
 .s-input {
   @apply px-4 py-2 rounded-xl duration-300 w-full text-neutral
     focus:outline-none focus:ring-2;
+  background-color: #3B3B3B;
 }
 .s-label {
   @apply text-sm mb-2;
