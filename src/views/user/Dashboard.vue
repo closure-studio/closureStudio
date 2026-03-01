@@ -29,9 +29,9 @@
         {{ userQuota?.slots?.length }} 可用）
       </div>
       <div v-if="!isGameListCompletedInit" class="h-72 flex justify-center w-full">
-        <span className="loading loading-ring loading-lg"></span>
-        <span className="loading loading-ring loading-lg"></span>
-        <span className="loading loading-ring loading-lg"></span>
+        <span class="loading loading-ring loading-lg"></span>
+        <span class="loading loading-ring loading-lg"></span>
+        <span class="loading loading-ring loading-lg"></span>
       </div>
       <GameList
         :user-game-list="userGameList"

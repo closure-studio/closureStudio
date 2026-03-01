@@ -11,7 +11,7 @@
       </div>
       <input
         v-model="qqCode"
-        class="input input-bordered join-item input-sm w-full max-w-xs"
+        class="input join-item input-sm w-full max-w-xs"
         readonly
         @click="selectAll"
       />

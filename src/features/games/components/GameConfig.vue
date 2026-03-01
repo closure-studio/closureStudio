@@ -8,31 +8,27 @@
     </div>
     <div class="overflow-y-auto max-h-[80vh]">
       <div class="flex">
-        <label class="form-control w-full max-w-xs mr-4">
+        <label class="w-full max-w-xs mr-4">
           <div class="label">
-            <span class="label-text">理智保留</span>
+            <span>理智保留</span>
           </div>
-          <input
-            v-model="config.keeping_ap"
-            type="number"
-            class="input input-sm input-bordered w-full max-w-xs"
-          />
+          <input v-model="config.keeping_ap" type="number" class="input input-sm w-full max-w-xs" />
         </label>
-        <label class="form-control w-full max-w-xs">
+        <label class="w-full max-w-xs">
           <div class="label">
-            <span class="label-text">招募卷保留</span>
+            <span>招募卷保留</span>
           </div>
           <input
             v-model="config.recruit_reserve"
             type="number"
-            class="input input-sm input-bordered w-full max-w-xs"
+            class="input input-sm w-full max-w-xs"
           />
         </label>
       </div>
       <div class="divider h-0">智能开关</div>
       <div class="grid grid-cols-2 gap-4 h-8">
         <label class="label cursor-pointer mb-4">
-          <span class="label-text">自动基建</span>
+          <span>自动基建</span>
           <input
             v-model="config.enable_building_arrange"
             type="checkbox"
@@ -41,19 +37,19 @@
         </label>
 
         <label class="label cursor-pointer mb-4">
-          <span class="label-text">自动作战</span>
+          <span>自动作战</span>
           <input v-model="config.is_auto_battle" type="checkbox" class="toggle toggle-sm" />
         </label>
       </div>
 
       <div class="grid grid-cols-2 gap-4 h-8">
         <label class="label cursor-pointer mb-4">
-          <span class="label-text">忽略小车</span>
+          <span>忽略小车</span>
           <input v-model="config.recruit_ignore_robot" type="checkbox" class="toggle toggle-sm" />
         </label>
 
         <label class="label cursor-pointer mb-4">
-          <span class="label-text">协助登录</span>
+          <span>协助登录</span>
           <input
             :disabled="true"
             v-model="config.allow_login_assist"
@@ -70,7 +66,7 @@
       <div class="divider h-2 mb-2">作战地图</div>
       <input
         v-model="stageKeyWord"
-        class="input input-sm input-bordered w-full text-center"
+        class="input input-sm w-full text-center"
         placeholder="-- 请输入代号\名称 --"
       />
       <div class="divider h-0">作战队列</div>

@@ -1,25 +1,20 @@
 <template>
   <div v-if="!isGameListCompletedInit" class="flex justify-center w-full">
-    <span className="loading loading-ring loading-lg"></span>
-    <span className="loading loading-ring loading-lg"></span>
-    <span className="loading loading-ring loading-lg"></span>
+    <span class="loading loading-ring loading-lg"></span>
+    <span class="loading loading-ring loading-lg"></span>
+    <span class="loading loading-ring loading-lg"></span>
   </div>
   <div v-if="isGameListCompletedInit">
     <div v-if="!user.isVerify" class="flex items-center space-x-4">
-      <label class="form-control w-full max-w-xs">
+      <label class="w-full max-w-xs">
         <div class="label">
-          <span class="label-text">请输入【{{ phone }}】收到的验证码</span>
+          <span>请输入【{{ phone }}】收到的验证码</span>
         </div>
-        <input
-          type="text"
-          placeholder="验证码"
-          class="input input-bordered max-w-xs"
-          v-model="smsCode"
-        />
+        <input type="text" placeholder="验证码" class="input max-w-xs" v-model="smsCode" />
       </label>
       <button class="btn btn-outline btn-error mt-auto" @click="handleCloseBtnOnClick">取消</button>
       <button class="btn btn-info mt-auto" @click="handleSubmitBtnOnClick">
-        <span v-if="isLoading" className="loading loading-spinner"></span>
+        <span v-if="isLoading" class="loading loading-spinner"></span>
         确认
       </button>
     </div>

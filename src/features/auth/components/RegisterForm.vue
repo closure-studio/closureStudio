@@ -37,9 +37,9 @@
           </div>
           <label class="s-label peer-focus:text-info">验证码</label>
         </div>
-        <div class="form-control">
+        <div>
           <label class="label cursor-pointer">
-            <span class="label-text"
+            <span
               >我已阅读理解可露希尔小卖部
               <a href="/blog/Terms&Policies" target="_blank" class="s-underline">用户协议</a>
             </span>

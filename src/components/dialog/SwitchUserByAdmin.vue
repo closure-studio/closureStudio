@@ -9,7 +9,7 @@
         :disabled="isLoading"
         @click.stop="handleCloseBtnOnClick()"
       >
-        <span v-if="isLoading" className="loading loading-spinner"></span>
+        <span v-if="isLoading" class="loading loading-spinner"></span>
         取消
       </button>
       <button
@@ -17,7 +17,7 @@
         @click="handleConfirmBtnOnClick()"
         :disabled="isLoading"
       >
-        <span v-if="isLoading" className="loading loading-spinner"></span>
+        <span v-if="isLoading" class="loading loading-spinner"></span>
         确定
       </button>
     </div>

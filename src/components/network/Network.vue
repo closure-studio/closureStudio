@@ -2,9 +2,9 @@
   <div>
     <!-- header -->
     <div v-if="isLoading">
-      <span className="loading loading-bars loading-lg"></span>
-      <span className="loading loading-bars loading-lg"></span>
-      <span className="loading loading-bars loading-lg"></span>
+      <span class="loading loading-bars loading-lg"></span>
+      <span class="loading loading-bars loading-lg"></span>
+      <span class="loading loading-bars loading-lg"></span>
     </div>
     <div>
       <div class="w-full mb-3">

@@ -9,10 +9,10 @@
       >
       <div class="divider">OR</div>
       <div class="grid gap-y-4">
-        <div class="s-combo">
+        <div className="s-combo">
           <input
             placeholder="请输入您的邮箱"
-            class="s-input peer focus:ring-info"
+            className="s-input peer focus:ring-info"
             v-model="loginParams.email"
             autocomplete="email"
           />
@@ -28,9 +28,9 @@
           <label class="s-label peer-focus:text-info">密码</label>
         </div>
 
-        <div class="form-control">
+        <div>
           <label class="label cursor-pointer">
-            <span class="label-text">保存密码（请勿在公共设备上保存）</span>
+            <span>保存密码（请勿在公共设备上保存）</span>
             <input
               type="checkbox"
               class="checkbox checkbox-info"
