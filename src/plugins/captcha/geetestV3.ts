@@ -1,21 +1,32 @@
-import { Type } from "../../components/toast/enum";
-import apiClient from "../axios/apiClient";
-import { setMsg } from "../common";
+import type { ApiGameCaptchaInfo } from "@/shared/types/api";
+import { Type } from "@/shared/components/toast/enum";
+import apiClient from "@/shared/services/apiClient";
+import { setMsg } from "@/shared/utils/toast";
+
+interface GeetestV3Obj {
+  onReady: (callback: () => void) => void;
+  onSuccess: (callback: () => void) => void;
+  onError: (callback: (error: unknown) => void) => void;
+  verify: () => void;
+  getValidate: () => {
+    geetest_challenge: string;
+    geetest_seccode: string;
+    geetest_validate: string;
+  } | null;
+  destroy: () => void;
+}
 
 // GT3 验证处理函数
 export function handleGT3Captcha(
   account: string,
-  data: ApiGame.CaptchaInfo,
+  data: ApiGameCaptchaInfo,
   resolve: (value: void | PromiseLike<void>) => void,
-  reject: (reason?: any) => void,
+  reject: (reason?: unknown) => void
 ) {
   // 检查 Geetest v3 是否加载
   if (typeof window.initGeetest !== "function") {
     const errorMsg = "Geetest v3 加载失败。请检查网络连接或稍后重试";
-    console.error(
-      "[Captcha] initGeetest is not a function:",
-      typeof window.initGeetest,
-    );
+    console.error("[Captcha] initGeetest is not a function:", typeof window.initGeetest);
     setMsg(errorMsg, Type.Warning);
     reject(new Error(errorMsg));
     return;
@@ -31,7 +42,7 @@ export function handleGT3Captcha(
         width: "300px",
         https: true,
       },
-      (captchaObj: any) => {
+      (captchaObj: GeetestV3Obj) => {
         if (!captchaObj) {
           const errorMsg = "验证码对象初始化失败";
           console.error("[Captcha] captchaObj is null or undefined");
@@ -81,7 +92,7 @@ export function handleGT3Captcha(
           }
         });
 
-        captchaObj.onError((error: any) => {
+        captchaObj.onError((error: unknown) => {
           const errorMsg = "验证码加载失败V3";
           console.error("[Captcha GT3] Geetest error:", error);
           setMsg(errorMsg, Type.Warning);
@@ -90,7 +101,7 @@ export function handleGT3Captcha(
           }
           reject(new Error(errorMsg));
         });
-      },
+      }
     );
   } catch (error) {
     console.error("[Captcha GT3] Error initializing Geetest:", error);

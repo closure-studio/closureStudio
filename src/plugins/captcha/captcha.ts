@@ -1,5 +1,7 @@
-import { Type } from "../../components/toast/enum";
-import { setMsg } from "../common";
+import type { RequestResult } from "@/shared/types/service";
+import type { ApiGameCaptchaInfo } from "@/shared/types/api";
+import { Type } from "@/shared/components/toast/enum";
+import { setMsg } from "@/shared/utils/toast";
 import { handleGT3Captcha } from "./geetestV3";
 import { handleGT4Captcha } from "./geetestV4";
 
@@ -10,17 +12,26 @@ const captchaConfig = {
     captchaId: "3d50c20b712aaf5c4390a663f1912941",
     product: "bind",
   },
-  handler: (obj: any) => {},
+  handler: () => {},
 };
+
+interface CaptchaObj {
+  verify: () => void;
+  appendTo: (selector: string) => void;
+  onReady: (callback: () => void) => void;
+  onRefresh: (callback: () => void) => void;
+  onSuccess: (callback: () => void) => void;
+  onError: (callback: () => void) => void;
+  getValidate: () => unknown;
+  showCaptcha: () => void;
+  destroy: () => void;
+}
 export async function startCaptcha<T>(
-  myFunc: (captchaToken: string) => Promise<Service.RequestResult<T>>,
-): Promise<Service.RequestResult<T>> {
+  myFunc: (captchaToken: string) => Promise<RequestResult<T>>
+): Promise<RequestResult<T>> {
   try {
     if (!window.grecaptcha && !window.initGeetest4) {
-      setMsg(
-        "Google reCaptcha 和 Geetest 都加载失败了，麻烦你发个工单吧",
-        Type.Warning,
-      );
+      setMsg("Google reCaptcha 和 Geetest 都加载失败了，麻烦你发个工单吧", Type.Warning);
       throw new Error("人机验证加载失败");
     }
     if (window.grecaptcha) {
@@ -36,8 +47,7 @@ export async function startCaptcha<T>(
       }
       return recaptchaResult;
     }
-    // @ts-ignore
-    if (window["initGeetest"] === undefined) {
+    if (window.initGeetest === undefined) {
       setMsg("不知道为什么, Geetest加载失败。麻烦你发个工单吧", Type.Warning);
       throw new Error("Geetest加载失败");
     }
@@ -49,8 +59,8 @@ export async function startCaptcha<T>(
 }
 
 async function startRecaptcha<T>(
-  myFunc: (captchaToken: string) => Promise<Service.RequestResult<T>>,
-): Promise<Service.RequestResult<T>> {
+  myFunc: (captchaToken: string) => Promise<RequestResult<T>>
+): Promise<RequestResult<T>> {
   const token = await window.grecaptcha.execute(googleRecaptchaSiteKey, {
     action: "submit",
   });
@@ -61,14 +71,14 @@ async function startRecaptcha<T>(
 }
 
 async function startGeeTest<T>(
-  myFunc: (captchaToken: string) => Promise<Service.RequestResult<T>>,
-): Promise<Service.RequestResult<T>> {
+  myFunc: (captchaToken: string) => Promise<RequestResult<T>>
+): Promise<RequestResult<T>> {
   // 创建一个新的 Promise 来控制整个 Geetest 流程
-  return new Promise<Service.RequestResult<T>>((resolve, reject) => {
-    let myFuncResult: Service.RequestResult<T> | null = null; // 存储 myFunc 的执行结果
+  return new Promise<RequestResult<T>>((resolve, reject) => {
+    let myFuncResult: RequestResult<T> | null = null; // 存储 myFunc 的执行结果
 
     // 初始化 Geetest 验证组件
-    window.initGeetest4(captchaConfig.config, (obj: any) => {
+    window.initGeetest4(captchaConfig.config, (obj: CaptchaObj) => {
       window.captchaObj = obj;
       obj.appendTo("#captcha");
 
@@ -104,10 +114,7 @@ async function startGeeTest<T>(
   });
 }
 
-export const arknigthsGameCaptcha = (
-  account: string,
-  data: ApiGame.CaptchaInfo,
-): Promise<void> => {
+export const arknightsGameCaptcha = (account: string, data: ApiGameCaptchaInfo): Promise<void> => {
   return new Promise<void>((resolve, reject) => {
     // 判断是 GT3 还是 GT4
     const isGT3 = data.gt && data.challenge;

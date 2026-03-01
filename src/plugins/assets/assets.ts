@@ -1,11 +1,12 @@
 import { computed, ref } from "vue";
-import { setMsg } from "../common";
-import { Type } from "../../components/toast/enum";
-import { constants } from "../config";
-import apiClient from "../axios/apiClient";
+import type { Items, Stages } from "@/shared/types/gamedata";
+import { setMsg } from "@/shared/utils/toast";
+import { Type } from "@/shared/components/toast/enum";
+import { constants } from "@/shared/constants/config";
+import apiClient from "@/shared/services/apiClient";
 
-const itemData = ref<Gamedata.Items>({});
-const stageData = ref<Gamedata.Stages>({});
+const itemData = ref<Items>({});
+const stageData = ref<Stages>({});
 
 const assets = computed(() => {
   const getStageName = (stageId: string) => {
@@ -26,28 +27,25 @@ const assets = computed(() => {
   const filteredStages = (keyword: string) => {
     // 如果keyword为空，返回空对象
     if (!keyword || keyword.trim() === "") {
-      return {} as Gamedata.Stages;
+      return {} as Stages;
     }
 
-    const data = Object.entries(stageData.value).reduce(
-      (acc, [key, originalValue]) => {
-        if (
-          Object.keys(acc).length < 18 &&
-          (key.includes(keyword) ||
-            originalValue.code.includes(keyword.toUpperCase()) ||
-            originalValue.name.includes(keyword))
-        ) {
-          const value = { ...originalValue, name: originalValue.name };
+    const data = Object.entries(stageData.value).reduce((acc, [key, originalValue]) => {
+      if (
+        Object.keys(acc).length < 18 &&
+        (key.includes(keyword) ||
+          originalValue.code.includes(keyword.toUpperCase()) ||
+          originalValue.name.includes(keyword))
+      ) {
+        const value = { ...originalValue, name: originalValue.name };
 
-          if (key.includes("tough")) {
-            value.name += " (磨难)";
-          }
-          acc[key] = value;
+        if (key.includes("tough")) {
+          value.name += " (磨难)";
         }
-        return acc;
-      },
-      {} as Gamedata.Stages
-    );
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as Stages);
 
     return data;
   };
@@ -74,7 +72,7 @@ const assets = computed(() => {
 
 const loadItems = async () => {
   try {
-    itemData.value = await apiClient.load<Gamedata.Items>("items");
+    itemData.value = await apiClient.load<Items>("items");
   } catch (error) {
     console.error("Error loading items data:", error);
     throw error;
@@ -83,7 +81,7 @@ const loadItems = async () => {
 
 const loadStages = async () => {
   try {
-    const stagesData = await apiClient.load<Gamedata.Stages>("stages");
+    const stagesData = await apiClient.load<Stages>("stages");
     stageData.value = stagesData;
   } catch (error) {
     console.error("Error loading stages data:", error);

@@ -1,21 +1,37 @@
-import { Type } from "../../components/toast/enum";
-import apiClient from "../axios/apiClient";
-import { setMsg } from "../common";
+import type { ApiGameCaptchaInfo } from "@/shared/types/api";
+import { Type } from "@/shared/components/toast/enum";
+import apiClient from "@/shared/services/apiClient";
+import { setMsg } from "@/shared/utils/toast";
+
+interface GeetestV4Validate {
+  pass_token?: string;
+  gen_time?: string;
+  captcha_output?: string;
+  captcha_id?: string;
+  lot_number?: string;
+}
+
+interface GeetestV4Obj {
+  appendTo: (selector: string) => void;
+  onReady: (callback: () => void) => void;
+  onSuccess: (callback: () => void) => void;
+  onError: (callback: (error: unknown) => void) => void;
+  showCaptcha?: () => void;
+  getValidate: () => GeetestV4Validate | null;
+  destroy: () => void;
+}
 
 // GT4 验证处理函数
 export function handleGT4Captcha(
   account: string,
-  data: ApiGame.CaptchaInfo,
+  data: ApiGameCaptchaInfo,
   resolve: (value: void | PromiseLike<void>) => void,
-  reject: (reason?: any) => void,
+  reject: (reason?: unknown) => void
 ) {
   // 检查 Geetest v4 是否加载
   if (typeof window.initGeetest4 !== "function") {
     const errorMsg = "Geetest v4 加载失败。请检查网络连接或稍后重试";
-    console.error(
-      "[Captcha] initGeetest4 is not a function:",
-      typeof window.initGeetest4,
-    );
+    console.error("[Captcha] initGeetest4 is not a function:", typeof window.initGeetest4);
     setMsg(errorMsg, Type.Warning);
     reject(new Error(errorMsg));
     return;
@@ -26,9 +42,9 @@ export function handleGT4Captcha(
       {
         captchaId: data.geetestId!,
         product: "bind",
-        riskType: data.riskType!
+        riskType: data.riskType!,
       },
-      (captchaObj: any) => {
+      (captchaObj: GeetestV4Obj) => {
         if (!captchaObj) {
           const errorMsg = "验证码对象初始化失败";
           console.error("[Captcha] captchaObj is null or undefined");
@@ -66,10 +82,7 @@ export function handleGT4Captcha(
             }
 
             console.log("[Captcha GT4] Validation successful, submitting...");
-            console.log(
-              "[Captcha GT4] Validate result (未确认格式):",
-              validate,
-            );
+            console.log("[Captcha GT4] Validate result (未确认格式):", validate);
             setMsg("提交成功，正在登录...", Type.Success);
             // 需要根据后端 API 要求调整
             await apiClient.doUpdateCaptcha(account, {
@@ -79,7 +92,6 @@ export function handleGT4Captcha(
               captcha_output: validate.captcha_output || "",
               captcha_id: validate.captcha_id || "",
               lot_number: validate.lot_number || "",
-
             });
 
             captchaObj.destroy();
@@ -95,7 +107,7 @@ export function handleGT4Captcha(
           }
         });
 
-        captchaObj.onError((error: any) => {
+        captchaObj.onError((error: unknown) => {
           const errorMsg = "验证码加载失败V4";
           console.error("[Captcha GT4] Geetest error:", error);
           setMsg(errorMsg, Type.Warning);
@@ -104,7 +116,7 @@ export function handleGT4Captcha(
           }
           reject(new Error(errorMsg));
         });
-      },
+      }
     );
   } catch (error) {
     console.error("[Captcha GT4] Error initializing Geetest:", error);

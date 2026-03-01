@@ -1,220 +1,237 @@
+@reference "./style.css";
+
+.modal-box {
+  background-color: #212121;
+}
 .s-combo {
-    @apply flex flex-col-reverse
+  @apply flex flex-col-reverse;
 }
 .s-input {
-    @apply px-4 py-2 rounded-xl duration-300 w-full text-neutral
-    focus:outline-none focus:ring-2
+  @apply px-4 py-2 rounded-xl duration-300 w-full text-neutral
+    focus:outline-none focus:ring-2;
+  background-color: #3B3B3B;
 }
 .s-label {
-    @apply text-sm mb-2
+  @apply text-sm mb-2;
 }
-[data-theme=halloween] .s-pro {
-    background-image: repeating-linear-gradient(-45deg,#262626,#262626 .2rem,hsl(0deg 0% 0% / 0%) 0,hsl(0deg 0% 0% / 0%) .4rem)
+[data-theme="halloween"] .s-pro {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #262626,
+    #262626 0.2rem,
+    hsl(0deg 0% 0% / 0%) 0,
+    hsl(0deg 0% 0% / 0%) 0.4rem
+  );
 }
 .s-card {
-    @apply card w-full bg-base-100 shadow-lg p-5 rounded-md h-fit
+  @apply card w-full bg-base-100 shadow-lg p-5 rounded-md h-fit;
 }
 .s-menu {
-    @apply p-2 hover:bg-base-300 text-xl
+  @apply p-2 hover:bg-base-300 text-xl;
 }
 .s-grid {
-    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr))
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
 }
 .s-grid-lg {
-    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr))
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
 }
 .s-underline {
-    @apply underline decoration-info decoration-4 underline-offset-4
+  @apply underline decoration-info decoration-4 underline-offset-4;
 }
 .s-table {
-    overflow-y: scroll;
+  overflow-y: scroll;
 }
 .s-table::-webkit-scrollbar {
-    width: 8px;
+  width: 8px;
 }
 ::-webkit-scrollbar {
-    width: 0;
-    height: 8px;
-    background-color: rgba(0,0,0,.2);
+  width: 0;
+  height: 8px;
+  background-color: rgba(0, 0, 0, 0.2);
 }
 ::-webkit-scrollbar-track {
-    -webkit-box-shadow:inset 0 0 6px rgba(0,0,0,0.3);
-    border-radius:10px;
-    background-color: var(--fallback-in,oklch(var(--b1)/var(--tw-bg-opacity)))
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  background-color: var(--fallback-in, oklch(var(--b1) / var(--tw-bg-opacity)));
 }
 ::-webkit-scrollbar-thumb {
-    border-radius:10px;
-    -webkit-box-shadow:inset 0 0 6px rgba(0,0,0,.3);
-    background-color: hsl(var(--inc) / 0.5);
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: hsl(var(--inc) / 0.5);
 }
 
 .g-glossy {
-    color: #333;
-    background-color: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(10px);
-    z-index: 10;
+  color: #333;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  z-index: 10;
 }
 .g-glossy::before {
-    content: unset;
+  content: unset;
 }
 .s-margin {
-    transition: margin-left .75s ease-in-out;
+  transition: margin-left 0.75s ease-in-out;
 }
 
 .slide-in-bottom {
-    animation: slide-in-bottom .5s cubic-bezier(.25,.46,.45,.94) both;
+  animation: slide-in-bottom 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 .slide-in-left {
-    animation: slide-in-left 2.5s cubic-bezier(.25,.46,.45,.94) both;
+  animation: slide-in-left 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 .delay-50 {
-    animation-delay: .5s;
+  animation-delay: 0.5s;
 }
 .delay-75 {
-    animation-delay: .75s;
+  animation-delay: 0.75s;
 }
 .delay-200 {
-    animation-delay: 2s;
+  animation-delay: 2s;
 }
 .delay-380 {
-    animation-delay: 3.8s;
+  animation-delay: 3.8s;
 }
 @keyframes slide-in-bottom {
-    0% {
-        transform: translateY(100vh);
-        opacity: 0
-    }
-    100% {
-        transform: translateY(0);
-        opacity: 1
-    }
+  0% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 @keyframes slide-in-left {
-    0%, 40% {
-        transform: translateX(-5rem);
-        opacity: 0
-    }
-    20%, 60% {
-        transform: translateX(-2rem);
-        opacity: 1
-    }
-    80% {
-        transform: translateX(2rem);
-        opacity: 1
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1
-    }
+  0%,
+  40% {
+    transform: translateX(-5rem);
+    opacity: 0;
+  }
+  20%,
+  60% {
+    transform: translateX(-2rem);
+    opacity: 1;
+  }
+  80% {
+    transform: translateX(2rem);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 @keyframes hinge {
-    0% {
-        animation-timing-function: ease-in-out
-    }
-    10% {
-        animation-timing-function: ease-in-out;
-        transform: rotate(-10deg)
-    }
-    30%, 90% {
-        animation-timing-function: ease-in-out;
-        opacity: 1;
-        transform: rotate(15deg)
-    }
-    60% {
-        animation-timing-function: ease-in-out;
-        opacity: 1;
-        transform: rotate(0deg)
-    }
-    100% {
-        opacity: 0;
-        transform: translate(0, 700px);
-    }
+  0% {
+    animation-timing-function: ease-in-out;
+  }
+  10% {
+    animation-timing-function: ease-in-out;
+    transform: rotate(-10deg);
+  }
+  30%,
+  90% {
+    animation-timing-function: ease-in-out;
+    opacity: 1;
+    transform: rotate(15deg);
+  }
+  60% {
+    animation-timing-function: ease-in-out;
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, 700px);
+  }
 }
 .text-hinge {
-    animation-duration: 3s;
-    animation-name: hinge;
-    transform-origin: top left;
+  animation-duration: 3s;
+  animation-name: hinge;
+  transform-origin: top left;
 }
 
 #container-stars {
-    position: absolute;
-    z-index: -1;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    transition: 0.5s;
-    backdrop-filter: blur(1rem);
-    border-radius: 5rem;
+  position: absolute;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transition: 0.5s;
+  backdrop-filter: blur(1rem);
+  border-radius: 5rem;
 }
 .space-btn {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 4rem;
-    backdrop-filter: blur(1rem);
-    border-radius: 5rem;
-    transition: 0.5s;
-    animation: gradient_301 5s ease infinite;
-    border: double 4px transparent;
-    background-image: linear-gradient(#212121, #212121), linear-gradient(137.48deg, #8F7DE8 10%, #A293EC 45%, #8F51EA 67%, #C678DD 87%);
-    background-origin: border-box;
-    background-clip: content-box, border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 4rem;
+  backdrop-filter: blur(1rem);
+  border-radius: 5rem;
+  transition: 0.5s;
+  animation: gradient_301 5s ease infinite;
+  border: double 4px transparent;
+  background-image:
+    linear-gradient(#212121, #212121),
+    linear-gradient(137.48deg, #8f7de8 10%, #a293ec 45%, #8f51ea 67%, #c678dd 87%);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
 }
 .space-btn:hover {
-    transform: scale(0.9)
+  transform: scale(0.9);
 }
 .space-btn:active {
-    border: double 4px;
-    border-color: var(--in);
-    background-origin: border-box;
-    background-clip: content-box, border-box;
-    animation: none;
+  border: double 4px;
+  border-color: var(--in);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  animation: none;
 }
 #stars {
-    position: relative;
-    background: transparent;
-    width: 200rem;
-    height: 200rem;
+  position: relative;
+  background: transparent;
+  width: 200rem;
+  height: 200rem;
 }
 #stars::after {
-    content: "";
-    position: absolute;
-    top: -10rem;
-    left: -100rem;
-    width: 100%;
-    height: 100%;
-    animation: animStarRotate 90s linear infinite;
-    background-image: radial-gradient(#ffffff 1px, transparent 1%);
-    background-size: 50px 50px;
+  content: "";
+  position: absolute;
+  top: -10rem;
+  left: -100rem;
+  width: 100%;
+  height: 100%;
+  animation: animStarRotate 90s linear infinite;
+  background-image: radial-gradient(#ffffff 1px, transparent 1%);
+  background-size: 50px 50px;
 }
 @keyframes animStar {
-    from {
-        transform: translateY(0);
-    }
+  from {
+    transform: translateY(0);
+  }
 
-    to {
-        transform: translateY(-135rem);
-    }
+  to {
+    transform: translateY(-135rem);
+  }
 }
 @keyframes animStarRotate {
-    from {
-        transform: rotate(360deg);
-    }
+  from {
+    transform: rotate(360deg);
+  }
 
-    to {
-        transform: rotate(0);
-    }
+  to {
+    transform: rotate(0);
+  }
 }
 @keyframes gradient_301 {
-    0% {
-        background-position: 0 50%;
-    }
+  0% {
+    background-position: 0 50%;
+  }
 
-    50% {
-        background-position: 100% 50%;
-    }
+  50% {
+    background-position: 100% 50%;
+  }
 
-    100% {
-        background-position: 0 50%;
-    }
+  100% {
+    background-position: 0 50%;
+  }
 }
