@@ -4,9 +4,12 @@
       <h1 class="block text-4xl font-bold text-info">用户登录</h1>
     </div>
     <div class="mt-5">
-      <a class="btn btn-block btn-info btn-outline" @click="$emit('switch-register')"
+      <a class="btn btn-block btn-info btn-outline mb-3" @click="$emit('switch-register')"
         >没有账号？点击注册！</a
       >
+      <a class="btn btn-block btn-info btn-outline" @click="handleLinuxDoLogin">
+        使用 Linux.do 登录
+      </a>
       <div class="divider">OR</div>
       <div class="grid gap-y-4">
         <div class="s-combo">
@@ -59,6 +62,7 @@
 
 <script setup lang="ts">
 import type { LoginParams } from "@/features/auth/composables/useAuthForm";
+import oauthClient from "@/shared/services/oauthClient";
 
 defineProps<{
   loginParams: LoginParams;
@@ -73,4 +77,8 @@ defineEmits<{
   (event: "switch-forget-password"): void;
   (event: "update:agreeTerms", value: boolean): void;
 }>();
+
+const handleLinuxDoLogin = () => {
+  oauthClient.initiateLinuxDoLogin();
+};
 </script>

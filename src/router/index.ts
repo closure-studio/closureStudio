@@ -28,6 +28,12 @@ export const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
+      path: "/auth/callback/linuxdo",
+      name: "OAuthCallback",
+      component: () => import("../views/auth/OAuthCallback.vue"),
+      meta: { noAuth: true },
+    },
+    {
       path: "/",
       component: () => import("../shared/components/layout/BaseLayout.vue"),
       children: [
