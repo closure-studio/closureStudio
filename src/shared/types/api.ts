@@ -30,6 +30,7 @@ export interface ApiSystemHall {
 
 export interface ApiUserAuth {
   token: string;
+  available_slot?: number;
 }
 
 export interface ApiUserInfo {

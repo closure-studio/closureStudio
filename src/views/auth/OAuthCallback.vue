@@ -52,6 +52,14 @@ const goToHome = () => {
 onMounted(async () => {
   try {
     // 从 URL 获取 code 和 state
+    // 用户拒绝授权时 Linux.do 返回 error 参数
+    const oauthError = route.query.error as string;
+    if (oauthError) {
+      error.value = oauthError === "access_denied" ? "您已取消授权" : `授权失败：${oauthError}`;
+      isLoading.value = false;
+      return;
+    }
+
     const code = route.query.code as string;
     const state = route.query.state as string;
 
@@ -72,7 +80,7 @@ onMounted(async () => {
     // 调用后端 API 交换 token
     const response = await authClient.loginWithLinuxDo({
       code,
-      redirectUri: oauthState.redirectUri,
+      redirect_uri: oauthState.redirectUri,
     });
 
     if (response.data && response.data.token) {

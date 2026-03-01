@@ -59,7 +59,7 @@ class AuthClient extends AxiosServer {
   fetchQQBindCode() {
     return this.get(`/qq`);
   }
-  loginWithLinuxDo(params: { code: string; redirectUri: string }) {
+  loginWithLinuxDo(params: { code: string; redirect_uri: string }) {
     return this.post<ApiUserAuth>(`/oauth/linuxdo/callback`, params);
   }
 }
