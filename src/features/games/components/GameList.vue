@@ -54,10 +54,7 @@
         :userQuota="userQuota"
         @click="$emit('create', slot, slot.uuid)"
       />
-      <GameAccount
-        v-else-if="!findGame(slot.gameAccount) && isGameListCompletedInit"
-        :gameAccount="slot.gameAccount"
-      >
+      <GameAccount v-else-if="!findGame(slot.gameAccount)" :gameAccount="slot.gameAccount">
         <div class="divider mt-2 mb-3 text-info font-arknights text-xl">START</div>
         <div>
           <button
