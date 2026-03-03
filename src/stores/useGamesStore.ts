@@ -223,9 +223,7 @@ export const useGamesStore = defineStore("games", () => {
   };
 
   const initializeGameListServerConnection = async () => {
-    if (isStarted.value) {
-      return;
-    }
+    isGameListCompletedInit.value = false;
     isStarted.value = true;
     const [quotaResult, gameListResult] = await Promise.all([queryUserQuota(), queryGameList()]);
     if (!quotaResult || !gameListResult) {
