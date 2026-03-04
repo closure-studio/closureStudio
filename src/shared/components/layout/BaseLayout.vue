@@ -28,7 +28,7 @@
             <router-link
               :to="dynamicPath"
               :class="{ 'bg-info': router.currentRoute.value.name === '账号安全' }"
-              >账号设置</router-link
+              >网站设置</router-link
             >
           </li>
           <li>
