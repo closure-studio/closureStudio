@@ -50,8 +50,8 @@ export const useGamesStore = defineStore("games", () => {
   const gameList = ref<ApiGameGame[]>([]);
   const globalSSR = ref<ApiGameSSR[]>([]);
   const captchaCache = ref<Record<string, ApiGameCaptchaInfo>>({});
+  const isGameListIniting = ref(false);
   const isGameListCompletedInit = ref(false);
-  const isStarted = ref(false);
   const isLoadingGameList = ref(false);
   const pollingTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
 
@@ -223,13 +223,17 @@ export const useGamesStore = defineStore("games", () => {
   };
 
   const initializeGameListServerConnection = async () => {
-    isGameListCompletedInit.value = false;
-    isStarted.value = true;
+    if (isGameListCompletedInit.value) {
+      return;
+    }
+    isGameListIniting.value = true;
     const [quotaResult, gameListResult] = await Promise.all([queryUserQuota(), queryGameList()]);
     if (!quotaResult || !gameListResult) {
       setMsg("初始化失败, 请刷新网页或稍后再尝试", Type.Warning);
+      isGameListIniting.value = false;
       return;
     }
+    isGameListIniting.value = false;
     isGameListCompletedInit.value = true;
     const sseResult = await startSSE();
     if (sseResult) {
@@ -252,8 +256,8 @@ export const useGamesStore = defineStore("games", () => {
     gameList.value = [];
     globalSSR.value = [];
     captchaCache.value = {};
+    isGameListIniting.value = false;
     isGameListCompletedInit.value = false;
-    isStarted.value = false;
     isLoadingGameList.value = false;
     stopGameListPolling();
   };
@@ -264,8 +268,7 @@ export const useGamesStore = defineStore("games", () => {
     gameList,
     globalSSR,
     captchaCache,
-    isGameListCompletedInit,
-    isStarted,
+    isGameListIniting,
     isLoadingGameList,
     firstGame,
     findGame,

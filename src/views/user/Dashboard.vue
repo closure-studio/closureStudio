@@ -28,7 +28,7 @@
         我的托管（{{ userQuota?.slots.filter((slot) => slot.gameAccount !== null)?.length }} 已用 /
         {{ userQuota?.slots?.length }} 可用）
       </div>
-      <div v-if="!isGameListCompletedInit" class="h-72 flex justify-center w-full">
+      <div v-if="isGameListIniting" class="h-72 flex justify-center w-full">
         <span class="loading loading-ring loading-lg"></span>
         <span class="loading loading-ring loading-lg"></span>
         <span class="loading loading-ring loading-lg"></span>
@@ -36,7 +36,6 @@
       <GameList
         :user-game-list="userGameList"
         :user-quota="userQuota"
-        :is-game-list-completed-init="isGameListCompletedInit"
         :is-loading="isLoading"
         :find-game="findGame"
         :get-slot="getSlot"
@@ -105,7 +104,7 @@ const userQuota = computed(() => {
   return gamesStore.userQuota;
 });
 const firstGame = computed(() => gamesStore.firstGame);
-const isGameListCompletedInit = computed(() => gamesStore.isGameListCompletedInit);
+const isGameListIniting = computed(() => gamesStore.isGameListIniting);
 
 const {
   findGame,

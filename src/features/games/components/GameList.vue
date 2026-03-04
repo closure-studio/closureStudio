@@ -78,7 +78,6 @@ import GameAddCard from "@/features/games/components/GameAddCard.vue";
 defineProps<{
   userGameList: ApiGameGame[];
   userQuota: RegistryUserInfo;
-  isGameListCompletedInit: boolean;
   isLoading: boolean;
   findGame: (gameAccount: string) => ApiGameGame | undefined;
   getSlot: (account: string) => RegistrySlot | undefined;
