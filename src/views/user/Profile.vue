@@ -4,7 +4,7 @@
       <span class="font-bold text-4xl">可露希尔杂货店</span>
       <div class="divider my-2" />
     </div> -->
-    <div class="mt-2 flex items-start">
+    <div class="flex items-start">
       <ul
         class="hidden md:block menu w-12 md:w-[10rem] rounded-box shadow-md mr-4 space-y-2 font-bold s-pro"
       >
@@ -228,6 +228,11 @@ const menu = [
     name: ROUTE_NAMES.PROFILE_SMS_VERIFY,
     icon: "mdi-shield-check",
     to: "/profile/smsVerify",
+  },
+  {
+    name: ROUTE_NAMES.PROFILE_ACKNOWLEDGEMENTS,
+    icon: "mdi-heart",
+    to: "/profile/acknowledgements",
   },
 ];
 

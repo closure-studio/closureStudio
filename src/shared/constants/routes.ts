@@ -10,6 +10,7 @@ export const ROUTE_NAMES = {
   PROFILE_NETWORK: "网络设置",
   PROFILE_ACCOUNT: "账号安全",
   PROFILE_SMS_VERIFY: "账号认证",
+  PROFILE_ACKNOWLEDGEMENTS: "鸣谢名单",
   DASHBOARD: "控制面板",
 } as const;
 
