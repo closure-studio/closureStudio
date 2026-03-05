@@ -1,7 +1,7 @@
 <template>
   <main class="overflow-x-hidden h-screen w-full flex flex-col">
     <Header />
-    <input id="drawer" type="checkbox" class="drawer-toggle" />
+    <input id="drawer" v-model="isDrawerOpen" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content flex-1 mx-4 mb-4">
       <router-view />
     </div>
@@ -19,22 +19,27 @@
         <div class="divider my-2" />
         <ul class="w-full text-lg space-y-2">
           <li>
-            <router-link to="/" :class="{ 'bg-info': router.currentRoute.value.name === '首页' }"
+            <router-link
+              to="/"
+              :class="{ 'bg-info': router.currentRoute.value.name === '首页' }"
+              @click="closeDrawer"
               >首页</router-link
             >
           </li>
-          <li><router-link to="/dashboard">托管账号</router-link></li>
+          <li><router-link to="/dashboard" @click="closeDrawer">托管账号</router-link></li>
           <li>
             <router-link
               :to="dynamicPath"
               :class="{ 'bg-info': router.currentRoute.value.name === '账号安全' }"
-              >账号设置</router-link
+              @click="closeDrawer"
+              >网站设置</router-link
             >
           </li>
           <li>
             <router-link
               to="/admin"
               :class="{ 'bg-info': router.currentRoute.value.name === '系统管理' }"
+              @click="closeDrawer"
               >系统管理</router-link
             >
           </li>
@@ -48,16 +53,23 @@
 <script setup lang="ts">
 import Header from "./Header.vue";
 import { useUserStore } from "@/stores/useUserStore";
+import { useGamesStore } from "@/stores/useGamesStore";
 import { useRouter } from "vue-router";
 import { setMsg } from "@/shared/utils/toast";
 import { Type } from "../toast/enum";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 const user = useUserStore();
+const gamesStore = useGamesStore();
 const router = useRouter();
+const isDrawerOpen = ref(false);
 const dynamicPath = computed(() => {
   return user.isVerify ? "/profile/account" : "/profile/smsVerify";
 });
+const closeDrawer = () => {
+  isDrawerOpen.value = false;
+};
 const logout = () => {
+  gamesStore.$reset();
   user.logout();
   setMsg("已退出登录", Type.Success);
   window.location.reload();

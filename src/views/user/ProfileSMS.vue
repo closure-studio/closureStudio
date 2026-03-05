@@ -1,10 +1,10 @@
 <template>
-  <div v-if="!isGameListCompletedInit" class="flex justify-center w-full">
+  <div v-if="isGameListIniting" class="flex justify-center w-full">
     <span class="loading loading-ring loading-lg"></span>
     <span class="loading loading-ring loading-lg"></span>
     <span class="loading loading-ring loading-lg"></span>
   </div>
-  <div v-if="isGameListCompletedInit">
+  <div v-if="!isGameListIniting">
     <div v-if="!user.isVerify" class="flex items-center space-x-4">
       <label class="w-full max-w-xs">
         <div class="label">
@@ -39,7 +39,7 @@ const user = useUserStore();
 const gamesStore = useGamesStore();
 const { isLoading } = useLoading();
 const phone = computed(() => getSMSSendPhone(gamesStore.userQuota));
-const isGameListCompletedInit = computed(() => gamesStore.isGameListCompletedInit);
+const isGameListIniting = computed(() => gamesStore.isGameListIniting);
 const handleCloseBtnOnClick = () => {
   smsCode.value = "";
 };

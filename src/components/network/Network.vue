@@ -7,76 +7,97 @@
       <span class="loading loading-bars loading-lg"></span>
     </div>
     <div>
-      <div class="w-full mb-3">
-        <label class="label">
-          <span class="text-xs"> {{ APIHostLTSC.label }}</span>
-          <div
-            class="cursor-pointer flex flex-row items-center gap-2"
-            @click="handleAPIClientRadioOnClick(APIHostLTSC)"
-          >
-            <!-- 按钮在小屏幕隐藏 -->
-            <!-- <span class="text-xs"> {{ APIHostLTSC.label }}</span> -->
-            <button :class="ltscButtonClass">{{ ltscRadioBtnText }}</button>
-            <!-- 分隔线在小屏幕隐藏 -->
-            <div class="divider divider-horizontal hidden lg:inline-flex"></div>
-            <input
-              type="radio"
-              :disabled="isAPIClientRadioDisabled"
-              :checked="handleAPIClientRadioIsChecked(APIHostLTSC)"
-              class="radio checked:bg-red-500 radio-xs"
-            />
+      <div class="w-full mb-3 rounded-box bg-base-100">
+        <label
+          class="block rounded-lg px-3 py-3 cursor-pointer transition-colors"
+          :class="
+            handleAPIClientRadioIsChecked(APIHostLTSC)
+              ? 'bg-primary/5'
+              : 'bg-base-100 hover:bg-base-200/20'
+          "
+          @click="handleAPIClientRadioOnClick(APIHostLTSC)"
+        >
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <span
+                class="h-2.5 w-2.5 rounded-full shrink-0"
+                :class="handleAPIClientRadioIsChecked(APIHostLTSC) ? 'bg-primary' : 'bg-base-300'"
+              />
+              <div class="min-w-0">
+                <p class="text-sm font-semibold truncate">{{ APIHostLTSC.label }}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 shrink-0">
+              <span :class="ltscLatencyClass">{{ formatLatencyText(ltscRadioBtnText) }}</span>
+              <span
+                class="text-xs font-medium"
+                :class="
+                  handleAPIClientRadioIsChecked(APIHostLTSC)
+                    ? 'text-primary'
+                    : 'text-base-content/60'
+                "
+              >
+                {{ handleAPIClientRadioIsChecked(APIHostLTSC) ? "使用中" : "切换" }}
+              </span>
+            </div>
           </div>
         </label>
-        <label class="label">
-          <span class="text-xs"> {{ APIHostCloudflare.label }}</span>
-          <div
-            class="cursor-pointer flex flex-row items-center gap-2"
-            @click="handleAPIClientRadioOnClick(APIHostCloudflare)"
-          >
-            <!-- 确保文本与 radio 在同一行 -->
-            <button :class="cloudflareButtonClass">{{ cloudflareRadioBtnText }}</button>
-            <!-- 分隔线在小屏幕隐藏 -->
-            <div class="divider divider-horizontal hidden lg:inline-flex"></div>
-            <input
-              type="radio"
-              :disabled="isAPIClientRadioDisabled"
-              :checked="handleAPIClientRadioIsChecked(APIHostCloudflare)"
-              class="radio checked:bg-blue-500 radio-xs"
-            />
+
+        <div class="divider my-0" />
+
+        <label
+          class="block rounded-lg px-3 py-3 cursor-pointer transition-colors"
+          :class="
+            handleAPIClientRadioIsChecked(APIHostCloudflare)
+              ? 'bg-primary/5'
+              : 'bg-base-100 hover:bg-base-200/20'
+          "
+          @click="handleAPIClientRadioOnClick(APIHostCloudflare)"
+        >
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <span
+                class="h-2.5 w-2.5 rounded-full shrink-0"
+                :class="
+                  handleAPIClientRadioIsChecked(APIHostCloudflare) ? 'bg-primary' : 'bg-base-300'
+                "
+              />
+              <div class="min-w-0">
+                <p class="text-sm font-semibold truncate">{{ APIHostCloudflare.label }}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 shrink-0">
+              <span :class="cloudflareLatencyClass">{{
+                formatLatencyText(cloudflareRadioBtnText)
+              }}</span>
+              <span
+                class="text-xs font-medium"
+                :class="
+                  handleAPIClientRadioIsChecked(APIHostCloudflare)
+                    ? 'text-primary'
+                    : 'text-base-content/60'
+                "
+              >
+                {{ handleAPIClientRadioIsChecked(APIHostCloudflare) ? "使用中" : "切换" }}
+              </span>
+            </div>
           </div>
         </label>
       </div>
       <div class="divider"></div>
-      <div class="w-full mb-3">
-        <label class="label">
-          <span class="text-xs"> {{ AuthServer.label }}</span>
-          <input type="radio" disabled checked class="radio checked:bg-blue-500 radio-xs" />
-        </label>
-        <label class="label">
-          <span class="text-xs"> {{ RegistryServer.label }}</span>
-          <input type="radio" disabled checked class="radio checked:bg-blue-500 radio-xs" />
-        </label>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
 import apiClient, { APIClient } from "@/shared/services/apiClient";
-import {
-  APIHostCloudflare,
-  APIHostLTSC,
-  AuthServer,
-  IHostServer,
-  RegistryServer,
-} from "@/shared/services/host";
+import { APIHostCloudflare, APIHostLTSC, IHostServer } from "@/shared/services/host";
+import { computed, ref } from "vue";
 
-import { setMsg } from "@/shared/utils/toast";
 import { Type } from "@/shared/components/toast/enum";
+import { setMsg } from "@/shared/utils/toast";
 
 const isLoading = ref(false);
-const isAPIClientRadioDisabled = ref(false);
 
 const ltscRadioBtnText = ref("N/A");
 const cloudflareRadioBtnText = ref("N/A");
@@ -103,19 +124,24 @@ const measureTimeCost = async (client: APIClient, setBtnText: (text: string) => 
 measureTimeCost(ltscClient, (text) => (ltscRadioBtnText.value = text));
 measureTimeCost(cloudflareClient, (text) => (cloudflareRadioBtnText.value = text));
 
-// 计算属性，动态设置按钮样式
-const ltscButtonClass = computed(() => {
-  const time = parseFloat(ltscRadioBtnText.value);
-  if (isNaN(time) || ltscRadioBtnText.value === "失败") return "btn btn-outline btn-xs btn-error";
-  return time < 1 ? "btn btn-outline btn-xs btn-success" : "btn btn-outline btn-xs btn-warning";
-});
+const formatLatencyText = (rawText: string) => {
+  if (rawText === "N/A") return "检测中";
+  if (rawText === "失败") return "连接失败";
+  return rawText;
+};
 
-const cloudflareButtonClass = computed(() => {
-  const time = parseFloat(cloudflareRadioBtnText.value);
-  if (isNaN(time) || cloudflareRadioBtnText.value === "失败")
-    return "btn btn-outline btn-xs btn-error";
-  return time < 1 ? "btn btn-outline btn-xs btn-success" : "btn btn-outline btn-xs btn-warning";
-});
+const getLatencyClass = (rawText: string) => {
+  const baseClass = "text-xs font-medium";
+  if (rawText === "N/A") return `${baseClass} text-base-content/60`;
+  if (rawText === "失败") return `${baseClass} text-error`;
+
+  const time = parseFloat(rawText);
+  if (isNaN(time)) return `${baseClass} text-base-content/60`;
+  return time < 1 ? `${baseClass} text-success` : `${baseClass} text-warning`;
+};
+
+const ltscLatencyClass = computed(() => getLatencyClass(ltscRadioBtnText.value));
+const cloudflareLatencyClass = computed(() => getLatencyClass(cloudflareRadioBtnText.value));
 
 const handleAPIClientRadioIsChecked = (host: IHostServer) => {
   return selectedHost.value.baseURL === host.baseURL;
@@ -123,7 +149,6 @@ const handleAPIClientRadioIsChecked = (host: IHostServer) => {
 
 const handleAPIClientRadioOnClick = (host: IHostServer) => {
   selectedHost.value = host;
-  isAPIClientRadioDisabled.value = true;
   apiClient.setHostServer(host);
   apiClient.saveLocalStorage();
   setMsg(`切换 ${host.label} 成功, 将在2秒后刷新`, Type.Success);
