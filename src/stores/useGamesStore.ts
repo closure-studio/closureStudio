@@ -54,6 +54,7 @@ export const useGamesStore = defineStore("games", () => {
   const isGameListCompletedInit = ref(false);
   const isLoadingGameList = ref(false);
   const pollingTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
+  const sseConnection = ref<EventSource | null>(null);
 
   const firstGame = computed(() => {
     if (!gameList.value.length) {
@@ -136,6 +137,14 @@ export const useGamesStore = defineStore("games", () => {
     }
   };
 
+  const closeSSE = () => {
+    if (!sseConnection.value) {
+      return;
+    }
+    sseConnection.value.close();
+    sseConnection.value = null;
+  };
+
   const queryUserQuota = async () => {
     try {
       const resp = await registryClient.fetchUserSlots();
@@ -163,6 +172,7 @@ export const useGamesStore = defineStore("games", () => {
     }
 
     const connectionTimeout = 5000;
+    closeSSE();
     try {
       const event = await new Promise<EventSource>((resolve, reject) => {
         const baseurl = apiClient.getHostServer().baseURL;
@@ -182,6 +192,7 @@ export const useGamesStore = defineStore("games", () => {
           reject(new Error("EventSource 连接失败"));
         };
       });
+      sseConnection.value = event;
 
       event.addEventListener("game", (sourceEvent) => {
         if (!sourceEvent.data || isLoadingGameList.value) return;
@@ -196,13 +207,11 @@ export const useGamesStore = defineStore("games", () => {
         setMsg(parsedData.content, Type.Success);
       });
 
-      window.addEventListener("beforeunload", () => {
-        event.close();
-      });
+      window.addEventListener("beforeunload", closeSSE, { once: true });
 
       event.addEventListener("close", () => {
         setMsg("你已在其他窗口或设备访问，本页面暂停更新", Type.Warning);
-        event.close();
+        closeSSE();
       });
 
       event.addEventListener("ssr", (sourceEvent) => {
@@ -259,6 +268,7 @@ export const useGamesStore = defineStore("games", () => {
     isGameListIniting.value = false;
     isGameListCompletedInit.value = false;
     isLoadingGameList.value = false;
+    closeSSE();
     stopGameListPolling();
   };
 

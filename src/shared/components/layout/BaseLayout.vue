@@ -48,16 +48,19 @@
 <script setup lang="ts">
 import Header from "./Header.vue";
 import { useUserStore } from "@/stores/useUserStore";
+import { useGamesStore } from "@/stores/useGamesStore";
 import { useRouter } from "vue-router";
 import { setMsg } from "@/shared/utils/toast";
 import { Type } from "../toast/enum";
 import { computed } from "vue";
 const user = useUserStore();
+const gamesStore = useGamesStore();
 const router = useRouter();
 const dynamicPath = computed(() => {
   return user.isVerify ? "/profile/account" : "/profile/smsVerify";
 });
 const logout = () => {
+  gamesStore.$reset();
   user.logout();
   setMsg("已退出登录", Type.Success);
   window.location.reload();
