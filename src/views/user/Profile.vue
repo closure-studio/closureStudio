@@ -229,6 +229,11 @@ const menu = [
     icon: "mdi-shield-check",
     to: "/profile/smsVerify",
   },
+  {
+    name: ROUTE_NAMES.PROFILE_ACKNOWLEDGEMENTS,
+    icon: "mdi-heart",
+    to: "/profile/acknowledgements",
+  },
 ];
 
 const SWIPE_THRESHOLD = 40;
