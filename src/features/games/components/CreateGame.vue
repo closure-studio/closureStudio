@@ -12,29 +12,7 @@
         <label class="s-label peer-focus:text-info">密码（请确认无误）</label>
       </div>
     </div>
-    <div class="divider my-4">服务器选择</div>
-    <div class="w-full mb-3">
-      <label class="label cursor-pointer">
-        <span class="text-xl">BiliBili服</span>
-        <input
-          type="radio"
-          :value="2"
-          v-model="form.platform"
-          id="bili"
-          class="radio checked:bg-blue-500"
-        />
-      </label>
-      <label class="label cursor-pointer">
-        <span class="text-xl">官服(安卓 / IOS)</span>
-        <input
-          type="radio"
-          :value="1"
-          v-model="form.platform"
-          id="official"
-          class="radio checked:bg-red-500"
-        />
-      </label>
-    </div>
+    <ServerSelector v-model="form.platform" />
 
     <div v-if="isFirst && confirmPhone === false">
       <div role="alert" class="rounded border-s-4 border-warning bg-warning/10 p-4 space-y-2">
@@ -108,6 +86,7 @@ import { useGamesStore } from "@/stores/useGamesStore";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
 import { checkIsMobile } from "@/shared/utils/regex";
 import { Type } from "@/shared/components/toast/enum";
+import ServerSelector from "@/shared/components/ServerSelector.vue";
 
 interface Props extends DialogComponentProps {
   slotUUID: string;
