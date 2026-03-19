@@ -31,11 +31,19 @@
                 <span class="badge badge-sm" :class="ratingBadgeClass(replay.ratingScore)">
                   {{ replay.ratingScore.toFixed(1) }}
                 </span>
+                <!-- 作者头像 + 名字 -->
+                <div class="flex items-center gap-1.5">
+                  <img
+                    :src="`https://assets.ltsc.vip/avatar/${replay.author.avatar.type}/${replay.author.avatar.id.replace(/@/g, '_').replace(/#/g, '_')}.png`"
+                    :alt="replay.author.nick_name"
+                    class="w-5 h-5 rounded-md object-cover shrink-0"
+                  />
+                  <span class="text-sm">Dr. {{ replay.author.nick_name }}</span>
+                </div>
                 <span class="font-bold truncate">{{ replay.title }}</span>
 
               </div>
               <div class="text-xs text-base-content/55 mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
-                <span>{{ replay.author }}</span>
                 <span>{{ formatDate(replay.publishedAt) }}</span>
                 <span>{{ replay.likeCount }} 好评 / {{ replay.dislikeCount }} 差评</span>
               </div>
@@ -92,13 +100,13 @@
 
     <!-- 分页 -->
     <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 pt-2">
-      <button class="btn btn-sm btn-ghost" :disabled="currentPage === 1" @click="currentPage--">
+      <button class="btn btn-sm btn-ghost hover:bg-transparent hover:opacity-70" :disabled="currentPage === 1" @click="currentPage--">
         <Icon icon="mdi-chevron-left" class="w-4 h-4" />
       </button>
       <span class="text-sm text-base-content/70">
         {{ currentPage }} / {{ totalPages }}
       </span>
-      <button class="btn btn-sm btn-ghost" :disabled="currentPage === totalPages" @click="currentPage++">
+      <button class="btn btn-sm btn-ghost hover:bg-transparent hover:opacity-70" :disabled="currentPage === totalPages" @click="currentPage++">
         <Icon icon="mdi-chevron-right" class="w-4 h-4" />
       </button>
     </div>
@@ -126,13 +134,23 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 type Vote = "like" | "dislike" | null;
 
+interface Avatar {
+  type: string;
+  id: string;
+}
+
+interface Author {
+  nick_name: string;
+  avatar: Avatar;
+}
+
 interface Replay {
   id: number;
   title: string;
   description: string;
   operators: string[];
   ratingScore: number;
-  author: string;
+  author: Author;
   publishedAt: Date;
   likeCount: number;
   dislikeCount: number;
@@ -152,7 +170,13 @@ const mockReplays: Replay[] = Array.from({ length: 23 }, (_, i) => ({
     ["史尔特尔", "耀骑士临光", "风笛", "赫拉格", "星熊", "角峰"],
   ][i % 5],
   ratingScore: parseFloat((6 + Math.sin(i) * 3).toFixed(1)),
-  author: ["Dr.Alpha", "Dr.Beta", "Dr.Gamma", "Dr.Delta", "Dr.Epsilon"][i % 5],
+  author: [
+    { nick_name: "欧皇大佬", avatar: { type: "DEFAULT", id: "avatar_def_mc" } },
+    { nick_name: "深渊探索者", avatar: { type: "DEFAULT", id: "avatar_activity_GK" } },
+    { nick_name: "罗德岛指挥官", avatar: { type: "ICON", id: "avatar_npc_017" } },
+    { nick_name: "博士在线", avatar: { type: "ICON", id: "avatar_npc_045" } },
+    { nick_name: "低费通关王", avatar: { type: "DEFAULT", id: "avatar_npc_082" } },
+  ][i % 5],
   publishedAt: new Date(Date.now() - i * 86400_000 * 3),
   likeCount: (i + 1) * 7,
   dislikeCount: Math.floor(i / 2),
