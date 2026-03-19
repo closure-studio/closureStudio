@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { ROUTE_NAMES } from "@/shared/constants/routes";
+import { ROUTES } from "@/shared/constants/routes";
 import { useUserStore } from "@/stores/useUserStore";
 declare module "vue-router" {
   interface RouteMeta {
@@ -28,8 +28,8 @@ export const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: "/auth/callback/linuxdo",
-      name: "OAuthCallback",
+      path: ROUTES.OAUTH_CALLBACK_LINUXDO.path,
+      name: ROUTES.OAUTH_CALLBACK_LINUXDO.name,
       component: () => import("../views/auth/OAuthCallback.vue"),
       meta: { noAuth: true },
     },
@@ -38,63 +38,75 @@ export const router = createRouter({
       component: () => import("../shared/components/layout/BaseLayout.vue"),
       children: [
         {
-          path: "/",
-          name: ROUTE_NAMES.HOME,
+          path: ROUTES.HOME.path,
+          name: ROUTES.HOME.name,
           component: () => import("../views/Index.vue"),
         },
         {
-          path: "/blog/Terms&Policies",
-          name: ROUTE_NAMES.TERMS_POLICIES,
+          path: ROUTES.TERMS_POLICIES.path,
+          name: ROUTES.TERMS_POLICIES.name,
           component: () => import("../views/blog/TermsPolicies.vue"),
         },
         {
-          path: "/blog/FAQ",
-          name: ROUTE_NAMES.FAQ,
+          path: ROUTES.FAQ.path,
+          name: ROUTES.FAQ.name,
           component: () => import("../views/blog/FAQ.vue"),
         },
         {
-          path: "/profile",
-          name: ROUTE_NAMES.PROFILE,
+          path: ROUTES.PROFILE.path,
+          name: ROUTES.PROFILE.name,
           component: () => import("../views/user/Profile.vue"),
           beforeEnter: (to, from, next) => {
             if (checkAuth()) {
               next(); // 用户已认证
             } else {
-              next({ name: ROUTE_NAMES.HOME }); // 跳转到首页或其他未认证的页面
+              next({ name: ROUTES.HOME.name }); // 跳转到首页或其他未认证的页面
             }
           },
           children: [
             {
-              path: "/profile/network",
-              name: ROUTE_NAMES.PROFILE_NETWORK,
+              path: ROUTES.PROFILE_NETWORK.path,
+              name: ROUTES.PROFILE_NETWORK.name,
               component: () => import("../views/user/ProfileNetwork.vue"),
             },
             {
-              path: "/profile/account",
-              name: ROUTE_NAMES.PROFILE_ACCOUNT,
+              path: ROUTES.PROFILE_ACCOUNT.path,
+              name: ROUTES.PROFILE_ACCOUNT.name,
               component: () => import("../views/user/ProfileAccount.vue"),
             },
             {
-              path: "/profile/smsVerify",
-              name: ROUTE_NAMES.PROFILE_SMS_VERIFY,
+              path: ROUTES.PROFILE_SMS_VERIFY.path,
+              name: ROUTES.PROFILE_SMS_VERIFY.name,
               component: () => import("../views/user/ProfileSMS.vue"),
             },
             {
-              path: "/profile/acknowledgements",
-              name: ROUTE_NAMES.PROFILE_ACKNOWLEDGEMENTS,
+              path: ROUTES.PROFILE_ACKNOWLEDGEMENTS.path,
+              name: ROUTES.PROFILE_ACKNOWLEDGEMENTS.name,
               component: () => import("../views/user/ProfileAcknowledgements.vue"),
             },
           ],
         },
         {
-          path: "/dashboard",
-          name: ROUTE_NAMES.DASHBOARD,
+          path: ROUTES.DASHBOARD.path,
+          name: ROUTES.DASHBOARD.name,
           component: () => import("../views/Dashboard.vue"),
           beforeEnter: (to, from, next) => {
             if (checkAuth()) {
               next();
             } else {
-              next({ name: ROUTE_NAMES.HOME });
+              next({ name: ROUTES.HOME.name });
+            }
+          },
+        },
+        {
+          path: ROUTES.REPLAY_HUB.path,
+          name: ROUTES.REPLAY_HUB.name,
+          component: () => import("../views/replay/Replay.vue"),
+          beforeEnter: (to, from, next) => {
+            if (checkAuth()) {
+              next();
+            } else {
+              next({ name: ROUTES.HOME.name });
             }
           },
         },

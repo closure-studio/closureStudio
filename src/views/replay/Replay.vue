@@ -1,62 +1,37 @@
 <template>
-  <div class="container w-full md:max-w-4xl mx-auto">
-    <!-- <div class="flex w-full flex-col">
-      <span class="font-bold text-4xl">可露希尔杂货店</span>
-      <div class="divider my-2" />
-    </div> -->
+  <div class="container w-full md:max-w-8xl mx-auto">
     <div class="flex items-start">
-      <ul
-        class="hidden md:block menu w-12 md:w-[10rem] rounded-box shadow-md mr-4 space-y-2 font-bold s-pro"
-      >
-        <li v-for="k in menu" :key="k.to">
-          <router-link
-            :to="k.to"
-            :class="{ active: route.path == k.to }"
-            class="flex items-center space-x-2"
-          >
-            <!-- 图标始终显示 -->
-            <Icon :icon="k.icon" class="w-6 h-6" />
-            <!-- 文本仅在 `md` 及更大屏幕显示，小屏幕隐藏 -->
-            <span class="hidden md:block">{{ k.name }}</span>
-          </router-link>
+      <ul class="hidden md:block menu w-[12rem] shrink-0 rounded-box shadow-md mr-4 space-y-2 font-bold s-pro">
+        <li v-for="item in menuItems" :key="item.key">
+          <a :class="{ active: currentKey === item.key }" class="flex items-center space-x-2"
+            @click="switchTo(item.key)">
+            <Icon :icon="item.icon" class="w-6 h-6" />
+            <span class="hidden md:block">{{ item.name }}</span>
+          </a>
         </li>
       </ul>
 
-      <div class="grow shadow-md py-1 px-5 rounded-box profile-swipe-area">
+      <div class="grow min-w-0 overflow-hidden shadow-md py-1 px-5 rounded-box replay-swipe-area">
         <div class="md:hidden mb-3">
           <div class="mobile-menu-header">
-            <span class="mobile-menu-title">{{ activeMenu?.name }}</span>
+            <span class="mobile-menu-title">{{ activeItem?.name }}</span>
           </div>
           <div class="mt-2.5 flex items-center justify-center gap-2">
-            <span
-              v-for="(item, index) in menu"
-              :key="item.to"
+            <span v-for="(item, index) in menuItems" :key="item.key"
               class="h-1.5 rounded-full transition-all duration-300"
-              :class="index === currentMenuIndex ? 'w-5 bg-info' : 'w-2 bg-base-content/20'"
-            />
+              :class="index === currentIndex ? 'w-5 bg-info' : 'w-2 bg-base-content/20'" />
           </div>
           <div class="mt-1.5 text-center text-xs text-base-content/55 swipe-hint">↑↓ 滑动切换</div>
         </div>
-        <!-- <div class="p-2 flex items-center">
-          <div class="avatar mr-3">
-            <div class="w-16 rounded-full">
-              <img src="/assets/closure.ico" alt="avatar" />
-            </div>
-          </div>
-          <div class="font-bold flex flex-col">
-            <span class="text-3xl">博士！</span>
-            <span class="text-base-content/50">今天是你加入可露希尔俱乐部第 {{ days }} 天!</span>
-          </div>
-        </div> -->
-        <router-view v-slot="{ Component }">
-          <transition :name="transitionName">
-            <component :is="Component" v-if="Component" />
-          </transition>
-        </router-view>
+
+        <transition :name="transitionName">
+          <component :is="activeComponent" :key="currentKey" />
+        </transition>
       </div>
     </div>
   </div>
 </template>
+
 <style scoped>
 .slide-fade-enter-active,
 .slide-fade-leave-active,
@@ -91,7 +66,7 @@
   opacity: 0;
 }
 
-.profile-swipe-area {
+.replay-swipe-area {
   touch-action: pan-y;
 }
 
@@ -101,13 +76,6 @@
   justify-content: center;
   gap: 0.55rem;
   padding: 0.1rem 0.2rem;
-}
-
-.mobile-menu-label {
-  font-size: 0.66rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--color-base-content) 44%, transparent);
 }
 
 .mobile-menu-title {
@@ -122,6 +90,7 @@
 }
 
 @keyframes swipeHintFloat {
+
   0%,
   100% {
     transform: translateY(0);
@@ -136,16 +105,27 @@
 </style>
 
 <script setup lang="ts">
-import { useProfileData } from "@/features/profile/composables/useProfileData";
-import { ROUTES } from "@/shared/constants/routes";
-import { useGamesStore } from "@/stores/useGamesStore";
+import ReplayHub from "@/features/replay/components/ReplayHub.vue";
+import ReplayMine from "@/features/replay/components/ReplayMine.vue";
+import ReplayShare from "@/features/replay/components/ReplayShare.vue";
 import { Icon } from "@iconify/vue";
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-const route = useRoute();
-const router = useRouter();
-const gamesStore = useGamesStore();
-const {  fetchProfileGameList } = useProfileData();
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+
+type MenuKey = "hub" | "share" | "mine";
+
+const menuItems: { key: MenuKey; name: string; icon: string }[] = [
+  { key: "hub", name: "录像中心", icon: "mdi-television-play" },
+  { key: "share", name: "分享录像", icon: "mdi-share-variant" },
+  { key: "mine", name: "我的录像", icon: "mdi-video-outline" },
+];
+
+const componentMap: Record<MenuKey, unknown> = {
+  hub: ReplayHub,
+  share: ReplayShare,
+  mine: ReplayMine,
+};
+
+const currentKey = ref<MenuKey>("hub");
 const transitionName = ref("slide-fade");
 const touchStartY = ref<number | null>(null);
 const touchStartX = ref<number | null>(null);
@@ -153,40 +133,31 @@ const touchStartTarget = ref<EventTarget | null>(null);
 const previousHtmlOverscrollBehaviorY = ref("");
 const previousBodyOverscrollBehaviorY = ref("");
 
-const menu = [
-  {
-    name: ROUTES.PROFILE_NETWORK.name,
-    icon: "mdi-wifi",
-    to: "/profile/network",
-  },
-  {
-    name: ROUTES.PROFILE_ACCOUNT.name,
-    icon: "mdi-account-lock",
-    to: "/profile/account",
-  },
-  {
-    name: ROUTES.PROFILE_ACKNOWLEDGEMENTS.name,
-    icon: "mdi-heart",
-    to: "/profile/acknowledgements",
-  },
-];
-
 const SWIPE_THRESHOLD = 40;
 const isMobile = () => window.matchMedia("(max-width: 767px)").matches;
 
-const currentMenuIndex = computed(() => {
-  const index = menu.findIndex((item) => item.to === route.path);
-  return index === -1 ? 0 : index;
-});
+const currentIndex = computed(() =>
+  menuItems.findIndex((item) => item.key === currentKey.value)
+);
 
-const activeMenu = computed(() => menu[currentMenuIndex.value]);
+const activeItem = computed(() => menuItems[currentIndex.value]);
+const activeComponent = computed(() => componentMap[currentKey.value]);
+
+const switchTo = (key: MenuKey, direction?: "up" | "down") => {
+  if (key === currentKey.value) return;
+  if (direction) {
+    transitionName.value = direction === "up" ? "slide-up-fade" : "slide-down-fade";
+  } else {
+    transitionName.value = "slide-fade";
+  }
+  currentKey.value = key;
+};
 
 const navigateBySwipe = (direction: "up" | "down") => {
   if (!isMobile()) return;
-  const nextIndex = direction === "up" ? currentMenuIndex.value + 1 : currentMenuIndex.value - 1;
-  if (nextIndex < 0 || nextIndex >= menu.length) return;
-  transitionName.value = direction === "up" ? "slide-up-fade" : "slide-down-fade";
-  router.push(menu[nextIndex].to);
+  const nextIndex = direction === "up" ? currentIndex.value + 1 : currentIndex.value - 1;
+  if (nextIndex < 0 || nextIndex >= menuItems.length) return;
+  switchTo(menuItems[nextIndex].key, direction);
 };
 
 const canScrollInGestureDirection = (target: EventTarget | null, deltaY: number) => {
@@ -214,7 +185,7 @@ const onTouchStart = (event: TouchEvent) => {
   const firstTouch = event.changedTouches[0];
   if (!firstTouch) return;
   touchStartX.value = firstTouch.clientX;
-  touchStartY.value = event.changedTouches[0]?.clientY ?? null;
+  touchStartY.value = firstTouch.clientY;
   touchStartTarget.value = event.target;
 };
 
@@ -226,7 +197,7 @@ const onTouchEnd = (event: TouchEvent) => {
     return;
   }
   const deltaX = touchStartX.value - firstTouch.clientX;
-  const endY = event.changedTouches[0]?.clientY ?? touchStartY.value;
+  const endY = firstTouch.clientY;
   const deltaY = touchStartY.value - endY;
   touchStartY.value = null;
   touchStartX.value = null;
@@ -246,32 +217,13 @@ const onTouchEnd = (event: TouchEvent) => {
   navigateBySwipe(deltaY > 0 ? "up" : "down");
 };
 
-watch(
-  () => route.path,
-  (nextPath, previousPath) => {
-    if (!previousPath) {
-      transitionName.value = "slide-fade";
-      return;
-    }
-    const nextIndex = menu.findIndex((item) => item.to === nextPath);
-    const previousIndex = menu.findIndex((item) => item.to === previousPath);
-    if (nextIndex === -1 || previousIndex === -1 || nextIndex === previousIndex) {
-      transitionName.value = "slide-fade";
-      return;
-    }
-    transitionName.value = nextIndex > previousIndex ? "slide-up-fade" : "slide-down-fade";
-  }
-);
-
-onMounted(async () => {
+onMounted(() => {
   window.addEventListener("touchstart", onTouchStart, { passive: true });
   window.addEventListener("touchend", onTouchEnd, { passive: true });
   previousHtmlOverscrollBehaviorY.value = document.documentElement.style.overscrollBehaviorY;
   previousBodyOverscrollBehaviorY.value = document.body.style.overscrollBehaviorY;
   document.documentElement.style.overscrollBehaviorY = "none";
   document.body.style.overscrollBehaviorY = "none";
-  await fetchProfileGameList();
-  gamesStore.initializeGameListServerConnection();
 });
 
 onBeforeUnmount(() => {

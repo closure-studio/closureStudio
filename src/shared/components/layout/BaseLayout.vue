@@ -7,9 +7,7 @@
     </div>
     <div class="drawer-side z-50">
       <label for="drawer" class="drawer-overlay" />
-      <div
-        class="menu p-4 w-72 h-mobile bg-base-100 text-base-content flex flex-col flex-nowrap items-center"
-      >
+      <div class="menu p-4 w-72 h-mobile bg-base-100 text-base-content flex flex-col flex-nowrap items-center">
         <div class="hover:animate-spin avatar mt-6 mb-4">
           <div class="w-28 rounded-full">
             <img src="/assets/closure.ico" alt="closure" />
@@ -18,30 +16,9 @@
         <span class="text-3xl font-bold">可露希尔云平台</span>
         <div class="divider my-2" />
         <ul class="w-full text-lg space-y-2">
-          <li>
-            <router-link
-              to="/"
-              :class="{ 'bg-info': router.currentRoute.value.name === '首页' }"
-              @click="closeDrawer"
-              >首页</router-link
-            >
-          </li>
-          <li><router-link to="/dashboard" @click="closeDrawer">托管账号</router-link></li>
-          <li>
-            <router-link
-              :to="dynamicPath"
-              :class="{ 'bg-info': router.currentRoute.value.name === '账号安全' }"
-              @click="closeDrawer"
-              >网站设置</router-link
-            >
-          </li>
-          <li>
-            <router-link
-              to="/admin"
-              :class="{ 'bg-info': router.currentRoute.value.name === '系统管理' }"
-              @click="closeDrawer"
-              >系统管理</router-link
-            >
+          <li v-for="item in navItems" :key="item.path">
+            <router-link :to="item.path" :class="{ 'bg-info': isActive(item) }" @click="closeDrawer">{{ item.name
+            }}</router-link>
           </li>
         </ul>
         <div class="flex flex-1" />
@@ -51,23 +28,35 @@
   </main>
 </template>
 <script setup lang="ts">
-import Header from "./Header.vue";
-import { useUserStore } from "@/stores/useUserStore";
-import { useGamesStore } from "@/stores/useGamesStore";
-import { useRouter } from "vue-router";
+import { ROUTES } from "@/shared/constants/routes";
 import { setMsg } from "@/shared/utils/toast";
+import { useGamesStore } from "@/stores/useGamesStore";
+import { useUserStore } from "@/stores/useUserStore";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { Type } from "../toast/enum";
-import { computed, ref } from "vue";
+import Header from "./Header.vue";
+
 const user = useUserStore();
 const gamesStore = useGamesStore();
 const router = useRouter();
 const isDrawerOpen = ref(false);
-const dynamicPath = computed(() => {
-  return user.isVerify ? "/profile/account" : "/profile/smsVerify";
-});
+
+const navItems = [
+  ROUTES.HOME,
+  ROUTES.DASHBOARD,
+  ROUTES.REPLAY_HUB,
+  ROUTES.PROFILE,
+  ROUTES.ADMIN,
+];
+
+const isActive = (item: { name: string }) =>
+  router.currentRoute.value.name === item.name;
+
 const closeDrawer = () => {
   isDrawerOpen.value = false;
 };
+
 const logout = () => {
   gamesStore.$reset();
   user.logout();
