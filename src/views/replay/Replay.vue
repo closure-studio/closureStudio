@@ -11,7 +11,7 @@
         </li>
       </ul>
 
-      <div class="grow min-w-0 overflow-hidden shadow-md py-1 px-5 rounded-box replay-swipe-area">
+      <div class="grow min-w-0 overflow-hidden py-1 px-5 replay-swipe-area">
         <div class="md:hidden mb-3">
           <div class="mobile-menu-header">
             <span class="mobile-menu-title">{{ activeItem?.name }}</span>

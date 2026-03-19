@@ -1,67 +1,48 @@
 <template>
-  <div class="space-y-4 p-2">
+  <div class="space-y-4 p-2 replay-avatar-root">
     <!-- 搜索 & 排序栏 -->
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <label class="input input-bordered flex items-center gap-2 flex-1">
+      <label class="input flex items-center gap-2 flex-1">
         <Icon icon="mdi-magnify" class="w-4 h-4 opacity-60" />
-        <input
-          v-model="searchQuery"
-          type="text"
-          class="grow"
-          placeholder="搜索录像标题或描述…"
-        />
+        <input v-model="searchQuery" type="text" class="grow" placeholder="搜索录像标题或描述…" />
       </label>
-      <select v-model="sortKey" class="select select-bordered w-full sm:w-44">
-        <option value="publishedAt">按发布时间</option>
-        <option value="rating">按评分</option>
-      </select>
+      <div class="tabs tabs-boxed bg-transparent gap-1">
+        <button class="tab tab-sm" :class="sortKey === 'publishedAt' ? 'tab-active' : ''"
+          @click="sortKey = 'publishedAt'">
+          按发布时间
+        </button>
+        <button class="tab tab-sm" :class="sortKey === 'rating' ? 'tab-active' : ''" @click="sortKey = 'rating'">
+          按评分
+        </button>
+      </div>
     </div>
 
     <!-- 列表 -->
     <div v-if="paged.length" class="space-y-2">
-      <div
-        v-for="replay in paged"
-        :key="replay.id"
-        class="card border border-base-content/10 bg-base-200/60 shadow-sm transition-all duration-200"
-        :class="{ 'shadow-md': expandedId === replay.id }"
-      >
+      <div v-for="replay in paged" :key="replay.id"
+        class="bg-base-300/40 hover:bg-base-300/60 rounded-lg transition-all duration-200"
+        :class="{ 'shadow-md': expandedId === replay.id }">
         <!-- 折叠行 -->
-        <div
-          class="card-body p-3 cursor-pointer select-none"
-          @click="toggle(replay.id)"
-        >
-          <div class="flex items-start justify-between gap-2">
+        <div class="p-3 cursor-pointer select-none" @click="toggle(replay.id)">
+          <div class="flex items-center gap-3">
+            <!-- 左侧：标题 / 元信息 -->
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 flex-wrap">
+                <span class="badge badge-sm" :class="ratingBadgeClass(replay.ratingScore)">
+                  {{ replay.ratingScore.toFixed(1) }}
+                </span>
                 <span class="font-bold truncate">{{ replay.title }}</span>
-                <div class="flex items-center gap-1">
-                  <span class="badge badge-sm" :class="ratingBadgeClass(replay.ratingScore)">
-                    {{ replay.ratingScore.toFixed(1) }}
-                  </span>
-                </div>
+
               </div>
               <div class="text-xs text-base-content/55 mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
                 <span>{{ replay.author }}</span>
                 <span>{{ formatDate(replay.publishedAt) }}</span>
                 <span>{{ replay.likeCount }} 好评 / {{ replay.dislikeCount }} 差评</span>
               </div>
-              <!-- 干员列表 (折叠时摘要) -->
-              <div class="mt-1.5 flex flex-wrap gap-1">
-                <span
-                  v-for="op in replay.operators.slice(0, 5)"
-                  :key="op"
-                  class="badge badge-outline badge-xs"
-                >{{ op }}</span>
-                <span
-                  v-if="replay.operators.length > 5"
-                  class="badge badge-ghost badge-xs"
-                >+{{ replay.operators.length - 5 }}</span>
-              </div>
             </div>
-            <Icon
-              :icon="expandedId === replay.id ? 'mdi-chevron-up' : 'mdi-chevron-down'"
-              class="w-5 h-5 shrink-0 mt-0.5 opacity-60"
-            />
+
+            <Icon :icon="expandedId === replay.id ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+              class="w-5 h-5 shrink-0 opacity-60" />
           </div>
         </div>
 
@@ -70,38 +51,31 @@
           <div v-if="expandedId === replay.id" class="px-3 pb-3">
             <div class="divider my-1" />
             <p class="text-sm text-base-content/80 leading-relaxed mb-3">{{ replay.description }}</p>
+            <!-- 干员阵容（展开后两端都显示） -->
             <div class="mb-3">
               <span class="text-xs font-semibold uppercase tracking-wider text-base-content/50">干员阵容</span>
-              <div class="mt-1.5 flex flex-wrap gap-1">
-                <span
-                  v-for="op in replay.operators"
-                  :key="op"
-                  class="badge badge-outline badge-sm"
-                >{{ op }}</span>
+              <div class="mt-2 flex flex-wrap gap-2">
+                <div v-for="op in replay.operators" :key="op" class="flex flex-col items-center gap-0.5" :title="op">
+                  <img :src="operatorAvatar(op)" :alt="op"
+                    class="w-10 h-10 rounded-full object-cover bg-base-content/10 ring-1 ring-base-content/20"
+                    @error="(e) => ((e.target as HTMLImageElement).src = fallbackAvatar)" />
+                  <span class="text-xs text-base-content/60 max-w-[2.5rem] truncate">{{ op }}</span>
+                </div>
               </div>
             </div>
             <!-- 打分 -->
             <div class="flex items-center gap-3">
-              <button
-                class="btn btn-xs gap-1"
-                :class="replay.myVote === 'like' ? 'btn-success' : 'btn-outline'"
-                @click.stop="vote(replay, 'like')"
-              >
+              <button class="btn btn-xs gap-1" :class="replay.myVote === 'like' ? 'btn-success' : 'btn-outline'"
+                @click.stop="vote(replay, 'like')">
                 <Icon icon="mdi-thumb-up" class="w-3.5 h-3.5" />
                 好评 {{ replay.likeCount }}
               </button>
-              <button
-                class="btn btn-xs gap-1"
-                :class="replay.myVote === 'dislike' ? 'btn-error' : 'btn-outline'"
-                @click.stop="vote(replay, 'dislike')"
-              >
+              <button class="btn btn-xs gap-1" :class="replay.myVote === 'dislike' ? 'btn-error' : 'btn-outline'"
+                @click.stop="vote(replay, 'dislike')">
                 <Icon icon="mdi-thumb-down" class="w-3.5 h-3.5" />
                 差评 {{ replay.dislikeCount }}
               </button>
-              <button
-                class="btn btn-xs btn-ghost ml-auto"
-                @click.stop="toggle(replay.id)"
-              >
+              <button class="btn btn-xs btn-ghost ml-auto" @click.stop="toggle(replay.id)">
                 <Icon icon="mdi-chevron-up" class="w-4 h-4" />收起
               </button>
             </div>
@@ -118,21 +92,13 @@
 
     <!-- 分页 -->
     <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 pt-2">
-      <button
-        class="btn btn-sm btn-ghost"
-        :disabled="currentPage === 1"
-        @click="currentPage--"
-      >
+      <button class="btn btn-sm btn-ghost" :disabled="currentPage === 1" @click="currentPage--">
         <Icon icon="mdi-chevron-left" class="w-4 h-4" />
       </button>
       <span class="text-sm text-base-content/70">
         {{ currentPage }} / {{ totalPages }}
       </span>
-      <button
-        class="btn btn-sm btn-ghost"
-        :disabled="currentPage === totalPages"
-        @click="currentPage++"
-      >
+      <button class="btn btn-sm btn-ghost" :disabled="currentPage === totalPages" @click="currentPage++">
         <Icon icon="mdi-chevron-right" class="w-4 h-4" />
       </button>
     </div>
@@ -146,6 +112,7 @@
     opacity 0.22s ease,
     transform 0.22s ease;
 }
+
 .expand-enter-from,
 .expand-leave-to {
   opacity: 0;
@@ -155,7 +122,7 @@
 
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
-import { computed, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 type Vote = "like" | "dislike" | null;
 
@@ -216,16 +183,23 @@ const filtered = computed(() => {
 });
 
 // ---- 分页 ----
-const PAGE_SIZE = 8;
+// 根据窗口高度动态计算每页条数：每行约 64px，保留头部和分页控件约 200px
+const pageSize = ref(calcPageSize());
+
+function calcPageSize(): number {
+  const available = window.innerHeight - 180;
+  return Math.max(4, Math.floor(available / 80));
+}
+
 const currentPage = ref(1);
 
 watch([searchQuery, sortKey], () => {
   currentPage.value = 1;
 });
 
-const totalPages = computed(() => Math.max(1, Math.ceil(filtered.value.length / PAGE_SIZE)));
+const totalPages = computed(() => Math.max(1, Math.ceil(filtered.value.length / pageSize.value)));
 const paged = computed(() =>
-  filtered.value.slice((currentPage.value - 1) * PAGE_SIZE, currentPage.value * PAGE_SIZE)
+  filtered.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value)
 );
 
 // ---- 展开 ----
@@ -233,6 +207,22 @@ const expandedId = ref<number | null>(null);
 const toggle = (id: number) => {
   expandedId.value = expandedId.value === id ? null : id;
 };
+
+// ---- 干员头像 ----
+// mock CDN：使用 dicebear 作为占位，实际替换为 prts.wiki 等
+const fallbackAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=fallback`;
+const operatorAvatar = (name: string) =>
+  `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`;
+
+onMounted(() => {
+  const onResize = () => {
+    pageSize.value = calcPageSize();
+    // 重置到第一页避免越界
+    if (currentPage.value > totalPages.value) currentPage.value = 1;
+  };
+  window.addEventListener("resize", onResize);
+  onBeforeUnmount(() => window.removeEventListener("resize", onResize));
+});
 
 // ---- 投票 ----
 const vote = (replay: Replay, type: "like" | "dislike") => {
