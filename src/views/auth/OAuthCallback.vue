@@ -36,7 +36,7 @@ import authClient from "@/shared/services/authClient";
 import oauthClient from "@/shared/services/oauthClient";
 import { setMsg } from "@/shared/utils/toast";
 import { Type } from "@/shared/components/toast/enum";
-import { ROUTE_NAMES } from "@/shared/constants/routes";
+import { ROUTES } from "@/shared/constants/routes";
 
 const router = useRouter();
 const route = useRoute();
@@ -46,7 +46,7 @@ const isLoading = ref(true);
 const error = ref("");
 
 const goToHome = () => {
-  router.push({ name: ROUTE_NAMES.HOME });
+  router.push({ name: ROUTES.HOME.name });
 };
 
 onMounted(async () => {
@@ -87,14 +87,14 @@ onMounted(async () => {
       // 登录成功
       setMsg("登录成功", Type.Success);
       userStore.login(response.data.token);
-      router.push({ name: ROUTE_NAMES.DASHBOARD });
+      router.push({ name: ROUTES.DASHBOARD.name });
     } else {
       error.value = response.message || "登录失败，请重试";
       isLoading.value = false;
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("OAuth callback error:", err);
-    error.value = err.response?.data?.message || "登录失败，请重试";
+    error.value = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "登录失败，请重试";
     isLoading.value = false;
   }
 });

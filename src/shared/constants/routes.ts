@@ -1,17 +1,16 @@
-// ============================================================
-// 路由名称常量 — 替代中文字符串路由名
-// ============================================================
-
-export const ROUTE_NAMES = {
-  HOME: "首页",
-  TERMS_POLICIES: "用户条款及隐私政策",
-  FAQ: "常见问题",
-  PROFILE: "个人设置",
-  PROFILE_NETWORK: "网络设置",
-  PROFILE_ACCOUNT: "账号安全",
-  PROFILE_SMS_VERIFY: "账号认证",
-  PROFILE_ACKNOWLEDGEMENTS: "鸣谢名单",
-  DASHBOARD: "控制面板",
+export const ROUTES = {
+  HOME: { name: "首页", path: "/" },
+  DASHBOARD: { name: "托管账号", path: "/dashboard" },
+  REPLAY_HUB: { name: "录像中心", path: "/replayHub" },
+  PROFILE: { name: "网站设置", path: "/profile/network" },
+  PROFILE_NETWORK: { name: "网络设置", path: "/profile/network" },
+  PROFILE_ACCOUNT: { name: "账号安全", path: "/profile/account" },
+  PROFILE_SMS_VERIFY: { name: "账号认证", path: "/profile/smsVerify" },
+  PROFILE_ACKNOWLEDGEMENTS: { name: "鸣谢名单", path: "/profile/acknowledgements" },
+  TERMS_POLICIES: { name: "用户条款及隐私政策", path: "/blog/Terms&Policies" },
+  FAQ: { name: "常见问题", path: "/blog/FAQ" },
+  OAUTH_CALLBACK_LINUXDO: { name: "OAuthCallback", path: "/auth/callback/linuxdo" },
+  ADMIN: { name: "系统管理", path: "/admin" },
 } as const;
 
-export type RouteName = (typeof ROUTE_NAMES)[keyof typeof ROUTE_NAMES];
+export type RouteName = (typeof ROUTES)[keyof typeof ROUTES]["name"];

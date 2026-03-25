@@ -12,29 +12,7 @@
         <label class="s-label peer-focus:text-info">密码（请确认无误）</label>
       </div>
     </div>
-    <div class="divider my-4">服务器选择</div>
-    <div class="w-full mb-3">
-      <label class="label cursor-pointer">
-        <span class="text-xl">BiliBili服</span>
-        <input
-          type="radio"
-          :value="2"
-          v-model="form.platform"
-          id="bili"
-          class="radio checked:bg-blue-500"
-        />
-      </label>
-      <label class="label cursor-pointer">
-        <span class="text-xl">官服(安卓 / IOS)</span>
-        <input
-          type="radio"
-          :value="1"
-          v-model="form.platform"
-          id="official"
-          class="radio checked:bg-red-500"
-        />
-      </label>
-    </div>
+    <ServerSelector v-model="form.platform" />
     <div class="flex justify-center space-x-4 mb-3">
       <button @click="dialogClose()" class="btn btn-error btn-outline w-32">
         <span v-if="isLoading" class="loading loading-bars" />
@@ -56,6 +34,7 @@ import { setMsg } from "@/shared/utils/toast";
 import { useGamesStore } from "@/stores/useGamesStore";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
 import { Type } from "@/shared/components/toast/enum";
+import ServerSelector from "@/shared/components/ServerSelector.vue";
 
 export interface UpdateGamePasswdProps extends DialogComponentProps {
   slotUUID: string;
