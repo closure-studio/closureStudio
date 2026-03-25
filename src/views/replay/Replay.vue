@@ -1,10 +1,15 @@
 <template>
   <div class="container w-full md:max-w-8xl mx-auto">
     <div class="flex items-start">
-      <ul class="hidden md:block menu w-[12rem] shrink-0 rounded-box shadow-md mr-4 space-y-2 font-bold s-pro">
+      <ul
+        class="hidden md:block menu w-[12rem] shrink-0 rounded-box shadow-md mr-4 space-y-2 font-bold s-pro"
+      >
         <li v-for="item in menuItems" :key="item.key">
-          <a :class="{ active: currentKey === item.key }" class="flex items-center space-x-2"
-            @click="switchTo(item.key)">
+          <a
+            :class="{ active: currentKey === item.key }"
+            class="flex items-center space-x-2"
+            @click="switchTo(item.key)"
+          >
             <Icon :icon="item.icon" class="w-6 h-6" />
             <span class="hidden md:block">{{ item.name }}</span>
           </a>
@@ -17,9 +22,12 @@
             <span class="mobile-menu-title">{{ activeItem?.name }}</span>
           </div>
           <div class="mt-2.5 flex items-center justify-center gap-2">
-            <span v-for="(item, index) in menuItems" :key="item.key"
+            <span
+              v-for="(item, index) in menuItems"
+              :key="item.key"
               class="h-1.5 rounded-full transition-all duration-300"
-              :class="index === currentIndex ? 'w-5 bg-info' : 'w-2 bg-base-content/20'" />
+              :class="index === currentIndex ? 'w-5 bg-info' : 'w-2 bg-base-content/20'"
+            />
           </div>
           <div class="mt-1.5 text-center text-xs text-base-content/55 swipe-hint">↑↓ 滑动切换</div>
         </div>
@@ -90,7 +98,6 @@
 }
 
 @keyframes swipeHintFloat {
-
   0%,
   100% {
     transform: translateY(0);
@@ -115,8 +122,8 @@ type MenuKey = "hub" | "share" | "mine";
 
 const menuItems: { key: MenuKey; name: string; icon: string }[] = [
   { key: "hub", name: "录像中心", icon: "mdi-television-play" },
-  { key: "share", name: "分享录像", icon: "mdi-share-variant" },
-  { key: "mine", name: "我的录像", icon: "mdi-video-outline" },
+  { key: "mine", name: "我的作战", icon: "mdi-video-outline" },
+  { key: "share", name: "我的分享", icon: "mdi-share-variant" },
 ];
 
 const componentMap: Record<MenuKey, unknown> = {
@@ -136,9 +143,7 @@ const previousBodyOverscrollBehaviorY = ref("");
 const SWIPE_THRESHOLD = 40;
 const isMobile = () => window.matchMedia("(max-width: 767px)").matches;
 
-const currentIndex = computed(() =>
-  menuItems.findIndex((item) => item.key === currentKey.value)
-);
+const currentIndex = computed(() => menuItems.findIndex((item) => item.key === currentKey.value));
 
 const activeItem = computed(() => menuItems[currentIndex.value]);
 const activeComponent = computed(() => componentMap[currentKey.value]);

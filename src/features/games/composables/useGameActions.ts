@@ -38,10 +38,28 @@ interface UseGameActionsOptions {
 export function useGameActions(options: UseGameActionsOptions) {
   const { user, gamesStore, captcha, isLoading, selectedSlotUUID, selectedRegisterForm } = options;
 
+  const normalizeAccount = (account: string | undefined | null) => {
+    return getRealGameAccount(account ?? "");
+  };
+
   const findGame = (gameAccount: string) => gamesStore.findGame(gameAccount);
 
+  const findGameByAccount = (gameAccount: string) => {
+    const exact = findGame(gameAccount);
+    if (exact) return exact;
+
+    const normalized = normalizeAccount(gameAccount);
+    return gamesStore.gameList.find(
+      (game) => normalizeAccount(game.status.account) === normalized
+    );
+  };
+
   const getSlot = (account: string) => {
-    return gamesStore.userQuota?.slots.find((slot: RegistrySlot) => slot.gameAccount === account);
+    const normalized = normalizeAccount(account);
+    return gamesStore.userQuota?.slots.find((slot: RegistrySlot) => {
+      if (!slot.gameAccount) return false;
+      return slot.gameAccount === account || normalizeAccount(slot.gameAccount) === normalized;
+    });
   };
 
   const createGameButtonOnClick = (
@@ -156,9 +174,15 @@ export function useGameActions(options: UseGameActionsOptions) {
   };
 
   const handleUpdatePasswdBtnOnClick = async (slot: RegistrySlot | undefined) => {
-    if (!slot || !slot.gameAccount) return;
-    const game = findGame(slot.gameAccount);
-    if (!game) return;
+    if (!slot || !slot.gameAccount) {
+      setMsg("未找到托管槽位，请刷新后重试", Type.Warning);
+      return;
+    }
+    const game = findGameByAccount(slot.gameAccount);
+    if (!game) {
+      setMsg("未找到游戏信息，请刷新后重试", Type.Warning);
+      return;
+    }
 
     selectedSlotUUID.value = slot.uuid;
     selectedRegisterForm.value.account = getRealGameAccount(game.status.account);
