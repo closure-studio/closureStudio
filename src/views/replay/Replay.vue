@@ -118,18 +118,18 @@ import ReplayShare from "@/features/replay/components/ReplayShare.vue";
 import { Icon } from "@iconify/vue";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
-type MenuKey = "hub" | "share" | "mine";
+type MenuKey = "hub" | "mine" | "actions";
 
 const menuItems: { key: MenuKey; name: string; icon: string }[] = [
   { key: "hub", name: "录像中心", icon: "mdi-television-play" },
-  { key: "mine", name: "我的作战", icon: "mdi-video-outline" },
-  { key: "share", name: "我的分享", icon: "mdi-share-variant" },
+  { key: "mine", name: "我的录像", icon: "mdi-video-outline" },
+  { key: "actions", name: "动作记录", icon: "mdi-timeline-text-outline" },
 ];
 
 const componentMap: Record<MenuKey, unknown> = {
   hub: ReplayHub,
-  share: ReplayShare,
   mine: ReplayMine,
+  actions: ReplayShare,
 };
 
 const currentKey = ref<MenuKey>("hub");

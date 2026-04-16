@@ -168,6 +168,7 @@ const onSubmit = async () => {
   delete copyConfig.map_id;
   delete copyConfig.accelerate_slot;
   delete copyConfig.account;
+  delete copyConfig.battle_replay_actions;
   isLoading.value = true;
   try {
     const result = await apiClient.doUpdateGameConf(account, copyConfig);
