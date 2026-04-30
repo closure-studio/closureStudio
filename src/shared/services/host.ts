@@ -25,5 +25,6 @@ export const AuthServer: IHostServer = {
 export const RegistryServer: IHostServer = {
   label: "授权系统",
   description: "Registry Server",
-  baseURL: "https://registry.ltsc.vip",
+  // baseURL: "https://registry.ltsc.vip",
+  baseURL: "https://arkquota-tunnel.arknights.app",
 };
