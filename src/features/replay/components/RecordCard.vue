@@ -1,154 +1,275 @@
 <template>
-  <div
-    class="group rounded-xl border border-white/10 bg-white/6 transition-all duration-300 hover:bg-white/10 hover:border-white/18"
-    :class="{ 'border-info/35 bg-info/5 shadow-lg shadow-info/8': expanded }"
+  <article
+    class="rounded-3xl border border-white/10 bg-slate-900/70 shadow-[0_18px_50px_rgba(15,23,42,0.22)] transition-all duration-300"
+    :class="{ 'border-cyan-300/25 bg-slate-900/85': expanded }"
   >
-    <!-- 折叠行 -->
-    <div class="p-3.5 cursor-pointer select-none" @click="$emit('toggle')">
-      <div class="flex items-center gap-3">
-        <!-- 净评分徽章 -->
-        <span
-          class="badge badge-lg font-bold text-sm min-w-[3rem] justify-center shrink-0"
-          :class="netScoreBadgeClass(record.netScore ?? 0)"
-        >
-          {{ record.netScore != null ? (record.netScore >= 0 ? '+' : '') + record.netScore : '–' }}
-        </span>
+    <button class="flex w-full items-start gap-4 p-4 text-left" type="button" @click="$emit('toggle')">
+      <img
+        :src="avatarUrl(record.avatar)"
+        :alt="record.title"
+        class="h-12 w-12 shrink-0 rounded-2xl object-cover ring-1 ring-white/10"
+        @error="onAvatarError"
+      />
 
-        <!-- 标题 / 元信息 -->
-        <div class="flex-1 min-w-0">
-          <span class="font-bold truncate block text-base-content/90 group-hover:text-base-content transition-colors">
-            {{ record.stageId }}
+      <div class="min-w-0 flex-1">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
+            {{ record.stage_id }}
           </span>
-          <div class="text-xs text-base-content/45 mt-1 flex items-center flex-wrap gap-x-3 gap-y-0.5">
-            <div class="flex items-center gap-1.5">
-              <img
-                :src="avatarUrl(record.avatar)"
-                :alt="record.nickName"
-                class="w-4 h-4 rounded object-cover shrink-0 ring-1 ring-base-content/10"
-                @error="onAvatarError"
-              />
-              <span>Dr. {{ record.nickName }}</span>
-            </div>
-            <span class="opacity-60">{{ formatTime(record.createdAt, 'yyyy-MM-dd') }}</span>
-            <span class="flex items-center gap-1">
-              <Icon icon="mdi-download-outline" class="w-3 h-3" />
-              {{ record.usageCount ?? 0 }}
-            </span>
-            <span class="flex items-center gap-1">
-              <Icon icon="mdi-sword-cross" class="w-3 h-3" />
-              {{ record.successBattleCount }}/{{ record.totalBattleCount }}
-            </span>
-          </div>
+          <span class="badge badge-sm border-0 bg-slate-800 text-slate-200">
+            {{ validationLabel(record.validation_status) }}
+          </span>
+          <span class="badge badge-sm border-0" :class="auditBadgeClass(record.audit_status)">
+            {{ auditLabel(record.audit_status) }}
+          </span>
+          <span
+            v-if="record.is_hidden"
+            class="badge badge-sm border-0 bg-rose-500/15 text-rose-200"
+          >
+            已隐藏
+          </span>
         </div>
 
-        <!-- 展开/收起 -->
-        <Icon
-          :icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-down'"
-          class="w-5 h-5 shrink-0 text-base-content/30 group-hover:text-base-content/60 transition-all duration-300"
-          :class="{ 'text-info/60': expanded }"
-        />
+        <div class="mt-3 flex flex-wrap items-center gap-3">
+          <h3 class="truncate text-base font-bold text-white">{{ record.title || "未命名录像" }}</h3>
+          <span class="truncate text-sm text-slate-400">{{ stageName }}</span>
+        </div>
+
+        <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
+          <span>创建于 {{ formatTime(record.created_at, "yyyy-MM-dd HH:mm") }}</span>
+          <span>更新于 {{ formatTime(record.updated_at, "yyyy-MM-dd HH:mm") }}</span>
+        </div>
       </div>
-    </div>
 
-    <!-- 展开详情 -->
+      <Icon
+        :icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+        class="mt-1 h-5 w-5 shrink-0 text-slate-500 transition-colors"
+      />
+    </button>
+
     <transition name="expand">
-      <div v-if="expanded" class="px-3.5 pb-3.5">
-        <div class="border-t border-base-content/8 my-2" />
+      <div v-if="expanded" class="border-t border-white/10 px-4 pb-4 pt-4">
+        <div class="space-y-3">
+          <div>
+            <div class="text-xs uppercase tracking-[0.18em] text-slate-500">描述</div>
+            <p class="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-200">
+              {{ record.description || "暂无描述" }}
+            </p>
+          </div>
 
-        <p v-if="record.displayInfo" class="text-sm text-base-content/70 leading-relaxed mb-4">
-          {{ record.displayInfo }}
-        </p>
+          <div class="grid gap-3 md:grid-cols-2">
+            <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+              <div class="text-xs uppercase tracking-[0.16em] text-slate-500">校验结果</div>
+              <div class="mt-2 text-sm font-medium text-slate-100">
+                {{ record.validation_message || "暂无校验消息" }}
+              </div>
+              <div v-if="record.validated_at" class="mt-2 text-xs text-slate-400">
+                {{ formatTime(record.validated_at, "yyyy-MM-dd HH:mm") }}
+              </div>
+            </div>
 
-        <!-- 操作栏 -->
-        <div v-if="showActions" class="flex items-center gap-2">
-          <button
-            class="btn btn-sm gap-1.5 transition-all duration-200"
-            :class="
-              record.myRating === 1
-                ? 'btn-success bg-success/15 border-success/30 text-success hover:bg-success/25'
-                : 'btn-ghost text-base-content/50 hover:text-success hover:bg-success/10'
-            "
-            @click.stop="$emit('rate', 1)"
+            <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+              <div class="text-xs uppercase tracking-[0.16em] text-slate-500">审核结果</div>
+              <div class="mt-2 text-sm font-medium text-slate-100">
+                {{ record.audit_message || "暂无审核消息" }}
+              </div>
+              <div v-if="record.audited_at" class="mt-2 text-xs text-slate-400">
+                {{ formatTime(record.audited_at, "yyyy-MM-dd HH:mm") }}
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              v-if="showAutoBattle"
+              class="btn btn-sm border-cyan-300/25 bg-cyan-400/10 text-cyan-100 hover:border-cyan-200/45 hover:bg-cyan-300/15"
+              :disabled="isActing"
+              @click.stop="$emit('auto-battle')"
+            >
+              <span v-if="isActing" class="loading loading-spinner loading-xs" />
+              <Icon v-else icon="mdi-robot-outline" class="h-4 w-4" />
+              追加自动作战
+            </button>
+            <button
+              v-if="showEdit"
+              class="btn btn-sm border-white/15 bg-white/[0.05] text-slate-200 hover:bg-white/[0.08]"
+              @click.stop="toggleEditing"
+            >
+              <Icon icon="mdi-pencil-outline" class="h-4 w-4" />
+              {{ isEditing ? "取消编辑" : "编辑信息" }}
+            </button>
+          </div>
+
+          <form
+            v-if="showEdit && isEditing"
+            class="grid gap-3 rounded-3xl border border-white/10 bg-slate-950/70 p-4"
+            @submit.prevent="submitUpdate"
           >
-            <Icon :icon="record.myRating === 1 ? 'mdi-thumb-up' : 'mdi-thumb-up-outline'" class="w-4 h-4" />
-            赞
-          </button>
-          <button
-            class="btn btn-sm gap-1.5 transition-all duration-200"
-            :class="
-              record.myRating === -1
-                ? 'btn-error bg-error/15 border-error/30 text-error hover:bg-error/25'
-                : 'btn-ghost text-base-content/50 hover:text-error hover:bg-error/10'
-            "
-            @click.stop="$emit('rate', -1)"
-          >
-            <Icon :icon="record.myRating === -1 ? 'mdi-thumb-down' : 'mdi-thumb-down-outline'" class="w-4 h-4" />
-            踩
-          </button>
-          <button
-            class="btn btn-sm btn-ghost text-base-content/40 hover:text-info ml-auto transition-colors"
-            @click.stop="$emit('toggle')"
-          >
-            <Icon icon="mdi-chevron-up" class="w-4 h-4" />
-            收起
-          </button>
-        </div>
-        <div v-else class="flex justify-end">
-          <button
-            class="btn btn-sm btn-ghost text-base-content/40 hover:text-info transition-colors"
-            @click.stop="$emit('toggle')"
-          >
-            <Icon icon="mdi-chevron-up" class="w-4 h-4" />
-            收起
-          </button>
+            <label class="grid gap-2">
+              <span class="text-xs uppercase tracking-[0.16em] text-slate-500">标题</span>
+              <input
+                v-model="form.title"
+                type="text"
+                maxlength="80"
+                class="input input-bordered w-full border-white/10 bg-white/[0.03] text-sm text-white"
+              />
+            </label>
+
+            <label class="grid gap-2">
+              <span class="text-xs uppercase tracking-[0.16em] text-slate-500">描述</span>
+              <textarea
+                v-model="form.description"
+                maxlength="500"
+                class="textarea textarea-bordered min-h-[120px] border-white/10 bg-white/[0.03] text-sm text-white"
+              />
+            </label>
+
+            <label class="label flex justify-start gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
+              <input v-model="form.is_hidden" type="checkbox" class="toggle toggle-sm" />
+              <span class="label-text text-slate-200">将此 replay 设为隐藏</span>
+            </label>
+
+            <div class="flex justify-end">
+              <button
+                class="btn btn-sm border-emerald-300/25 bg-emerald-400/10 text-emerald-100 hover:border-emerald-200/45 hover:bg-emerald-300/15"
+                type="submit"
+                :disabled="isSaving"
+              >
+                <span v-if="isSaving" class="loading loading-spinner loading-xs" />
+                <Icon v-else icon="mdi-content-save-outline" class="h-4 w-4" />
+                保存修改
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </transition>
-  </div>
+  </article>
 </template>
 
 <style scoped>
 .expand-enter-active,
 .expand-leave-active {
   transition:
-    opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
+    opacity 0.22s ease,
+    transform 0.22s ease;
 }
+
 .expand-enter-from,
 .expand-leave-to {
   opacity: 0;
-  transform: translateY(-4px);
+  transform: translateY(-6px);
 }
 </style>
 
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
+import { reactive, ref, watch } from "vue";
+import { constants } from "@/shared/constants/config";
 import { formatTime } from "@/shared/utils/format";
-import type { RecordDTO, ReplayAvatar } from "@/shared/types/replay";
+import type {
+  ReplayAuditStatus,
+  ReplayAvatar,
+  ReplayRecord,
+  ReplayValidationStatus,
+  UpdateReplayPayload,
+} from "@/shared/types/replay";
 
-const props = defineProps<{
-  record: RecordDTO;
+const props = withDefaults(defineProps<{
+  record: ReplayRecord;
+  stageName?: string;
   expanded: boolean;
-  showActions?: boolean;
+  showAutoBattle?: boolean;
+  showEdit?: boolean;
+  isActing?: boolean;
+  isSaving?: boolean;
+}>(), {
+  stageName: "",
+  showAutoBattle: false,
+  showEdit: false,
+  isActing: false,
+  isSaving: false,
+});
+
+const emit = defineEmits<{
+  toggle: [];
+  "auto-battle": [];
+  save: [payload: UpdateReplayPayload];
 }>();
 
-defineEmits<{
-  toggle: [];
-  rate: [rating: 1 | -1];
-}>();
+const isEditing = ref(false);
+const form = reactive<UpdateReplayPayload>({
+  title: props.record.title,
+  description: props.record.description,
+  is_hidden: props.record.is_hidden,
+});
+
+watch(
+  () => props.record,
+  (record) => {
+    form.title = record.title;
+    form.description = record.description;
+    form.is_hidden = record.is_hidden;
+  },
+  { immediate: true, deep: true }
+);
 
 const avatarUrl = (avatar: ReplayAvatar) =>
-  `https://assets.ltsc.vip/avatar/${avatar.type}/${avatar.id}.png`;
+  `${constants.AssetsHost}/avatar/${avatar.type}/${avatar.id}.png`;
 
-const onAvatarError = (e: Event) => {
-  (e.target as HTMLImageElement).src =
-    "https://assets.ltsc.vip/avatar/DEFAULT/avatar_def_mc.png";
+const onAvatarError = (event: Event) => {
+  (event.target as HTMLImageElement).src =
+    `${constants.AssetsHost}/avatar/DEFAULT/avatar_def_mc.png`;
 };
 
-const netScoreBadgeClass = (score: number) => {
-  if (score > 0) return "badge-success bg-success/15 text-success border-success/25";
-  if (score < 0) return "badge-error bg-error/15 text-error border-error/25";
-  return "badge-ghost bg-base-content/8 text-base-content/40 border-base-content/15";
+const validationLabel = (status: ReplayValidationStatus) => {
+  switch (status) {
+    case "PASSED":
+      return "已通过";
+    case "FAILED":
+      return "已失败";
+    default:
+      return "待校验";
+  }
+};
+
+const auditLabel = (status: ReplayAuditStatus) => {
+  switch (status) {
+    case "APPROVED":
+      return "已审核";
+    case "REJECTED":
+      return "已拒绝";
+    default:
+      return "待审核";
+  }
+};
+
+const auditBadgeClass = (status: ReplayAuditStatus) => {
+  switch (status) {
+    case "APPROVED":
+      return "bg-emerald-500/15 text-emerald-100";
+    case "REJECTED":
+      return "bg-rose-500/15 text-rose-200";
+    default:
+      return "bg-amber-400/15 text-amber-100";
+  }
+};
+
+const toggleEditing = () => {
+  isEditing.value = !isEditing.value;
+  if (!isEditing.value) {
+    form.title = props.record.title;
+    form.description = props.record.description;
+    form.is_hidden = props.record.is_hidden;
+  }
+};
+
+const submitUpdate = () => {
+  emit("save", {
+    title: form.title?.trim() || "",
+    description: form.description?.trim() || "",
+    is_hidden: Boolean(form.is_hidden),
+  });
+  isEditing.value = false;
 };
 </script>

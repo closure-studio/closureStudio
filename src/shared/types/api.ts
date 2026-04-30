@@ -3,6 +3,8 @@
 // declare namespace → export interface/type
 // ============================================================
 
+import type { BattleReplayAction } from "@/shared/types/replay";
+
 // --- ApiSystem ---
 
 export interface ApiSystemConfig {
@@ -66,6 +68,7 @@ export interface ApiGameConfig {
   accelerate_slot_cn?: string;
   account?: string;
   allow_login_assist?: boolean;
+  battle_replay_actions?: BattleReplayAction[];
   battle_maps?: string[] | string;
   enable_building_arrange?: boolean;
   is_auto_battle?: boolean;
@@ -165,6 +168,7 @@ export interface ApiGameGameConfig {
   account: string;
   accelerate_slot: string;
   accelerate_slot_cn: string;
+  battle_replay_actions?: BattleReplayAction[];
   battle_maps: string[];
   enable_building_arrange: boolean;
   is_auto_battle: boolean;

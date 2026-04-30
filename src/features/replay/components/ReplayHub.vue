@@ -1,193 +1,175 @@
 <template>
-  <div class="space-y-4 p-2 replay-avatar-root">
-    <!-- 搜索 & 排序栏 -->
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center bg-white/8 border border-white/12 rounded-xl p-3">
-      <label
-        class="input flex items-center gap-2 flex-1 bg-white/5 border-white/10 focus-within:border-info/50 transition-colors"
-      >
-        <Icon icon="mdi-magnify" class="w-4 h-4 text-info/70" />
-        <input v-model="searchQuery" type="text" class="grow" placeholder="搜索关卡 ID 或博士名…" />
-      </label>
-      <div class="flex gap-1">
-        <button
-          v-for="opt in sortOptions"
-          :key="opt.key"
-          class="btn btn-sm transition-all duration-200"
-          :class="
-            sortKey === opt.key
-              ? 'btn-info btn-outline border-info/30 bg-info/10 text-info'
-              : 'btn-ghost text-base-content/50 hover:text-base-content/80'
-          "
-          @click="onSortChange(opt.key)"
-        >
-          <Icon :icon="opt.icon" class="w-3.5 h-3.5" />
-          {{ opt.label }}
-        </button>
-      </div>
-    </div>
+  <div class="space-y-5 p-2">
+    <section class="rounded-[28px] border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-5 shadow-[0_24px_80px_rgba(15,23,42,0.42)]">
+      <div class="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+        <div class="space-y-4">
+          <div class="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-100">
+            <Icon icon="mdi-television-play" class="h-4 w-4" />
+            Replay Hub
+          </div>
 
-    <!-- 加载中 -->
-    <div v-if="store.isLoadingRecords" class="flex justify-center py-12">
-      <span class="loading loading-spinner loading-md text-info" />
-    </div>
+          <div>
+            <h2 class="text-2xl font-black tracking-tight text-white sm:text-3xl">
+              公共作战录像
+            </h2>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-300/78">
+              只展示服务端校验通过且未隐藏的 replay。支持按关卡筛选，并将任意条目追加为自动作战动作。
+            </p>
+          </div>
 
-    <!-- 列表 -->
-    <div v-else-if="paged.length" class="space-y-2">
-      <RecordCard
-        v-for="record in paged"
-        :key="record.id"
-        :record="record"
-        :expanded="expandedId === record.id"
-        :show-actions="true"
-        @toggle="toggle(record.id)"
-        @rate="(r) => onRate(record, r)"
-      />
-    </div>
-
-    <!-- 空状态 -->
-    <div v-else class="text-center py-16 text-base-content/30">
-      <div class="inline-flex flex-col items-center gap-3">
-        <div class="w-16 h-16 rounded-2xl bg-white/8 border border-white/12 flex items-center justify-center">
-          <Icon icon="mdi-video-off-outline" class="w-8 h-8" />
+          <label class="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3">
+            <Icon icon="mdi-magnify" class="h-5 w-5 text-cyan-200" />
+            <input
+              v-model="stageFilter"
+              type="text"
+              class="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+              placeholder="输入关卡 ID，例如 main_01-07"
+              @keyup.enter="applyFilter"
+            />
+            <button class="btn btn-sm border-cyan-300/25 bg-cyan-400/10 text-cyan-100 hover:bg-cyan-300/15" @click="applyFilter">
+              查询
+            </button>
+          </label>
         </div>
-        <p class="text-sm">没有找到相关录像</p>
+
+        <div class="rounded-3xl border border-white/10 bg-white/[0.03] p-4">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <div class="text-sm font-semibold text-white">自动作战目标账号</div>
+              <div class="mt-1 text-xs leading-5 text-slate-400">
+                选择一个托管账号后，列表卡片里的“追加自动作战”会把动作写入
+                `battle_replay_actions`。
+              </div>
+            </div>
+            <div class="rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-3 text-cyan-100">
+              <Icon icon="mdi-robot-outline" class="h-5 w-5" />
+            </div>
+          </div>
+
+          <div v-if="accounts.length" class="mt-4 flex flex-wrap gap-2">
+            <button
+              v-for="account in accounts"
+              :key="account.account"
+              class="rounded-2xl border px-3 py-2 text-left text-sm transition-all"
+              :class="
+                replayStore.selectedAccount === account.account
+                  ? 'border-cyan-300/45 bg-cyan-400/12 text-cyan-100'
+                  : 'border-white/10 bg-white/[0.03] text-slate-300 hover:border-white/20'
+              "
+              @click="replayStore.setSelectedAccount(account.account)"
+            >
+              <div class="font-semibold">{{ account.nickname }}</div>
+              <div class="text-xs opacity-70">{{ account.account }}</div>
+            </button>
+          </div>
+          <div v-else class="mt-4 rounded-2xl border border-dashed border-amber-300/25 bg-amber-400/10 px-4 py-4 text-sm text-amber-100">
+            当前没有可下发动作的托管账号，请先在游戏管理页绑定账号。
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <!-- 分页 -->
-    <div v-if="totalPages > 1" class="flex justify-center items-center gap-3 pt-3">
-      <button
-        class="w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-200"
-        :class="
-          currentPage === 1
-            ? 'border-base-content/8 text-base-content/20 cursor-not-allowed'
-            : 'border-info/20 text-info/50 hover:border-info/50 hover:text-info hover:bg-info/8'
-        "
-        :disabled="currentPage === 1"
-        @click="goPage(currentPage - 1)"
-      >
-        <Icon icon="mdi-chevron-left" class="w-4 h-4" />
-      </button>
-
-      <div class="flex items-center gap-1">
-        <span class="text-sm font-medium text-info/80">{{ currentPage }}</span>
-        <span class="text-xs text-base-content/25 mx-0.5">/</span>
-        <span class="text-sm text-base-content/35">{{ totalPages }}</span>
+    <section class="space-y-3">
+      <div v-if="replayStore.isLoadingPublicReplays && !replayStore.publicReplays.length" class="flex justify-center py-12">
+        <span class="loading loading-spinner loading-md text-info" />
       </div>
 
-      <button
-        class="w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-200"
-        :class="
-          currentPage === totalPages
-            ? 'border-base-content/8 text-base-content/20 cursor-not-allowed'
-            : 'border-info/20 text-info/50 hover:border-info/50 hover:text-info hover:bg-info/8'
-        "
-        :disabled="currentPage === totalPages"
-        @click="goPage(currentPage + 1)"
-      >
-        <Icon icon="mdi-chevron-right" class="w-4 h-4" />
-      </button>
-    </div>
+      <template v-else-if="replayStore.publicReplays.length">
+        <RecordCard
+          v-for="record in replayStore.publicReplays"
+          :key="record.uuid"
+          :record="record"
+          :stage-name="stageName(record.stage_id)"
+          :expanded="expandedId === record.uuid"
+          :show-auto-battle="Boolean(replayStore.selectedAccount)"
+          :is-acting="actionReplayUuid === record.uuid"
+          @toggle="toggle(record.uuid)"
+          @auto-battle="enqueueAutoBattle(record.uuid)"
+        />
+
+        <div class="flex justify-center pt-3">
+          <button
+            v-if="replayStore.publicHasMore"
+            class="btn border-cyan-300/25 bg-cyan-400/10 text-cyan-100 hover:bg-cyan-300/15"
+            :disabled="replayStore.isLoadingPublicReplays"
+            @click="replayStore.fetchMorePublicReplays()"
+          >
+            <span v-if="replayStore.isLoadingPublicReplays" class="loading loading-spinner loading-sm" />
+            加载更多
+          </button>
+        </div>
+      </template>
+
+      <div v-else class="rounded-3xl border border-dashed border-white/10 bg-white/[0.03] px-4 py-12 text-center text-sm text-slate-400">
+        当前没有匹配的公共 replay。
+      </div>
+    </section>
   </div>
 </template>
 
-<style scoped>
-.expand-enter-active,
-.expand-leave-active {
-  transition:
-    opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-}
-.expand-enter-from,
-.expand-leave-to {
-  opacity: 0;
-  transform: translateY(-4px);
-}
-</style>
-
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
-import { computed, onMounted, onBeforeUnmount, ref, watch } from "vue";
-import { useReplayStore } from "@/stores/useReplayStore";
-import type { RecordDTO } from "@/shared/types/replay";
+import { computed, onMounted, ref, watch } from "vue";
 import RecordCard from "./RecordCard.vue";
+import { assets } from "@/shared/services/assets";
+import { setMsg } from "@/shared/utils/toast";
+import { Type } from "@/shared/components/toast/enum";
+import { useGamesStore } from "@/stores/useGamesStore";
+import { useReplayStore } from "@/stores/useReplayStore";
 
-const store = useReplayStore();
-const PAGE_LIMIT = 20;
+const replayStore = useReplayStore();
+const gamesStore = useGamesStore();
 
-// ---- 搜索 & 排序 ----
-const searchQuery = ref("");
-const sortKey = ref<"createdAt" | "netScore">("createdAt");
-const sortOptions = [
-  { key: "createdAt" as const, label: "最新发布", icon: "mdi-clock-outline" },
-  { key: "netScore" as const, label: "最高评分", icon: "mdi-star-outline" },
-];
+const stageFilter = ref(replayStore.publicStageId);
+const expandedId = ref("");
+const actionReplayUuid = ref("");
 
-const onSortChange = (key: typeof sortKey.value) => {
-  sortKey.value = key;
-  currentPage.value = 1;
-};
-
-// ---- 分页 ----
-const pageSize = ref(calcPageSize());
-const currentPage = ref(1);
-
-function calcPageSize(): number {
-  const available = window.innerHeight - 200;
-  return Math.max(4, Math.floor(available / 80));
-}
-
-const filtered = computed(() => {
-  const q = searchQuery.value.trim().toLowerCase();
-  return store.records
-    .filter((r) => !q || r.stageId.toLowerCase().includes(q) || r.nickName.toLowerCase().includes(q))
-    .slice()
-    .sort((a, b) =>
-      sortKey.value === "netScore"
-        ? (b.netScore ?? 0) - (a.netScore ?? 0)
-        : b.createdAt - a.createdAt
-    );
-});
-
-const totalPages = computed(() => Math.max(1, Math.ceil(store.recordsTotal / pageSize.value)));
-const paged = computed(() =>
-  filtered.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value)
+const accounts = computed(() =>
+  gamesStore.gameList.map((game) => ({
+    account: game.status.account,
+    nickname: game.status.nick_name || game.status.account,
+  }))
 );
 
-watch([searchQuery, sortKey], () => { currentPage.value = 1; });
+watch(
+  accounts,
+  (list) => {
+    replayStore.syncSelectedAccount(list.map((item) => item.account));
+  },
+  { immediate: true }
+);
 
-const goPage = (page: number) => {
-  currentPage.value = page;
-  store.fetchRecords({
-    offset: (page - 1) * PAGE_LIMIT,
-    limit: PAGE_LIMIT,
-    stageId: searchQuery.value || undefined,
-  });
+const stageName = (stageId: string) => assets.value.getStageName(stageId);
+
+const applyFilter = async () => {
+  expandedId.value = "";
+  await replayStore.fetchPublicReplays(stageFilter.value.trim());
 };
 
-// ---- 展开 ----
-const expandedId = ref<string | null>(null);
-const toggle = (id: string) => {
-  expandedId.value = expandedId.value === id ? null : id;
+const toggle = (uuid: string) => {
+  expandedId.value = expandedId.value === uuid ? "" : uuid;
 };
 
-// ---- 评分 ----
-const onRate = async (record: RecordDTO, val: 1 | -1) => {
-  if (record.myRating === val) {
-    await store.deleteMyRating(record.id);
-  } else {
-    await store.rateRecord(record.id, { rating: val });
+const enqueueAutoBattle = async (uuid: string) => {
+  if (!replayStore.selectedAccount) {
+    setMsg("请先选择一个托管账号", Type.Warning);
+    return;
+  }
+
+  const replay = replayStore.publicReplays.find((item) => item.uuid === uuid);
+  if (!replay) return;
+
+  actionReplayUuid.value = uuid;
+  try {
+    await replayStore.enqueueAutoBattleAction(replayStore.selectedAccount, replay);
+  } finally {
+    actionReplayUuid.value = "";
   }
 };
 
-onMounted(() => {
-  store.fetchRecords({ offset: 0, limit: PAGE_LIMIT });
-  const onResize = () => {
-    pageSize.value = calcPageSize();
-    if (currentPage.value > totalPages.value) currentPage.value = 1;
-  };
-  window.addEventListener("resize", onResize);
-  onBeforeUnmount(() => window.removeEventListener("resize", onResize));
+onMounted(async () => {
+  if (!replayStore.publicReplays.length) {
+    await replayStore.fetchPublicReplays(stageFilter.value.trim());
+  }
 });
 </script>

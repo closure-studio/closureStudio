@@ -21,7 +21,6 @@
       "node",
       "@types/jest"
     ],
-    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"

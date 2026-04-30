@@ -1,203 +1,219 @@
 <template>
-  <div class="space-y-4 p-2">
-    <!-- 头部说明 -->
-    <div class="bg-white/8 border border-white/12 rounded-xl p-4">
-      <div class="flex items-center gap-3 mb-2">
-        <Icon icon="mdi-video-outline" class="w-5 h-5 text-info" />
-        <span class="font-bold text-base-content/90">我的作战录像</span>
-      </div>
-      <p class="text-xs text-base-content/50 leading-relaxed">
-        查看你发布的所有录像。录像提交后进入待审核状态，审核通过后将对所有博士公开。
-      </p>
-    </div>
-
-    <!-- 状态筛选 -->
-    <div class="flex gap-1 flex-wrap">
-      <button
-        v-for="opt in statusOptions"
-        :key="opt.value"
-        class="btn btn-sm transition-all duration-200"
-        :class="
-          filterStatus === opt.value
-            ? 'btn-info btn-outline border-info/30 bg-info/10 text-info'
-            : 'btn-ghost text-base-content/50 hover:text-base-content/80'
-        "
-        @click="filterStatus = opt.value"
-      >
-        {{ opt.label }}
-        <span class="badge badge-xs ml-1">{{ countByStatus(opt.value) }}</span>
-      </button>
-    </div>
-
-    <!-- 加载中 -->
-    <div v-if="store.isLoadingMyRecords" class="flex justify-center py-12">
-      <span class="loading loading-spinner loading-md text-info" />
-    </div>
-
-    <!-- 录像列表 -->
-    <div v-else-if="filtered.length" class="space-y-2">
-      <div
-        v-for="record in paged"
-        :key="record.id"
-        class="group rounded-xl border border-white/10 bg-white/6 p-4 transition-all duration-200 hover:bg-white/10 hover:border-white/18"
-      >
-        <div class="flex items-start gap-3">
-          <!-- 状态色点 -->
-          <div class="w-2 h-2 rounded-full mt-2 shrink-0" :class="statusDotClass(record.status)" />
-
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="font-bold text-base-content/90">{{ record.stageId }}</span>
-              <span class="badge badge-sm" :class="statusBadgeClass(record.status)">
-                {{ statusLabel(record.status) }}
-              </span>
-            </div>
-            <div class="text-xs text-base-content/45 mt-1.5 flex items-center flex-wrap gap-x-4 gap-y-1">
-              <span>{{ formatTime(record.createdAt, 'yyyy-MM-dd HH:mm') }}</span>
-              <span class="flex items-center gap-1">
-                <Icon icon="mdi-sword-cross" class="w-3 h-3" />
-                {{ record.successBattleCount }}/{{ record.totalBattleCount }} 胜
-              </span>
-              <span v-if="record.netScore != null" class="flex items-center gap-1">
-                <Icon icon="mdi-thumb-up-outline" class="w-3 h-3" />
-                净评分 {{ record.netScore >= 0 ? '+' : '' }}{{ record.netScore }}
-              </span>
-              <span v-if="record.usageCount != null" class="flex items-center gap-1">
-                <Icon icon="mdi-download-outline" class="w-3 h-3" />
-                采用 {{ record.usageCount }} 次
-              </span>
-            </div>
-            <p v-if="record.displayInfo" class="text-xs text-base-content/40 mt-1.5 line-clamp-1">
-              {{ record.displayInfo }}
-            </p>
+  <div class="space-y-5 p-2">
+    <section class="rounded-[28px] border border-white/10 bg-slate-900/75 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.28)]">
+      <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <div>
+          <div class="inline-flex items-center gap-2 rounded-full border border-fuchsia-300/20 bg-fuchsia-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-fuchsia-100">
+            <Icon icon="mdi-video-outline" class="h-4 w-4" />
+            My Replays
           </div>
+          <h2 class="mt-3 text-2xl font-black text-white">我的录像</h2>
+          <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-300/78">
+            按账号查看自己的 replay，支持修改标题、描述和隐藏状态，并可直接追加自动作战动作。
+          </p>
+        </div>
 
-          <!-- 删除按钮 -->
+        <label class="flex min-w-[280px] items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3">
+          <Icon icon="mdi-magnify" class="h-5 w-5 text-fuchsia-200" />
+          <input
+            v-model="keyword"
+            type="text"
+            class="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+            placeholder="搜索关卡 ID 或标题"
+          />
+        </label>
+      </div>
+
+      <div class="mt-5">
+        <div v-if="accounts.length" class="flex flex-wrap gap-2">
           <button
-            class="btn btn-xs btn-ghost text-base-content/35 hover:text-error hover:bg-error/10 transition-colors shrink-0"
-            :disabled="isDeleting === record.id"
-            @click="onDelete(record.id)"
+            v-for="account in accounts"
+            :key="account.account"
+            class="rounded-2xl border px-3 py-2 text-left text-sm transition-all"
+            :class="
+              replayStore.selectedAccount === account.account
+                ? 'border-fuchsia-300/45 bg-fuchsia-400/12 text-fuchsia-100'
+                : 'border-white/10 bg-white/[0.03] text-slate-300 hover:border-white/20'
+            "
+            @click="switchAccount(account.account)"
           >
-            <span v-if="isDeleting === record.id" class="loading loading-spinner loading-xs" />
-            <Icon v-else icon="mdi-trash-can-outline" class="w-4 h-4" />
+            <div class="font-semibold">{{ account.nickname }}</div>
+            <div class="text-xs opacity-70">{{ account.account }}</div>
           </button>
         </div>
-      </div>
-    </div>
-
-    <!-- 空状态 -->
-    <div v-else class="text-center py-16 text-base-content/30">
-      <div class="inline-flex flex-col items-center gap-3">
-        <div class="w-16 h-16 rounded-2xl bg-white/8 border border-white/12 flex items-center justify-center">
-          <Icon icon="mdi-video-off-outline" class="w-8 h-8" />
+        <div v-else class="rounded-2xl border border-dashed border-amber-300/25 bg-amber-400/10 px-4 py-4 text-sm text-amber-100">
+          没有可用账号，暂时无法查询“我的录像”。
         </div>
-        <p class="text-sm">
-          {{ filterStatus === 'all' ? '还没有发布过录像' : '该状态下没有录像' }}
-        </p>
       </div>
-    </div>
 
-    <!-- 分页 -->
-    <div v-if="totalPages > 1" class="flex justify-center items-center gap-3 pt-2">
-      <button
-        class="w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-200"
-        :class="
-          currentPage === 1
-            ? 'border-base-content/8 text-base-content/20 cursor-not-allowed'
-            : 'border-info/20 text-info/50 hover:border-info/50 hover:text-info hover:bg-info/8'
-        "
-        :disabled="currentPage === 1"
-        @click="goPage(currentPage - 1)"
-      >
-        <Icon icon="mdi-chevron-left" class="w-4 h-4" />
-      </button>
-      <div class="flex items-center gap-1">
-        <span class="text-sm font-medium text-info/80">{{ currentPage }}</span>
-        <span class="text-xs text-base-content/25 mx-0.5">/</span>
-        <span class="text-sm text-base-content/35">{{ totalPages }}</span>
+      <div class="mt-5 flex flex-wrap gap-2">
+        <button
+          v-for="item in filterOptions"
+          :key="item.value"
+          class="btn btn-sm border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/[0.08]"
+          :class="{ 'border-fuchsia-300/30 bg-fuchsia-400/12 text-fuchsia-100': activeFilter === item.value }"
+          @click="activeFilter = item.value"
+        >
+          {{ item.label }}
+          <span class="badge badge-xs border-0 bg-white/10 text-slate-200">{{ countByFilter(item.value) }}</span>
+        </button>
       </div>
-      <button
-        class="w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-200"
-        :class="
-          currentPage === totalPages
-            ? 'border-base-content/8 text-base-content/20 cursor-not-allowed'
-            : 'border-info/20 text-info/50 hover:border-info/50 hover:text-info hover:bg-info/8'
-        "
-        :disabled="currentPage === totalPages"
-        @click="goPage(currentPage + 1)"
-      >
-        <Icon icon="mdi-chevron-right" class="w-4 h-4" />
-      </button>
-    </div>
+    </section>
+
+    <section class="space-y-3">
+      <div v-if="replayStore.isLoadingMyReplays && !replayStore.myReplays.length" class="flex justify-center py-12">
+        <span class="loading loading-spinner loading-md text-info" />
+      </div>
+
+      <template v-else-if="visibleReplays.length">
+        <RecordCard
+          v-for="record in visibleReplays"
+          :key="record.uuid"
+          :record="record"
+          :stage-name="stageName(record.stage_id)"
+          :expanded="expandedId === record.uuid"
+          :show-auto-battle="Boolean(replayStore.selectedAccount)"
+          :show-edit="true"
+          :is-acting="actionReplayUuid === record.uuid"
+          :is-saving="savingReplayUuid === record.uuid"
+          @toggle="toggle(record.uuid)"
+          @auto-battle="enqueueAutoBattle(record.uuid)"
+          @save="(payload) => saveReplay(record.uuid, payload)"
+        />
+
+        <div class="flex justify-center pt-3">
+          <button
+            v-if="replayStore.myHasMore"
+            class="btn border-fuchsia-300/25 bg-fuchsia-400/10 text-fuchsia-100 hover:bg-fuchsia-300/15"
+            :disabled="replayStore.isLoadingMyReplays"
+            @click="replayStore.fetchMoreMyReplays()"
+          >
+            <span v-if="replayStore.isLoadingMyReplays" class="loading loading-spinner loading-sm" />
+            加载更多
+          </button>
+        </div>
+      </template>
+
+      <div v-else class="rounded-3xl border border-dashed border-white/10 bg-white/[0.03] px-4 py-12 text-center text-sm text-slate-400">
+        当前筛选条件下没有 replay。
+      </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
+import RecordCard from "./RecordCard.vue";
+import { assets } from "@/shared/services/assets";
+import { setMsg } from "@/shared/utils/toast";
+import { Type } from "@/shared/components/toast/enum";
+import type { ReplayValidationStatus, UpdateReplayPayload } from "@/shared/types/replay";
+import { useGamesStore } from "@/stores/useGamesStore";
 import { useReplayStore } from "@/stores/useReplayStore";
-import { formatTime } from "@/shared/utils/format";
-import type { RecordStatus } from "@/shared/types/replay";
 
-const store = useReplayStore();
-const PAGE_SIZE = 10;
+type MineFilter = "all" | ReplayValidationStatus | "hidden";
 
-// ---- 状态筛选 ----
-type FilterStatus = "all" | RecordStatus;
-const filterStatus = ref<FilterStatus>("all");
+const replayStore = useReplayStore();
+const gamesStore = useGamesStore();
 
-const statusOptions: { value: FilterStatus; label: string }[] = [
+const keyword = ref("");
+const activeFilter = ref<MineFilter>("all");
+const expandedId = ref("");
+const actionReplayUuid = ref("");
+const savingReplayUuid = ref("");
+
+const accounts = computed(() =>
+  gamesStore.gameList.map((game) => ({
+    account: game.status.account,
+    nickname: game.status.nick_name || game.status.account,
+  }))
+);
+
+const filterOptions: { value: MineFilter; label: string }[] = [
   { value: "all", label: "全部" },
-  { value: 0,   label: "待审核" },
-  { value: 1,   label: "已发布" },
-  { value: 2,   label: "已隐藏" },
+  { value: "PENDING", label: "待校验" },
+  { value: "PASSED", label: "已通过" },
+  { value: "FAILED", label: "已失败" },
+  { value: "hidden", label: "已隐藏" },
 ];
 
-const countByStatus = (val: FilterStatus) =>
-  val === "all"
-    ? store.myRecords.length
-    : store.myRecords.filter((r) => r.status === val).length;
-
-const filtered = computed(() =>
-  filterStatus.value === "all"
-    ? store.myRecords
-    : store.myRecords.filter((r) => r.status === filterStatus.value)
+watch(
+  accounts,
+  async (list) => {
+    replayStore.syncSelectedAccount(list.map((item) => item.account));
+    if (!replayStore.selectedAccount || replayStore.myAccount === replayStore.selectedAccount) {
+      return;
+    }
+    await replayStore.fetchMyReplays(replayStore.selectedAccount);
+  },
+  { immediate: true }
 );
 
-// ---- 分页 ----
-const currentPage = ref(1);
-const totalPages = computed(() => Math.max(1, Math.ceil(filtered.value.length / PAGE_SIZE)));
-const paged = computed(() =>
-  filtered.value.slice((currentPage.value - 1) * PAGE_SIZE, currentPage.value * PAGE_SIZE)
-);
-
-const goPage = (page: number) => {
-  currentPage.value = page;
+const countByFilter = (filter: MineFilter) => {
+  if (filter === "all") return replayStore.myReplays.length;
+  if (filter === "hidden") return replayStore.myReplays.filter((item) => item.is_hidden).length;
+  return replayStore.myReplays.filter((item) => item.validation_status === filter).length;
 };
 
-// ---- 删除 ----
-const isDeleting = ref<string | null>(null);
-const onDelete = async (id: string) => {
-  if (!confirm("确定删除该录像？此操作不可撤销。")) return;
-  isDeleting.value = id;
-  // TODO: 后端部署后替换为 store.deleteRecord(id)
-  await new Promise((r) => setTimeout(r, 500));
-  const idx = store.myRecords.findIndex((r) => r.id === id);
-  if (idx !== -1) store.myRecords.splice(idx, 1);
-  isDeleting.value = null;
+const visibleReplays = computed(() => {
+  const query = keyword.value.trim().toLowerCase();
+  return replayStore.myReplays.filter((item) => {
+    const matchesFilter =
+      activeFilter.value === "all"
+        ? true
+        : activeFilter.value === "hidden"
+          ? item.is_hidden
+          : item.validation_status === activeFilter.value;
+    const matchesKeyword =
+      !query ||
+      item.stage_id.toLowerCase().includes(query) ||
+      item.title.toLowerCase().includes(query);
+    return matchesFilter && matchesKeyword;
+  });
+});
+
+const stageName = (stageId: string) => assets.value.getStageName(stageId);
+
+const toggle = (uuid: string) => {
+  expandedId.value = expandedId.value === uuid ? "" : uuid;
 };
 
-// ---- 工具 ----
-const statusLabel = (s: RecordStatus) =>
-  (["待审核", "已发布", "已隐藏"] as const)[s];
+const switchAccount = async (account: string) => {
+  replayStore.setSelectedAccount(account);
+  expandedId.value = "";
+  await replayStore.fetchMyReplays(account);
+};
 
-const statusBadgeClass = (s: RecordStatus) =>
-  (["badge-warning", "badge-success", "badge-error"] as const)[s];
+const enqueueAutoBattle = async (uuid: string) => {
+  if (!replayStore.selectedAccount) {
+    setMsg("请先选择一个托管账号", Type.Warning);
+    return;
+  }
 
-const statusDotClass = (s: RecordStatus) =>
-  (["bg-warning", "bg-success", "bg-error"] as const)[s];
+  const replay = replayStore.myReplays.find((item) => item.uuid === uuid);
+  if (!replay) return;
 
-onMounted(() => {
-  store.fetchMyRecords();
+  actionReplayUuid.value = uuid;
+  try {
+    await replayStore.enqueueAutoBattleAction(replayStore.selectedAccount, replay);
+  } finally {
+    actionReplayUuid.value = "";
+  }
+};
+
+const saveReplay = async (uuid: string, payload: UpdateReplayPayload) => {
+  savingReplayUuid.value = uuid;
+  try {
+    await replayStore.updateReplay(uuid, payload);
+  } finally {
+    savingReplayUuid.value = "";
+  }
+};
+
+onMounted(async () => {
+  if (replayStore.selectedAccount && !replayStore.myReplays.length) {
+    await replayStore.fetchMyReplays(replayStore.selectedAccount);
+  }
 });
 </script>

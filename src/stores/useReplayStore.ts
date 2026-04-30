@@ -1,279 +1,359 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
 import { replayApi } from "@/shared/services/replayClient";
-import { mockRecords } from "@/features/replay/mock/records";
 import type {
-  RecordDTO,
-  SetDTO,
-  ListRecordsParams,
-  RateRequest,
-  AdoptRequest,
+  ReplayAutoResult,
+  ReplayRecord,
+  UpdateReplayPayload,
 } from "@/shared/types/replay";
 import { setMsg } from "@/shared/utils/toast";
 import { Type } from "@/shared/components/toast/enum";
 
-// TODO: 后端部署后删除此开关
-const USE_MOCK = true;
-
 const PAGE_LIMIT = 20;
 
+function mergeReplayPage(current: ReplayRecord[], incoming: ReplayRecord[]) {
+  const map = new Map(current.map((item) => [item.uuid, item]));
+  incoming.forEach((item) => map.set(item.uuid, item));
+  return Array.from(map.values());
+}
+
+function mergeAutoResultPage(current: ReplayAutoResult[], incoming: ReplayAutoResult[]) {
+  const map = new Map(current.map((item) => [item.id, item]));
+  incoming.forEach((item) => map.set(item.id, item));
+  return Array.from(map.values());
+}
+
 export const useReplayStore = defineStore("replay", () => {
-  // ---- 公开录像列表 ----
-  const records = ref<RecordDTO[]>([]);
-  const recordsTotal = ref(0);
-  const recordsOffset = ref(0);
-  const isLoadingRecords = ref(false);
+  const selectedAccount = ref("");
 
-  // ---- 公开集合列表 ----
-  const sets = ref<SetDTO[]>([]);
-  const setsTotal = ref(0);
-  const setsOffset = ref(0);
-  const isLoadingSets = ref(false);
+  const publicReplays = ref<ReplayRecord[]>([]);
+  const publicPage = ref(1);
+  const publicStageId = ref("");
+  const publicHasMore = ref(true);
+  const isLoadingPublicReplays = ref(false);
 
-  // ---- 我的录像 ----
-  const myRecords = ref<RecordDTO[]>([]);
-  const myRecordsTotal = ref(0);
-  const myRecordsOffset = ref(0);
-  const isLoadingMyRecords = ref(false);
+  const myReplays = ref<ReplayRecord[]>([]);
+  const myPage = ref(1);
+  const myAccount = ref("");
+  const myHasMore = ref(false);
+  const isLoadingMyReplays = ref(false);
 
-  // ---- 我的集合 ----
-  const mySets = ref<SetDTO[]>([]);
-  const mySetsTotal = ref(0);
-  const mySetsOffset = ref(0);
-  const isLoadingMySets = ref(false);
+  const autoResults = ref<ReplayAutoResult[]>([]);
+  const autoResultsPage = ref(1);
+  const autoResultsAccount = ref("");
+  const autoResultsHasMore = ref(false);
+  const isLoadingAutoResults = ref(false);
 
-  // ---- 当前详情 ----
-  const currentRecord = ref<RecordDTO | null>(null);
-  const currentSet = ref<SetDTO | null>(null);
+  const syncSelectedAccount = (accounts: string[]) => {
+    if (!accounts.length) {
+      selectedAccount.value = "";
+      return;
+    }
+    if (!accounts.includes(selectedAccount.value)) {
+      selectedAccount.value = accounts[0];
+    }
+  };
 
-  // ================================================================
-  // 公开录像
-  // ================================================================
+  const setSelectedAccount = (account: string) => {
+    selectedAccount.value = account;
+  };
 
-  const fetchRecords = async (params: ListRecordsParams = {}) => {
-    isLoadingRecords.value = true;
+  const fetchPublicReplays = async (stageId = publicStageId.value, limit = PAGE_LIMIT) => {
+    publicStageId.value = stageId;
+    isLoadingPublicReplays.value = true;
     try {
-      if (USE_MOCK) {
-        const { offset = 0, limit = PAGE_LIMIT, stageId } = params;
-        const filtered = stageId
-          ? mockRecords.filter((r) => r.stageId.includes(stageId))
-          : mockRecords;
-        records.value = filtered.slice(offset, offset + limit);
-        recordsTotal.value = filtered.length;
-        recordsOffset.value = offset;
-        return;
-      }
-      const resp = await replayApi.listRecords({ limit: PAGE_LIMIT, ...params });
+      const resp = await replayApi.listReplays({
+        page: 1,
+        limit,
+        stage_id: stageId || undefined,
+      });
       if (resp.code === 1 && resp.data) {
-        records.value = resp.data.items;
-        recordsTotal.value = resp.data.total;
-        recordsOffset.value = params.offset ?? 0;
+        publicReplays.value = resp.data;
+        publicPage.value = 1;
+        publicHasMore.value = resp.data.length >= limit;
+        return resp;
       }
-    } catch (e) {
-      console.error("fetchRecords:", e);
+      publicReplays.value = [];
+      publicPage.value = 1;
+      publicHasMore.value = false;
+      setMsg(resp.message || "加载录像失败", Type.Warning);
+      return resp;
+    } catch (error) {
+      publicReplays.value = [];
+      publicHasMore.value = false;
+      setMsg("加载录像失败", Type.Warning);
+      console.error("fetchPublicReplays:", error);
+      throw error;
     } finally {
-      isLoadingRecords.value = false;
+      isLoadingPublicReplays.value = false;
     }
   };
 
-  const fetchRecordDetail = async (id: string) => {
-    try {
-      const resp = await replayApi.getRecord(id);
-      if (resp.code === 1 && resp.data) {
-        currentRecord.value = resp.data;
-      }
-    } catch (e) {
-      console.error("fetchRecordDetail:", e);
-    }
-  };
+  const fetchMorePublicReplays = async (limit = PAGE_LIMIT) => {
+    if (!publicHasMore.value || isLoadingPublicReplays.value) return null;
 
-  // ================================================================
-  // 公开集合
-  // ================================================================
-
-  const fetchSets = async (offset = 0) => {
-    isLoadingSets.value = true;
+    const nextPage = publicPage.value + 1;
+    isLoadingPublicReplays.value = true;
     try {
-      const resp = await replayApi.listSets({ offset, limit: PAGE_LIMIT });
+      const resp = await replayApi.listReplays({
+        page: nextPage,
+        limit,
+        stage_id: publicStageId.value || undefined,
+      });
       if (resp.code === 1 && resp.data) {
-        sets.value = resp.data.items;
-        setsTotal.value = resp.data.total;
-        setsOffset.value = offset;
+        publicReplays.value = mergeReplayPage(publicReplays.value, resp.data);
+        publicPage.value = nextPage;
+        publicHasMore.value = resp.data.length >= limit;
+        return resp;
       }
-    } catch (e) {
-      console.error("fetchSets:", e);
+      publicHasMore.value = false;
+      setMsg(resp.message || "加载更多录像失败", Type.Warning);
+      return resp;
+    } catch (error) {
+      setMsg("加载更多录像失败", Type.Warning);
+      console.error("fetchMorePublicReplays:", error);
+      throw error;
     } finally {
-      isLoadingSets.value = false;
+      isLoadingPublicReplays.value = false;
     }
   };
 
-  const fetchSetDetail = async (id: string) => {
-    try {
-      const resp = await replayApi.getSet(id);
-      if (resp.code === 1 && resp.data) {
-        currentSet.value = resp.data;
-      }
-    } catch (e) {
-      console.error("fetchSetDetail:", e);
+  const fetchMyReplays = async (account = selectedAccount.value, limit = PAGE_LIMIT) => {
+    myAccount.value = account;
+    if (!account) {
+      myReplays.value = [];
+      myPage.value = 1;
+      myHasMore.value = false;
+      return null;
     }
-  };
 
-  // ================================================================
-  // 我的录像 & 集合
-  // ================================================================
-
-  const fetchMyRecords = async (offset = 0) => {
-    isLoadingMyRecords.value = true;
+    selectedAccount.value = account;
+    isLoadingMyReplays.value = true;
     try {
-      if (USE_MOCK) {
-        const slice = mockRecords.slice(offset, offset + PAGE_LIMIT);
-        myRecords.value = slice.map((r) => ({ ...r, status: [0, 1, 2][r.id.charCodeAt(r.id.length - 1) % 3] as 0 | 1 | 2 }));
-        myRecordsTotal.value = mockRecords.length;
-        myRecordsOffset.value = offset;
-        return;
-      }
-      const resp = await replayApi.myRecords({ offset, limit: PAGE_LIMIT });
+      const resp = await replayApi.listReplays({
+        page: 1,
+        limit,
+        mine: true,
+        account,
+      });
       if (resp.code === 1 && resp.data) {
-        myRecords.value = resp.data.items;
-        myRecordsTotal.value = resp.data.total;
-        myRecordsOffset.value = offset;
+        myReplays.value = resp.data;
+        myPage.value = 1;
+        myHasMore.value = resp.data.length >= limit;
+        return resp;
       }
-    } catch (e) {
-      console.error("fetchMyRecords:", e);
+      myReplays.value = [];
+      myPage.value = 1;
+      myHasMore.value = false;
+      setMsg(resp.message || "加载我的录像失败", Type.Warning);
+      return resp;
+    } catch (error) {
+      myReplays.value = [];
+      myHasMore.value = false;
+      setMsg("加载我的录像失败", Type.Warning);
+      console.error("fetchMyReplays:", error);
+      throw error;
     } finally {
-      isLoadingMyRecords.value = false;
+      isLoadingMyReplays.value = false;
     }
   };
 
-  const fetchMySets = async (offset = 0) => {
-    isLoadingMySets.value = true;
+  const fetchMoreMyReplays = async (limit = PAGE_LIMIT) => {
+    if (!myAccount.value || !myHasMore.value || isLoadingMyReplays.value) return null;
+
+    const nextPage = myPage.value + 1;
+    isLoadingMyReplays.value = true;
     try {
-      const resp = await replayApi.mySets({ offset, limit: PAGE_LIMIT });
+      const resp = await replayApi.listReplays({
+        page: nextPage,
+        limit,
+        mine: true,
+        account: myAccount.value,
+      });
       if (resp.code === 1 && resp.data) {
-        mySets.value = resp.data.items;
-        mySetsTotal.value = resp.data.total;
-        mySetsOffset.value = offset;
+        myReplays.value = mergeReplayPage(myReplays.value, resp.data);
+        myPage.value = nextPage;
+        myHasMore.value = resp.data.length >= limit;
+        return resp;
       }
-    } catch (e) {
-      console.error("fetchMySets:", e);
+      myHasMore.value = false;
+      setMsg(resp.message || "加载更多我的录像失败", Type.Warning);
+      return resp;
+    } catch (error) {
+      setMsg("加载更多我的录像失败", Type.Warning);
+      console.error("fetchMoreMyReplays:", error);
+      throw error;
     } finally {
-      isLoadingMySets.value = false;
+      isLoadingMyReplays.value = false;
     }
   };
 
-  // ================================================================
-  // 互动操作
-  // ================================================================
+  const fetchAutoResults = async (account = selectedAccount.value, limit = PAGE_LIMIT) => {
+    autoResultsAccount.value = account;
+    if (!account) {
+      autoResults.value = [];
+      autoResultsPage.value = 1;
+      autoResultsHasMore.value = false;
+      return null;
+    }
 
-  const rateRecord = async (id: string, data: RateRequest) => {
-    const resp = await replayApi.rateRecord(id, data);
+    selectedAccount.value = account;
+    isLoadingAutoResults.value = true;
+    try {
+      const resp = await replayApi.listAutoResults(account, {
+        page: 1,
+        limit,
+      });
+      if (resp.code === 1 && resp.data) {
+        autoResults.value = resp.data;
+        autoResultsPage.value = 1;
+        autoResultsHasMore.value = resp.data.length >= limit;
+        return resp;
+      }
+      autoResults.value = [];
+      autoResultsPage.value = 1;
+      autoResultsHasMore.value = false;
+      setMsg(resp.message || "加载自动作战结果失败", Type.Warning);
+      return resp;
+    } catch (error) {
+      autoResults.value = [];
+      autoResultsHasMore.value = false;
+      setMsg("加载自动作战结果失败", Type.Warning);
+      console.error("fetchAutoResults:", error);
+      throw error;
+    } finally {
+      isLoadingAutoResults.value = false;
+    }
+  };
+
+  const fetchMoreAutoResults = async (limit = PAGE_LIMIT) => {
+    if (!autoResultsAccount.value || !autoResultsHasMore.value || isLoadingAutoResults.value) {
+      return null;
+    }
+
+    const nextPage = autoResultsPage.value + 1;
+    isLoadingAutoResults.value = true;
+    try {
+      const resp = await replayApi.listAutoResults(autoResultsAccount.value, {
+        page: nextPage,
+        limit,
+      });
+      if (resp.code === 1 && resp.data) {
+        autoResults.value = mergeAutoResultPage(autoResults.value, resp.data);
+        autoResultsPage.value = nextPage;
+        autoResultsHasMore.value = resp.data.length >= limit;
+        return resp;
+      }
+      autoResultsHasMore.value = false;
+      setMsg(resp.message || "加载更多自动作战结果失败", Type.Warning);
+      return resp;
+    } catch (error) {
+      setMsg("加载更多自动作战结果失败", Type.Warning);
+      console.error("fetchMoreAutoResults:", error);
+      throw error;
+    } finally {
+      isLoadingAutoResults.value = false;
+    }
+  };
+
+  const updateReplay = async (uuid: string, payload: UpdateReplayPayload) => {
+    const resp = await replayApi.updateReplay(uuid, payload);
+    if (resp.code !== 1 || !resp.data) {
+      setMsg(resp.message || "更新录像失败", Type.Warning);
+      return resp;
+    }
+
+    const updatedReplay = resp.data;
+    myReplays.value = myReplays.value.map((item) => (item.uuid === uuid ? updatedReplay : item));
+    publicReplays.value = publicReplays.value.flatMap((item) => {
+      if (item.uuid !== uuid) return [item];
+      if (updatedReplay.validation_status !== "PASSED" || updatedReplay.is_hidden) return [];
+      return [updatedReplay];
+    });
+    setMsg("录像信息已更新", Type.Success);
+    return resp;
+  };
+
+  const enqueueShareAction = async (account: string, stageId: string) => {
+    const resp = await replayApi.appendReplayActions(account, [
+      {
+        stage_id: stageId,
+        uuid: "",
+        action_type: "SHARE",
+      },
+    ]);
     if (resp.code === 1) {
-      setMsg("评分成功", Type.Success);
-      const item = records.value.find((r) => r.id === id);
-      if (item) item.myRating = data.rating;
-      if (currentRecord.value?.id === id) currentRecord.value.myRating = data.rating;
+      setMsg("分享动作已追加，后端不会自动去重", Type.Success);
     } else {
-      setMsg(resp.message || "评分失败", Type.Warning);
+      setMsg(resp.message || "追加分享动作失败", Type.Warning);
     }
     return resp;
   };
 
-  const deleteMyRating = async (id: string) => {
-    const resp = await replayApi.deleteMyRating(id);
+  const enqueueAutoBattleAction = async (account: string, replay: ReplayRecord) => {
+    const resp = await replayApi.appendReplayActions(account, [
+      {
+        stage_id: replay.stage_id,
+        uuid: replay.uuid,
+        action_type: "AUTO_BATTLE",
+      },
+    ]);
     if (resp.code === 1) {
-      const item = records.value.find((r) => r.id === id);
-      if (item) item.myRating = undefined;
-      if (currentRecord.value?.id === id) currentRecord.value.myRating = undefined;
-    }
-    return resp;
-  };
-
-  const adoptRecord = async (id: string, data: AdoptRequest) => {
-    const resp = await replayApi.adoptRecord(id, data);
-    if (resp.code === 1) {
-      setMsg("采用成功，已记录到使用历史", Type.Success);
+      setMsg("自动作战动作已追加", Type.Success);
+      await fetchAutoResults(account);
     } else {
-      setMsg(resp.message || "采用失败", Type.Warning);
+      setMsg(resp.message || "追加自动作战动作失败", Type.Warning);
     }
     return resp;
   };
-
-  const deleteRecord = async (id: string) => {
-    const resp = await replayApi.deleteRecord(id);
-    if (resp.code === 1) {
-      myRecords.value = myRecords.value.filter((r) => r.id !== id);
-      setMsg("删除成功", Type.Success);
-    } else {
-      setMsg(resp.message || "删除失败", Type.Warning);
-    }
-    return resp;
-  };
-
-  const deleteSet = async (id: string) => {
-    const resp = await replayApi.deleteSet(id);
-    if (resp.code === 1) {
-      mySets.value = mySets.value.filter((s) => s.id !== id);
-      setMsg("删除成功", Type.Success);
-    } else {
-      setMsg(resp.message || "删除失败", Type.Warning);
-    }
-    return resp;
-  };
-
-  // ================================================================
-  // 计算属性 / 工具
-  // ================================================================
-
-  const recordsHasMore = () => recordsOffset.value + PAGE_LIMIT < recordsTotal.value;
-  const setsHasMore = () => setsOffset.value + PAGE_LIMIT < setsTotal.value;
 
   const $reset = () => {
-    records.value = [];
-    recordsTotal.value = 0;
-    recordsOffset.value = 0;
-    sets.value = [];
-    setsTotal.value = 0;
-    setsOffset.value = 0;
-    myRecords.value = [];
-    myRecordsTotal.value = 0;
-    myRecordsOffset.value = 0;
-    mySets.value = [];
-    mySetsTotal.value = 0;
-    mySetsOffset.value = 0;
-    currentRecord.value = null;
-    currentSet.value = null;
+    selectedAccount.value = "";
+    publicReplays.value = [];
+    publicPage.value = 1;
+    publicStageId.value = "";
+    publicHasMore.value = true;
+    isLoadingPublicReplays.value = false;
+    myReplays.value = [];
+    myPage.value = 1;
+    myAccount.value = "";
+    myHasMore.value = false;
+    isLoadingMyReplays.value = false;
+    autoResults.value = [];
+    autoResultsPage.value = 1;
+    autoResultsAccount.value = "";
+    autoResultsHasMore.value = false;
+    isLoadingAutoResults.value = false;
   };
 
   return {
-    // state
-    records,
-    recordsTotal,
-    isLoadingRecords,
-    sets,
-    setsTotal,
-    isLoadingSets,
-    myRecords,
-    myRecordsTotal,
-    isLoadingMyRecords,
-    mySets,
-    mySetsTotal,
-    isLoadingMySets,
-    currentRecord,
-    currentSet,
-    // actions
-    fetchRecords,
-    fetchRecordDetail,
-    fetchSets,
-    fetchSetDetail,
-    fetchMyRecords,
-    fetchMySets,
-    rateRecord,
-    deleteMyRating,
-    adoptRecord,
-    deleteRecord,
-    deleteSet,
-    recordsHasMore,
-    setsHasMore,
+    selectedAccount,
+    publicReplays,
+    publicPage,
+    publicStageId,
+    publicHasMore,
+    isLoadingPublicReplays,
+    myReplays,
+    myPage,
+    myAccount,
+    myHasMore,
+    isLoadingMyReplays,
+    autoResults,
+    autoResultsPage,
+    autoResultsAccount,
+    autoResultsHasMore,
+    isLoadingAutoResults,
+    syncSelectedAccount,
+    setSelectedAccount,
+    fetchPublicReplays,
+    fetchMorePublicReplays,
+    fetchMyReplays,
+    fetchMoreMyReplays,
+    fetchAutoResults,
+    fetchMoreAutoResults,
+    updateReplay,
+    enqueueShareAction,
+    enqueueAutoBattleAction,
     $reset,
   };
 });
