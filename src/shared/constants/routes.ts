@@ -1,6 +1,7 @@
 export const ROUTES = {
   HOME: { name: "首页", path: "/" },
   DASHBOARD: { name: "托管账号", path: "/dashboard" },
+  GAME_DETAIL: { name: "游戏详情", path: "/dashboard/game/:account" },
   REPLAY_HUB: { name: "录像中心", path: "/replayHub" },
   PROFILE: { name: "网站设置", path: "/profile/network" },
   PROFILE_NETWORK: { name: "网络设置", path: "/profile/network" },

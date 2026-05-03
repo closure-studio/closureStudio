@@ -195,6 +195,18 @@ export interface ApiGameSSR {
   createdAt: number;
 }
 
+export interface ApiGameChar {
+  charId: string;        // 干员ID，如 "char_003_kalts"
+  level: number;         // 等级
+  evolvePhase: number;   // 精英化阶段 (0/1/2)
+  potentialRank: number; // 潜能等级 (0-5)
+}
+
+export interface ApiGameChars {
+  chars: ApiGameChar[];
+  total: number;
+}
+
 export interface ApiGameLogEvent extends MessageEvent {
   name: string;
   content: string;

@@ -1,12 +1,13 @@
 import { computed, ref } from "vue";
-import type { Items, Stages } from "@/shared/types/gamedata";
+import axios from "axios";
+import type { Items, Stages, Characters } from "@/shared/types/gamedata";
 import { setMsg } from "@/shared/utils/toast";
 import { Type } from "@/shared/components/toast/enum";
 import { constants } from "@/shared/constants/config";
-import apiClient from "@/shared/services/apiClient";
 
 const itemData = ref<Items>({});
 const stageData = ref<Stages>({});
+const characterData = ref<Characters>({});
 
 const assets = computed(() => {
   const getStageName = (stageId: string) => {
@@ -22,6 +23,16 @@ const assets = computed(() => {
   const getItemIcon = (itemId: string) => {
     const item = itemData.value[itemId];
     return item ? item.icon : "";
+  };
+
+  const getCharName = (charId: string) => {
+    const character = characterData.value[charId];
+    return character ? character.name : "未知干员";
+  };
+
+  const getCharRarity = (charId: string) => {
+    const character = characterData.value[charId];
+    return character ? character.rarity : -1;
   };
 
   const filteredStages = (keyword: string) => {
@@ -63,16 +74,20 @@ const assets = computed(() => {
     getStageName,
     getItemName,
     getItemIcon,
+    getCharName,
+    getCharRarity,
     filteredStages,
     getItemLink,
     stages: stageData,
     items: itemData,
+    characters: characterData,
   };
 });
 
 const loadItems = async () => {
   try {
-    itemData.value = await apiClient.load<Items>("items");
+    const response = await axios.get<Items>(`${constants.ArkResourceDomain}/item_table.json`);
+    itemData.value = response.data;
   } catch (error) {
     console.error("Error loading items data:", error);
     throw error;
@@ -81,17 +96,27 @@ const loadItems = async () => {
 
 const loadStages = async () => {
   try {
-    const stagesData = await apiClient.load<Stages>("stages");
-    stageData.value = stagesData;
+    const response = await axios.get<Stages>(`${constants.ArkResourceDomain}/stage_table.json`);
+    stageData.value = response.data;
   } catch (error) {
     console.error("Error loading stages data:", error);
     throw error;
   }
 };
 
+const loadCharacters = async () => {
+  try {
+    const response = await axios.get<Characters>(`${constants.ArkResourceDomain}/character_table.json`);
+    characterData.value = response.data;
+  } catch (error) {
+    console.error("Error loading characters data:", error);
+    throw error;
+  }
+};
+
 const loadAssets = async () => {
   try {
-    await Promise.all([loadItems(), loadStages()]);
+    await Promise.all([loadItems(), loadStages(), loadCharacters()]);
     setMsg("数据加载成功", Type.Success);
   } catch (error) {
     setMsg("数据加载失败", Type.Warning);

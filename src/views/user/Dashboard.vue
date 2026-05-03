@@ -70,6 +70,7 @@
 <script setup lang="ts">
 import "animate.css";
 import { computed, onMounted, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import type { ApiSystemConfig, RegistrySlot, RegistryAddGameForm } from "@/shared/types/api";
 import GamePanel from "@/features/games/components/GamePanel.vue";
 import IndexStatus from "@/features/system/components/VersionStatus.vue";
@@ -86,7 +87,9 @@ import showDialog from "@/shared/components/dialog/dialog";
 import APIStatusBoard from "@/features/system/components/APIStatus/APIStatusBoard.vue";
 import authClient from "@/shared/services/authClient";
 import apiClient from "@/shared/services/apiClient";
+import { ROUTES } from "@/shared/constants/routes";
 
+const router = useRouter();
 const show = ref(false);
 const user = useUserStore();
 const gamesStore = useGamesStore();
@@ -172,9 +175,11 @@ const setShow = (value: boolean) => {
 const openGameConf = (account: string) => {
   const game = findGame(account);
   if (!game) return;
-  // 这些感觉可以再优化下
-  selectGame.value = show.value ? "" : game.status.account;
-  show.value = !show.value;
+  // 跳转到游戏详情页
+  router.push({
+    name: ROUTES.GAME_DETAIL.name,
+    params: { account },
+  });
 };
 </script>
 <style>

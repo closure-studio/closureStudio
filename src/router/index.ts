@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { ROUTES } from "@/shared/constants/routes";
 import { useUserStore } from "@/stores/useUserStore";
+import { useGamesStore } from "@/stores/useGamesStore";
 declare module "vue-router" {
   interface RouteMeta {
     noAuth?: boolean;
@@ -96,6 +97,25 @@ export const router = createRouter({
             } else {
               next({ name: ROUTES.HOME.name });
             }
+          },
+        },
+        {
+          path: ROUTES.GAME_DETAIL.path,
+          name: ROUTES.GAME_DETAIL.name,
+          component: () => import("../views/user/GameDetail.vue"),
+          beforeEnter: (to, from, next) => {
+            if (!checkAuth()) {
+              next({ name: ROUTES.HOME.name });
+              return;
+            }
+            // 验证账号存在
+            const store = useGamesStore();
+            const account = to.params.account as string;
+            if (!store.findGame(account)) {
+              next({ name: ROUTES.DASHBOARD.name });
+              return;
+            }
+            next();
           },
         },
         {
