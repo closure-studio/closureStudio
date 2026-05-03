@@ -48,6 +48,8 @@ export const NO_ERROR_MSG_CODE: (string | number)[] = [];
 
 export const constants = {
   AssetsHost: "https://assets.ltsc.vip",
+  /** 明日方舟资源域名 */
+  ArkResourceDomain: "https://ark-resource.arknights.app",
 };
 
 export const NOTIFY = {

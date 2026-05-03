@@ -55,8 +55,8 @@ const assets = computed(() => {
     if (!item) {
       return "";
     }
-    // https://assets.ltsc.vip/items/LIMITED_TKT_GACHA_10_2501.png
-    return `${constants.AssetsHost}/items/${item.icon}.png`;
+    // 使用新的资源域名和webp格式
+    return `${constants.ArkResourceDomain}/items/${item.icon}.webp`;
   };
 
   return {

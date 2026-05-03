@@ -17,7 +17,7 @@
         <div
           class="rounded shadow-md p-5 w-[148px] h-72 ssr relative"
           v-for="row in users"
-          :style="`background-image:url('https://assets.ltsc.vip/charpor/${row.charId}_1.png');`"
+          :style="`background-image:url('${getArkResourceUrl(`charpor/${row.charId}_1`)}');`"
         >
           <div class="absolute bottom-0 left-0 right-0">
             <div class="divider text-info font-extrabold text-shadow">{{ row.nickName }}</div>
@@ -60,6 +60,7 @@
 }
 </style>
 <script lang="ts" setup>
+import { getArkResourceUrl } from "@/shared/utils/resource";
 import type { ApiGameSSR } from "@/shared/types/api";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
 

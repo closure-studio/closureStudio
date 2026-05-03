@@ -5,7 +5,7 @@
       <div class="avatar mr-2">
         <div class="w-12 rounded-md">
           <img
-            :src="`https://assets.ltsc.vip/avatar/${getAvatarType()}/${getAvatarId()}.png`"
+            :src="getArkResourceUrl(`avatar/${getAvatarType()}/${getAvatarId()}`)"
             alt="斯卡蒂"
           />
           <!-- <img :src="`https://cc-im-kefu-cos.7moor-fs1.com/im/4d2c3f00-7d4c-11e5-af15-41bf63ae4ea0/ch9KONh0.jpg`" -->
@@ -43,6 +43,7 @@
 <script lang="ts" setup>
 import { assets } from "@/shared/services/assets";
 import { maskPhoneNumber } from "@/shared/utils/format";
+import { getArkResourceUrl } from "@/shared/utils/resource";
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useGamesStore } from "@/stores/useGamesStore";
 interface Props {

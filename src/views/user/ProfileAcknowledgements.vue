@@ -81,6 +81,7 @@
 
 <script setup lang="ts">
 import { useGamesStore } from "@/stores/useGamesStore";
+import { getArkResourceUrl } from "@/shared/utils/resource";
 import { ref, watch } from "vue";
 
 type NullableGame = {
@@ -133,7 +134,7 @@ const getAvatarUrl = (avatarId: string | null | undefined) => {
   if (!normalizedId) {
     return "/assets/closure.ico";
   }
-  return `https://assets.ltsc.vip/avatar/DEFAULT/${normalizedId}.png`;
+  return getArkResourceUrl(`avatar/DEFAULT/${normalizedId}`);
 };
 
 watch(
