@@ -21,3 +21,12 @@ export interface Item {
   name: string;
   icon: string;
 }
+
+export interface Character {
+  name: string;
+  rarity: number;
+}
+
+export interface Characters {
+  [key: string]: Character;
+}

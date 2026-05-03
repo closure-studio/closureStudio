@@ -61,14 +61,15 @@
 
 <script setup lang="ts">
 import { computed, ref, onUnmounted } from 'vue';
-import { getCharAvatarUrl, formatCharName } from '@/shared/utils/resource';
+import { getCharAvatarUrl } from '@/shared/utils/resource';
+import { assets } from '@/plugins/assets/assets';
 import type { ApiGameChar } from '@/shared/types/api';
 
 const props = defineProps<{ char: ApiGameChar }>();
 
 const normalAvatar = computed(() => getCharAvatarUrl(props.char.charId));
 const elite2Avatar = computed(() => getCharAvatarUrl(`${props.char.charId}_2`));
-const charName = computed(() => formatCharName(props.char.charId));
+const charName = computed(() => assets.value.getCharName(props.char.charId));
 
 const hasElite2 = computed(() => props.char.evolvePhase === 2);
 const showElite2 = ref(false);

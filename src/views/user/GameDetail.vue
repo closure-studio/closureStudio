@@ -30,7 +30,7 @@
       <!-- 3. 干员卡片 -->
       <div class="s-card lg:order-3">
         <h2 class="text-xl font-bold mb-4">干员一览</h2>
-        <CharsPanel :chars="chars" :is-loading="isLoadingChars" />
+        <CharsPanel :chars="sixStarChars" :is-loading="isLoadingChars" />
       </div>
 
       <!-- 4. 道具卡片 -->
@@ -55,6 +55,7 @@ import ConfigPanel from "@/features/games/components/ConfigPanel.vue";
 import apiClient from "@/shared/services/apiClient";
 import { setMsg } from "@/shared/utils/toast";
 import { Type } from "@/shared/components/toast/enum";
+import { assets } from "@/plugins/assets/assets";
 import type { ApiGameLogs, ApiGameDetail } from "@/shared/types/api";
 
 const route = useRoute();
@@ -78,6 +79,11 @@ const isLoadingGameLogs = ref(false);
 
 // 使用 composable 获取干员数据
 const { chars, isLoading: isLoadingChars } = useGameChars(account);
+
+// 仅展示 6 星（rarity === 5）干员
+const sixStarChars = computed(() =>
+  chars.value.filter((c) => assets.value.getCharRarity(c.charId) === 5)
+);
 
 // 获取游戏详情
 const getGameDetails = async () => {
