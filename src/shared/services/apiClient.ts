@@ -5,6 +5,7 @@ import type {
   ApiGameGame,
   ApiGameDetail,
   ApiGameConfig,
+  ApiGameChars,
   ApiSystemConfig,
   ApiSystemHall,
 } from "@/shared/types/api";
@@ -28,6 +29,10 @@ export class APIClient extends AxiosServer {
   }
   fetchGameDetails(account: string) {
     return this.get<ApiGameDetail>(`/game/${account}`);
+  }
+
+  fetchGameChars(account: string) {
+    return this.get<ApiGameChars>(`/game/chars/${account}`);
   }
 
   fetchSystemConfig() {

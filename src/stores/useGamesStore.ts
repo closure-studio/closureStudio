@@ -2,6 +2,7 @@ import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import type {
   ApiGameCaptchaInfo,
+  ApiGameChars,
   ApiGameConfig,
   ApiGameGame,
   ApiGameLogEvent,
@@ -50,9 +51,11 @@ export const useGamesStore = defineStore("games", () => {
   const gameList = ref<ApiGameGame[]>([]);
   const globalSSR = ref<ApiGameSSR[]>([]);
   const captchaCache = ref<Record<string, ApiGameCaptchaInfo>>({});
+  const charsCache = ref<Record<string, ApiGameChars>>({});
   const isGameListIniting = ref(false);
   const isGameListCompletedInit = ref(false);
   const isLoadingGameList = ref(false);
+  const isLoadingChars = ref(false);
   const pollingTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
   const sseConnection = ref<EventSource | null>(null);
 
@@ -259,15 +262,41 @@ export const useGamesStore = defineStore("games", () => {
     return apiClient.doUpdateGameConf(account, payload);
   };
 
+  const fetchChars = async (account: string) => {
+    // 如果缓存存在，直接返回
+    if (charsCache.value[account]) {
+      return charsCache.value[account];
+    }
+
+    isLoadingChars.value = true;
+    try {
+      const resp = await apiClient.fetchGameChars(account);
+      if (resp.code === 1 && resp.data) {
+        // 存入缓存
+        charsCache.value[account] = resp.data;
+        return resp.data;
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to fetch chars:', error);
+      // 关键：API 失败不清空缓存，返回现有数据
+      return charsCache.value[account] || null;
+    } finally {
+      isLoadingChars.value = false;
+    }
+  };
+
   const $reset = () => {
     config.value = initialConfig();
     userQuota.value = initialUserQuota();
     gameList.value = [];
     globalSSR.value = [];
     captchaCache.value = {};
+    charsCache.value = {};
     isGameListIniting.value = false;
     isGameListCompletedInit.value = false;
     isLoadingGameList.value = false;
+    isLoadingChars.value = false;
     closeSSE();
     stopGameListPolling();
   };
@@ -278,8 +307,10 @@ export const useGamesStore = defineStore("games", () => {
     gameList,
     globalSSR,
     captchaCache,
+    charsCache,
     isGameListIniting,
     isLoadingGameList,
+    isLoadingChars,
     firstGame,
     findGame,
     updateGameList,
@@ -291,6 +322,7 @@ export const useGamesStore = defineStore("games", () => {
     startSSE,
     initializeGameListServerConnection,
     gameSuspend,
+    fetchChars,
     $reset,
   };
 });
