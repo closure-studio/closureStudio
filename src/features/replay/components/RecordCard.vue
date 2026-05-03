@@ -215,11 +215,11 @@ watch(
 );
 
 const avatarUrl = (avatar: ReplayAvatar) =>
-  `${constants.AssetsHost}/avatar/${avatar.type}/${avatar.id}.png`;
+  `${constants.ArkResourceDomain}/avatar/${avatar.type}/${avatar.id}.webp`;
 
 const onAvatarError = (event: Event) => {
   (event.target as HTMLImageElement).src =
-    `${constants.AssetsHost}/avatar/DEFAULT/avatar_def_mc.png`;
+    `${constants.ArkResourceDomain}/avatar/DEFAULT/avatar_def_mc.webp`;
 };
 
 const validationLabel = (status: ReplayValidationStatus) => {

@@ -86,7 +86,7 @@
             <div class="indicator avatar">
               <div class="w-16 mask mask-squircle">
                 <img
-                  :src="`https://assets.ltsc.vip/avatar/${k.avatar?.type == 'ICON' ? 'DEFAULT' : 'ASSISTANT'}/${k.avatar?.id?.replace('@', '_').replace('#', '_') || 'avatar_activity_GK'}.png`"
+                  :src="getArkResourceUrl(`avatar/${k.avatar?.type == 'ICON' ? 'DEFAULT' : 'ASSISTANT'}/${k.avatar?.id?.replace('@', '_').replace('#', '_') || 'avatar_activity_GK'}`)"
                   alt="斯卡蒂"
                 />
               </div>
@@ -112,6 +112,7 @@ import type { ApiSystemHall } from "@/shared/types/api";
 import Login from "@/features/auth/components/LoginDialog.vue";
 import { useUserStore } from "@/stores/useUserStore";
 import { isNight } from "@/shared/utils/misc";
+import { getArkResourceUrl } from "@/shared/utils/resource";
 import APIStatusBoard from "@/features/system/components/APIStatus/APIStatusBoard.vue";
 import apiClient from "@/shared/services/apiClient";
 const version = import.meta.env.VITE_APP_VERSION;
