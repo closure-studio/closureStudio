@@ -1,15 +1,16 @@
 <template>
-  <div class="min-h-screen flex flex-col p-1 lg:p-6">
-    <!-- 顶部账号信息卡片 -->
-    <GameDetailHeader
+  <div class="min-h-screen flex flex-col gap-1 lg:gap-6 p-1 lg:p-6">
+    <!-- 游戏选择器：始终置顶（DOM 顺序即显示顺序，无需 order 类） -->
+    <GameSelector
       :account="account"
-      :game="selectedGame"
-      :details="details"
       :game-list="gamesStore.gameList"
     />
 
+    <!-- 顶部账号信息卡片 -->
+    <GameDetailHeader :account="account" :game="selectedGame" :details="details" />
+
     <!-- 主内容区 - 垂直堆叠（移动端）/ 2x2 网格（桌面端） -->
-    <div class="flex flex-col lg:grid lg:grid-cols-2 gap-1 lg:gap-6 mt-1 lg:mt-6">
+    <div class="flex flex-col lg:grid lg:grid-cols-2 gap-1 lg:gap-6">
       <!-- 1. 配置卡片 -->
       <div class="s-card lg:order-1">
         <h2 class="text-xl font-bold mb-4">托管配置</h2>
@@ -48,6 +49,7 @@ import { useRoute } from "vue-router";
 import { useGamesStore } from "@/stores/useGamesStore";
 import { useGameChars } from "@/features/games/composables/useGameChars";
 import GameDetailHeader from "@/features/games/components/GameDetailHeader.vue";
+import GameSelector from "@/features/games/components/GameSelector.vue";
 import CharsPanel from "@/features/games/components/CharsPanel.vue";
 import ItemsPanel from "@/features/games/components/ItemsPanel.vue";
 import LogsPanel from "@/features/games/components/LogsPanel.vue";
