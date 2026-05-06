@@ -19,15 +19,33 @@ import { useRouter } from "vue-router";
 import { ROUTES } from "@/shared/constants/routes";
 import type { ApiGameGame } from "@/shared/types/api";
 
-const { account, gameList } = defineProps<{
+const {
+  account,
+  gameList,
+  mode = "route",
+} = defineProps<{
   account: string;
   gameList: ApiGameGame[];
+  /**
+   * 切换账号的行为：
+   * - "route"：默认，触发 router.replace 到 GAME_DETAIL（向后兼容 GameDetail.vue）。
+   * - "emit"：仅通过 update:account 抛出，由父组件控制（适合 Replay 等无路由切换的场景）。
+   */
+  mode?: "route" | "emit";
+}>();
+
+const emit = defineEmits<{
+  (e: "update:account", value: string): void;
 }>();
 
 const router = useRouter();
 
 const handleSelect = (newAccount: string) => {
   if (newAccount === account) return;
+  if (mode === "emit") {
+    emit("update:account", newAccount);
+    return;
+  }
   router.replace({
     name: ROUTES.GAME_DETAIL.name,
     params: { account: newAccount },

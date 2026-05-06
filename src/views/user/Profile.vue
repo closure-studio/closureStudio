@@ -24,18 +24,13 @@
 
       <div class="grow shadow-md py-1 px-5 rounded-box profile-swipe-area">
         <div class="md:hidden mb-3">
-          <div class="mobile-menu-header">
-            <span class="mobile-menu-title">{{ activeMenu?.name }}</span>
-          </div>
-          <div class="mt-2.5 flex items-center justify-center gap-2">
-            <span
-              v-for="(item, index) in menu"
-              :key="item.to"
-              class="h-1.5 rounded-full transition-all duration-300"
-              :class="index === currentMenuIndex ? 'w-5 bg-info' : 'w-2 bg-base-content/20'"
-            />
-          </div>
-          <div class="mt-1.5 text-center text-xs text-base-content/55 swipe-hint">↑↓ 滑动切换</div>
+          <MobileSwipeMenuHeader
+            :active-title="activeMenu?.name"
+            :active-index="currentMenuIndex"
+            :items="menu"
+            axis="x"
+            swipe-text="左右滑动"
+          />
         </div>
         <!-- <div class="p-2 flex items-center">
           <div class="avatar mr-3">
@@ -60,98 +55,56 @@
 <style scoped>
 .slide-fade-enter-active,
 .slide-fade-leave-active,
-.slide-up-fade-enter-active,
-.slide-up-fade-leave-active,
-.slide-down-fade-enter-active,
-.slide-down-fade-leave-active {
+.slide-left-fade-enter-active,
+.slide-left-fade-leave-active,
+.slide-right-fade-enter-active,
+.slide-right-fade-leave-active {
   transition:
     transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.32s ease;
 }
 
 .slide-fade-enter-from,
-.slide-up-fade-enter-from {
-  transform: translateY(2.5rem);
+.slide-left-fade-enter-from {
+  transform: translateX(2.5rem);
   opacity: 0;
 }
 
 .slide-fade-leave-to,
-.slide-up-fade-leave-to {
-  transform: translateY(-2.5rem);
+.slide-left-fade-leave-to {
+  transform: translateX(-2.5rem);
   opacity: 0;
 }
 
-.slide-down-fade-enter-from {
-  transform: translateY(-2.5rem);
+.slide-right-fade-enter-from {
+  transform: translateX(-2.5rem);
   opacity: 0;
 }
 
-.slide-down-fade-leave-to {
-  transform: translateY(2.5rem);
+.slide-right-fade-leave-to {
+  transform: translateX(2.5rem);
   opacity: 0;
 }
 
 .profile-swipe-area {
   touch-action: pan-y;
 }
-
-.mobile-menu-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 0.55rem;
-  padding: 0.1rem 0.2rem;
-}
-
-.mobile-menu-label {
-  font-size: 0.66rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--color-base-content) 44%, transparent);
-}
-
-.mobile-menu-title {
-  font-size: 1.08rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  color: color-mix(in oklab, var(--color-base-content) 94%, transparent);
-}
-
-.swipe-hint {
-  animation: swipeHintFloat 1.8s ease-in-out infinite;
-}
-
-@keyframes swipeHintFloat {
-  0%,
-  100% {
-    transform: translateY(0);
-    opacity: 0.65;
-  }
-
-  50% {
-    transform: translateY(-0.2rem);
-    opacity: 1;
-  }
-}
 </style>
 
 <script setup lang="ts">
 import { useProfileData } from "@/features/profile/composables/useProfileData";
+import MobileSwipeMenuHeader from "@/shared/components/ui/MobileSwipeMenuHeader.vue";
+import { useSwipeNavigation } from "@/shared/composables/useSwipeNavigation";
 import { ROUTES } from "@/shared/constants/routes";
 import { useGamesStore } from "@/stores/useGamesStore";
 import { Icon } from "@iconify/vue";
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 const route = useRoute();
 const router = useRouter();
 const gamesStore = useGamesStore();
-const {  fetchProfileGameList } = useProfileData();
+const { fetchProfileGameList } = useProfileData();
 const transitionName = ref("slide-fade");
-const touchStartY = ref<number | null>(null);
-const touchStartX = ref<number | null>(null);
-const touchStartTarget = ref<EventTarget | null>(null);
-const previousHtmlOverscrollBehaviorY = ref("");
-const previousBodyOverscrollBehaviorY = ref("");
 
 const menu = [
   {
@@ -171,9 +124,6 @@ const menu = [
   },
 ];
 
-const SWIPE_THRESHOLD = 40;
-const isMobile = () => window.matchMedia("(max-width: 767px)").matches;
-
 const currentMenuIndex = computed(() => {
   const index = menu.findIndex((item) => item.to === route.path);
   return index === -1 ? 0 : index;
@@ -181,70 +131,17 @@ const currentMenuIndex = computed(() => {
 
 const activeMenu = computed(() => menu[currentMenuIndex.value]);
 
-const navigateBySwipe = (direction: "up" | "down") => {
-  if (!isMobile()) return;
-  const nextIndex = direction === "up" ? currentMenuIndex.value + 1 : currentMenuIndex.value - 1;
+const navigateBySwipe = (direction: "left" | "right") => {
+  const nextIndex = direction === "left" ? currentMenuIndex.value + 1 : currentMenuIndex.value - 1;
   if (nextIndex < 0 || nextIndex >= menu.length) return;
-  transitionName.value = direction === "up" ? "slide-up-fade" : "slide-down-fade";
+  transitionName.value = direction === "left" ? "slide-left-fade" : "slide-right-fade";
   router.push(menu[nextIndex].to);
 };
 
-const canScrollInGestureDirection = (target: EventTarget | null, deltaY: number) => {
-  let current = target instanceof Element ? target : null;
-  while (current) {
-    const styles = window.getComputedStyle(current);
-    const overflowY = styles.overflowY;
-    const isScrollable =
-      (overflowY === "auto" || overflowY === "scroll") &&
-      current.scrollHeight > current.clientHeight + 1;
-    if (isScrollable) {
-      const canScrollDown = current.scrollTop + current.clientHeight < current.scrollHeight - 1;
-      const canScrollUp = current.scrollTop > 1;
-      if ((deltaY > 0 && canScrollDown) || (deltaY < 0 && canScrollUp)) {
-        return true;
-      }
-    }
-    current = current.parentElement;
-  }
-  return false;
-};
-
-const onTouchStart = (event: TouchEvent) => {
-  if (!isMobile()) return;
-  const firstTouch = event.changedTouches[0];
-  if (!firstTouch) return;
-  touchStartX.value = firstTouch.clientX;
-  touchStartY.value = event.changedTouches[0]?.clientY ?? null;
-  touchStartTarget.value = event.target;
-};
-
-const onTouchEnd = (event: TouchEvent) => {
-  if (!isMobile() || touchStartY.value === null) return;
-  const firstTouch = event.changedTouches[0];
-  if (!firstTouch || touchStartX.value === null) {
-    touchStartTarget.value = null;
-    return;
-  }
-  const deltaX = touchStartX.value - firstTouch.clientX;
-  const endY = event.changedTouches[0]?.clientY ?? touchStartY.value;
-  const deltaY = touchStartY.value - endY;
-  touchStartY.value = null;
-  touchStartX.value = null;
-  if (Math.abs(deltaY) <= Math.abs(deltaX)) {
-    touchStartTarget.value = null;
-    return;
-  }
-  if (Math.abs(deltaY) < SWIPE_THRESHOLD) {
-    touchStartTarget.value = null;
-    return;
-  }
-  if (canScrollInGestureDirection(touchStartTarget.value, deltaY)) {
-    touchStartTarget.value = null;
-    return;
-  }
-  touchStartTarget.value = null;
-  navigateBySwipe(deltaY > 0 ? "up" : "down");
-};
+useSwipeNavigation({
+  axis: "x",
+  onSwipe: navigateBySwipe,
+});
 
 watch(
   () => route.path,
@@ -259,25 +156,12 @@ watch(
       transitionName.value = "slide-fade";
       return;
     }
-    transitionName.value = nextIndex > previousIndex ? "slide-up-fade" : "slide-down-fade";
+    transitionName.value = nextIndex > previousIndex ? "slide-left-fade" : "slide-right-fade";
   }
 );
 
 onMounted(async () => {
-  window.addEventListener("touchstart", onTouchStart, { passive: true });
-  window.addEventListener("touchend", onTouchEnd, { passive: true });
-  previousHtmlOverscrollBehaviorY.value = document.documentElement.style.overscrollBehaviorY;
-  previousBodyOverscrollBehaviorY.value = document.body.style.overscrollBehaviorY;
-  document.documentElement.style.overscrollBehaviorY = "none";
-  document.body.style.overscrollBehaviorY = "none";
   await fetchProfileGameList();
   gamesStore.initializeGameListServerConnection();
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener("touchstart", onTouchStart);
-  window.removeEventListener("touchend", onTouchEnd);
-  document.documentElement.style.overscrollBehaviorY = previousHtmlOverscrollBehaviorY.value;
-  document.body.style.overscrollBehaviorY = previousBodyOverscrollBehaviorY.value;
 });
 </script>

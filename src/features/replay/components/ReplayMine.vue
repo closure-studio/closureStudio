@@ -1,6 +1,6 @@
 <template>
-  <div class="space-y-5 p-2">
-    <section class="rounded-[28px] border border-white/10 bg-slate-900/75 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.28)]">
+  <div class="space-y-3 p-0 md:space-y-5 md:p-2">
+    <section class="rounded-2xl border border-white/10 bg-slate-900/75 p-3 shadow-[0_20px_60px_rgba(15,23,42,0.28)] md:rounded-[28px] md:p-5">
       <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div>
           <div class="inline-flex items-center gap-2 rounded-full border border-fuchsia-300/20 bg-fuchsia-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-fuchsia-100">
@@ -60,7 +60,7 @@
       </div>
     </section>
 
-    <section class="space-y-3">
+    <section class="space-y-2 md:space-y-3">
       <div v-if="replayStore.isLoadingMyReplays && !replayStore.myReplays.length" class="flex justify-center py-12">
         <span class="loading loading-spinner loading-md text-info" />
       </div>
