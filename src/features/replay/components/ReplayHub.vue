@@ -1,6 +1,6 @@
 <template>
-  <div class="space-y-5 p-2">
-    <section class="rounded-[28px] border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-5 shadow-[0_24px_80px_rgba(15,23,42,0.42)]">
+  <div class="space-y-3 p-0 md:space-y-5 md:p-2">
+    <section class="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-3 shadow-[0_24px_80px_rgba(15,23,42,0.42)] md:rounded-[28px] md:p-5">
       <div class="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
         <div class="space-y-4">
           <div class="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-100">
@@ -32,7 +32,7 @@
           </label>
         </div>
 
-        <div class="rounded-3xl border border-white/10 bg-white/[0.03] p-4">
+        <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-3 md:rounded-3xl md:p-4">
           <div class="flex items-center justify-between gap-3">
             <div>
               <div class="text-sm font-semibold text-white">自动作战目标账号</div>
@@ -69,7 +69,7 @@
       </div>
     </section>
 
-    <section class="space-y-3">
+    <section class="space-y-2 md:space-y-3">
       <div v-if="replayStore.isLoadingPublicReplays && !replayStore.publicReplays.length" class="flex justify-center py-12">
         <span class="loading loading-spinner loading-md text-info" />
       </div>
