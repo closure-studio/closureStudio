@@ -16,6 +16,7 @@
         </li>
       </ul>
 
+      
       <div class="grow min-w-0 overflow-hidden py-1 px-1 md:px-5 replay-swipe-area">
         <div class="md:hidden mb-3">
           <MobileSwipeMenuHeader
