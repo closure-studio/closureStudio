@@ -59,7 +59,7 @@
 </style>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useGamesStore } from "@/stores/useGamesStore";
 import { useGameChars } from "@/features/games/composables/useGameChars";
@@ -140,6 +140,11 @@ useSwipeNavigation({
   onSwipe: navigateBySwipe,
 });
 
+const scrollToPageTop = async () => {
+  await nextTick();
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+};
+
 // 获取游戏详情
 const getGameDetails = async () => {
   try {
@@ -180,6 +185,8 @@ watch(
   account,
   (newAccount) => {
     if (newAccount) {
+      scrollToPageTop();
+
       // 重置状态
       details.value = null;
       gameLogs.value = { logs: [], hasMore: false };
