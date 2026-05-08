@@ -59,24 +59,24 @@
 </style>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useGamesStore } from "@/stores/useGamesStore";
-import { useGameChars } from "@/features/games/composables/useGameChars";
+import CharsPanel from "@/features/games/components/CharsPanel.vue";
+import ConfigPanel from "@/features/games/components/ConfigPanel.vue";
 import GameDetailHeader from "@/features/games/components/GameDetailHeader.vue";
 import GameSelector from "@/features/games/components/GameSelector.vue";
-import CharsPanel from "@/features/games/components/CharsPanel.vue";
 import ItemsPanel from "@/features/games/components/ItemsPanel.vue";
 import LogsPanel from "@/features/games/components/LogsPanel.vue";
-import ConfigPanel from "@/features/games/components/ConfigPanel.vue";
-import apiClient from "@/shared/services/apiClient";
+import { useGameChars } from "@/features/games/composables/useGameChars";
+import { assets } from "@/plugins/assets/assets";
+import { Type } from "@/shared/components/toast/enum";
 import MobileSwipeMenuHeader from "@/shared/components/ui/MobileSwipeMenuHeader.vue";
 import { useSwipeNavigation } from "@/shared/composables/useSwipeNavigation";
 import { ROUTES } from "@/shared/constants/routes";
-import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/shared/components/toast/enum";
-import { assets } from "@/plugins/assets/assets";
+import apiClient from "@/shared/services/apiClient";
 import type { ApiGameDetail, ApiGameGame, ApiGameLogs } from "@/shared/types/api";
+import { setMsg } from "@/shared/utils/toast";
+import { useGamesStore } from "@/stores/useGamesStore";
+import { computed, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
@@ -140,11 +140,6 @@ useSwipeNavigation({
   onSwipe: navigateBySwipe,
 });
 
-const scrollToPageTop = async () => {
-  await nextTick();
-  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-};
-
 // 获取游戏详情
 const getGameDetails = async () => {
   try {
@@ -185,8 +180,6 @@ watch(
   account,
   (newAccount) => {
     if (newAccount) {
-      scrollToPageTop();
-
       // 重置状态
       details.value = null;
       gameLogs.value = { logs: [], hasMore: false };

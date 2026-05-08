@@ -1,5 +1,5 @@
 <template>
-  <main class="overflow-x-hidden h-screen w-full flex flex-col">
+  <main :key="$route.fullPath" class="overflow-x-hidden h-screen w-full flex flex-col">
     <Header />
     <input id="drawer" v-model="isDrawerOpen" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content flex-1 mx-4 mb-4">
@@ -7,7 +7,9 @@
     </div>
     <div class="drawer-side z-50">
       <label for="drawer" class="drawer-overlay" />
-      <div class="menu p-4 w-72 h-mobile bg-base-100 text-base-content flex flex-col flex-nowrap items-center">
+      <div
+        class="menu p-4 w-72 h-mobile bg-base-100 text-base-content flex flex-col flex-nowrap items-center"
+      >
         <div class="hover:animate-spin avatar mt-6 mb-4">
           <div class="w-28 rounded-full">
             <img src="/assets/closure.ico" alt="closure" />
@@ -17,8 +19,12 @@
         <div class="divider my-2" />
         <ul class="w-full text-lg space-y-2">
           <li v-for="item in navItems" :key="item.path">
-            <router-link :to="item.path" :class="{ 'bg-info': isActive(item) }" @click="closeDrawer">{{ item.name
-            }}</router-link>
+            <router-link
+              :to="item.path"
+              :class="{ 'bg-info': isActive(item) }"
+              @click="closeDrawer"
+              >{{ item.name }}</router-link
+            >
           </li>
         </ul>
         <div class="flex flex-1" />
@@ -42,16 +48,9 @@ const gamesStore = useGamesStore();
 const router = useRouter();
 const isDrawerOpen = ref(false);
 
-const navItems = [
-  ROUTES.HOME,
-  ROUTES.DASHBOARD,
-  ROUTES.REPLAY_HUB,
-  ROUTES.PROFILE,
-  ROUTES.ADMIN,
-];
+const navItems = [ROUTES.HOME, ROUTES.DASHBOARD, ROUTES.REPLAY_HUB, ROUTES.PROFILE, ROUTES.ADMIN];
 
-const isActive = (item: { name: string }) =>
-  router.currentRoute.value.name === item.name;
+const isActive = (item: { name: string }) => router.currentRoute.value.name === item.name;
 
 const closeDrawer = () => {
   isDrawerOpen.value = false;
