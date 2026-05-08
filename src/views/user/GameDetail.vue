@@ -1,10 +1,19 @@
 <template>
-  <div class="min-h-screen flex flex-col gap-1 lg:gap-6 p-1 lg:p-6">
-    <!-- 游戏选择器：始终置顶（DOM 顺序即显示顺序，无需 order 类） -->
-    <GameSelector
-      :account="account"
-      :game-list="gamesStore.gameList"
-    />
+  <div class="min-h-screen flex flex-col gap-1 lg:gap-6 p-1 lg:p-6 game-detail-swipe-area">
+    <!-- 游戏选择器：桌面端保留按钮设计，移动端改为滑动切换 -->
+    <div class="hidden md:block">
+      <GameSelector :account="account" :game-list="gamesStore.gameList" />
+    </div>
+
+    <div v-if="gamesStore.gameList.length > 1" class="md:hidden mb-2">
+      <MobileSwipeMenuHeader
+        :active-title="activeGameTitle"
+        :active-index="currentGameIndex"
+        :items="gameSelectorItems"
+        axis="x"
+        swipe-text="左右滑动切换游戏"
+      />
+    </div>
 
     <!-- 顶部账号信息卡片 -->
     <GameDetailHeader :account="account" :game="selectedGame" :details="details" />
@@ -43,9 +52,15 @@
   </div>
 </template>
 
+<style scoped>
+.game-detail-swipe-area {
+  touch-action: pan-y;
+}
+</style>
+
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
-import { useRoute } from "vue-router";
+import { computed, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useGamesStore } from "@/stores/useGamesStore";
 import { useGameChars } from "@/features/games/composables/useGameChars";
 import GameDetailHeader from "@/features/games/components/GameDetailHeader.vue";
@@ -55,19 +70,41 @@ import ItemsPanel from "@/features/games/components/ItemsPanel.vue";
 import LogsPanel from "@/features/games/components/LogsPanel.vue";
 import ConfigPanel from "@/features/games/components/ConfigPanel.vue";
 import apiClient from "@/shared/services/apiClient";
+import MobileSwipeMenuHeader from "@/shared/components/ui/MobileSwipeMenuHeader.vue";
+import { useSwipeNavigation } from "@/shared/composables/useSwipeNavigation";
+import { ROUTES } from "@/shared/constants/routes";
 import { setMsg } from "@/shared/utils/toast";
 import { Type } from "@/shared/components/toast/enum";
 import { assets } from "@/plugins/assets/assets";
-import type { ApiGameLogs, ApiGameDetail } from "@/shared/types/api";
+import type { ApiGameDetail, ApiGameGame, ApiGameLogs } from "@/shared/types/api";
 
 const route = useRoute();
+const router = useRouter();
 const gamesStore = useGamesStore();
+
+const gameDisplayName = (game: ApiGameGame) =>
+  game.status.nick_name ? `Dr. ${game.status.nick_name}` : game.status.account;
 
 // 路由参数
 const account = computed(() => route.params.account as string);
 
 // 当前选中的游戏
 const selectedGame = computed(() => gamesStore.findGame(account.value));
+
+const gameSelectorItems = computed(() =>
+  gamesStore.gameList.map((game) => ({
+    key: game.status.account,
+    name: gameDisplayName(game),
+  }))
+);
+
+const currentGameIndex = computed(() =>
+  gamesStore.gameList.findIndex((game) => game.status.account === account.value)
+);
+
+const activeGameTitle = computed(() =>
+  selectedGame.value ? gameDisplayName(selectedGame.value) : account.value
+);
 
 // 游戏详情
 const details = ref<ApiGameDetail | null>(null);
@@ -86,6 +123,22 @@ const { chars, isLoading: isLoadingChars } = useGameChars(account);
 const sixStarChars = computed(() =>
   chars.value.filter((c) => assets.value.getCharRarity(c.charId) === 5)
 );
+
+const navigateBySwipe = (direction: "left" | "right") => {
+  const nextIndex = direction === "left" ? currentGameIndex.value + 1 : currentGameIndex.value - 1;
+  const nextGame = gamesStore.gameList[nextIndex];
+  if (!nextGame || nextGame.status.account === account.value) return;
+
+  router.replace({
+    name: ROUTES.GAME_DETAIL.name,
+    params: { account: nextGame.status.account },
+  });
+};
+
+useSwipeNavigation({
+  axis: "x",
+  onSwipe: navigateBySwipe,
+});
 
 // 获取游戏详情
 const getGameDetails = async () => {
