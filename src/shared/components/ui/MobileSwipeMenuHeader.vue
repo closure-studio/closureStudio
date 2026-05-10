@@ -92,11 +92,12 @@
 }
 
 .mobile-swipe-menu-dot-idle {
-  width: 0.38rem;
-  height: 0.38rem;
+  width: 0.42rem;
+  height: 0.42rem;
   border-radius: 9999px;
-  background: color-mix(in oklab, var(--color-base-content) 20%, transparent);
-  opacity: 0.7;
+  background: color-mix(in oklab, var(--color-base-content) 44%, var(--color-base-300) 56%);
+  box-shadow: 0 0 0.2rem color-mix(in oklab, var(--color-base-content) 9%, transparent);
+  opacity: 0.68;
 }
 
 .mobile-swipe-menu-dot-idle:first-child {

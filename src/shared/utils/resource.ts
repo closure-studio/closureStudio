@@ -1,4 +1,5 @@
-import { constants } from "@/shared/constants/config";
+import { GameResourceType } from "@/constants/game";
+import { ARK_RESOURCE_DOMAIN } from "@/constants/hosts";
 
 /**
  * 获取明日方舟资源的完整URL
@@ -13,17 +14,7 @@ export function getArkResourceUrl(path: string, extension: string = "webp"): str
   // 移除路径中已有的扩展名（如果有）
   const pathWithoutExt = cleanPath.replace(/\.(png|jpg|jpeg|webp)$/i, "");
 
-  return `${constants.ArkResourceDomain}/${pathWithoutExt}.${extension}`;
-}
-
-/**
- * 游戏资源类型
- */
-export enum GameResourceType {
-  GOLD = 'GOLD',                   // 龙门币
-  DIAMOND_SHD = 'DIAMOND_SHD',     // 合成玉
-  DIAMOND = 'DIAMOND',             // 源石
-  AP_GAMEPLAY = 'AP_GAMEPLAY',     // 理智
+  return `${ARK_RESOURCE_DOMAIN}/${pathWithoutExt}.${extension}`;
 }
 
 /**

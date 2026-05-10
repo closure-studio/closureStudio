@@ -6,7 +6,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import ToastItem from "./Item.vue";
-import { Layout, Position } from './enum';
+import { Layout, Position } from "@/constants/toast";
 import { Store } from "./store";
 
 const { toasts } = Store()

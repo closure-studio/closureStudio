@@ -28,13 +28,14 @@ interface Props {
 import { ref, watch } from "vue";
 import {
   getPermissionName,
-  Permission,
   hasPermission,
   addPermission,
   removePermission,
 } from "@/shared/utils/permission";
+import { Permission } from "@/constants/permission";
+import { API_RESPONSE_CODE } from "@/constants/request";
 import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/shared/components/toast/enum";
+import { Type } from "@/constants/toast";
 import authClient from "@/shared/services/authClient";
 
 const props = withDefaults(defineProps<Props>(), {
@@ -72,7 +73,7 @@ const handleUpdateBtnOnClick = async () => {
     }
     isUploading.value = true;
     const resp = await authClient.updateUserPermission(props.uuid, myPermission.value);
-    if (resp.code === 0) {
+    if (resp.code === API_RESPONSE_CODE.FAILURE) {
       setMsg("更新成功", Type.Success);
     } else {
       setMsg(resp.message, Type.Error);

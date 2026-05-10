@@ -59,24 +59,25 @@
 </style>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useGamesStore } from "@/stores/useGamesStore";
-import { useGameChars } from "@/features/games/composables/useGameChars";
+import CharsPanel from "@/features/games/components/CharsPanel.vue";
+import ConfigPanel from "@/features/games/components/ConfigPanel.vue";
 import GameDetailHeader from "@/features/games/components/GameDetailHeader.vue";
 import GameSelector from "@/features/games/components/GameSelector.vue";
-import CharsPanel from "@/features/games/components/CharsPanel.vue";
 import ItemsPanel from "@/features/games/components/ItemsPanel.vue";
 import LogsPanel from "@/features/games/components/LogsPanel.vue";
-import ConfigPanel from "@/features/games/components/ConfigPanel.vue";
-import apiClient from "@/shared/services/apiClient";
+import { useGameChars } from "@/features/games/composables/useGameChars";
+import { GAME_LOG_QUERYABLE_STATUS_CODES } from "@/constants/gameStatus";
+import { assets } from "@/plugins/assets/assets";
+import { Type } from "@/constants/toast";
 import MobileSwipeMenuHeader from "@/shared/components/ui/MobileSwipeMenuHeader.vue";
 import { useSwipeNavigation } from "@/shared/composables/useSwipeNavigation";
-import { ROUTES } from "@/shared/constants/routes";
-import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/shared/components/toast/enum";
-import { assets } from "@/plugins/assets/assets";
+import { ROUTES } from "@/constants/routes";
+import apiClient from "@/shared/services/apiClient";
 import type { ApiGameDetail, ApiGameGame, ApiGameLogs } from "@/shared/types/api";
+import { setMsg } from "@/shared/utils/toast";
+import { useGamesStore } from "@/stores/useGamesStore";
+import { computed, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
@@ -156,6 +157,8 @@ const getGameDetails = async () => {
 
 // 获取游戏日志
 const getLogs = async () => {
+  const game = selectedGame.value;
+  if (!game || !GAME_LOG_QUERYABLE_STATUS_CODES.includes(game.status.code)) return;
   if (isLoadingGameLogs.value) return;
   isLoadingGameLogs.value = true;
   const lastLogId = gameLogs.value.logs[gameLogs.value.logs.length - 1]?.id || 0;

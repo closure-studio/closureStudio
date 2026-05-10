@@ -1,9 +1,11 @@
 import type { Ref } from "vue";
 import type { RegistryAddGameForm, RegistrySlot } from "@/shared/types/api";
-import { Type } from "@/shared/components/toast/enum";
+import { Type } from "@/constants/toast";
+import { GAME_STATUS_CODE } from "@/constants/gameStatus";
+import { API_RESPONSE_CODE } from "@/constants/request";
 import { getRealGameAccount, processGameAccount } from "@/shared/utils/account";
 import { setMsg } from "@/shared/utils/toast";
-import { NOTIFY } from "@/shared/constants/config";
+import { NOTIFY } from "@/constants/notifications";
 import { allowGameCreate, canDeleteGame } from "@/features/games/composables/useGameQuota";
 import type { useGamesStore } from "@/stores/useGamesStore";
 import showDialog from "@/shared/components/dialog/dialog";
@@ -99,14 +101,14 @@ export function useGameActions(options: UseGameActionsOptions) {
   const isSuspendStatus = (gameAccount: string) => {
     const game = findGame(gameAccount);
     if (!game) return false;
-    return game.status.code === 2;
+    return game.status.code === GAME_STATUS_CODE.RUNNING;
   };
 
   const isLoginBtnDisabled = (gameAccount: string) => {
     const game = findGame(gameAccount);
     if (isLoading.value) return true;
     if (!game) return false;
-    return game.status.code === 1;
+    return game.status.code === GAME_STATUS_CODE.LOGGING_IN;
   };
 
   const handleDeleteBtnOnClick = async (slotUUID: string, gameAccount: string) => {
@@ -122,7 +124,7 @@ export function useGameActions(options: UseGameActionsOptions) {
     try {
       const deleteResp = await captcha.deleteGame(slotUUID);
       await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
-      if (deleteResp.code === 1) {
+      if (deleteResp.code === API_RESPONSE_CODE.SUCCESS) {
         setMsg("删除成功", Type.Success);
       } else {
         setMsg(deleteResp.message, Type.Warning);
@@ -156,12 +158,12 @@ export function useGameActions(options: UseGameActionsOptions) {
         platform: accountInfo.code,
       };
       const createGameResp = await captcha.createGame(slotUUID, form);
-      if (createGameResp.code === 1) {
+      if (createGameResp.code === API_RESPONSE_CODE.SUCCESS) {
         return createGameResp;
       }
       setMsg(createGameResp.message, Type.Error);
       await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
-      if (createGameResp.code === 1) {
+      if (createGameResp.code === API_RESPONSE_CODE.SUCCESS) {
         setMsg("修复成功", Type.Success);
       } else {
         setMsg(createGameResp.message, Type.Warning);
@@ -200,7 +202,7 @@ export function useGameActions(options: UseGameActionsOptions) {
       isLoading.value = true;
       const loginResp = await captcha.loginGame(account);
       await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
-      if (loginResp.code === 1) {
+      if (loginResp.code === API_RESPONSE_CODE.SUCCESS) {
         setMsg("启动成功", Type.Success);
         showDialog(GeeTestNotify);
       } else {
@@ -218,7 +220,7 @@ export function useGameActions(options: UseGameActionsOptions) {
     try {
       const resp = await gamesStore.gameSuspend(account);
       await gamesStore.queryGameList();
-      if (resp.code === 1) {
+      if (resp.code === API_RESPONSE_CODE.SUCCESS) {
         setMsg("暂停成功", Type.Success);
       } else {
         setMsg(resp.message, Type.Warning);

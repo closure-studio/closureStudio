@@ -2,7 +2,7 @@
   <div class="container mx-auto flex justify-center">
     <div class="grid grid-cols-3 gap-2">
       <div
-        v-for="(item, index) in AccelerateSlot_CN"
+        v-for="(item, index) in ACCELERATE_SLOT_CN"
         :key="index"
         :class="getClass(item, index)"
         @click="setSelectSlot(item)"
@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-import { AccelerateSlot_CN } from "@/shared/constants/config";
+import { ACCELERATE_SLOT_CN } from "@/constants/game";
 
 interface Props {
   slot: string;

@@ -85,7 +85,9 @@ import { setMsg } from "@/shared/utils/toast";
 import { useGamesStore } from "@/stores/useGamesStore";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
 import { checkIsMobile } from "@/shared/utils/regex";
-import { Type } from "@/shared/components/toast/enum";
+import { Type } from "@/constants/toast";
+import { GAME_PLATFORM_CODE } from "@/constants/game";
+import { API_RESPONSE_CODE } from "@/constants/request";
 import ServerSelector from "@/shared/components/ServerSelector.vue";
 
 interface Props extends DialogComponentProps {
@@ -103,7 +105,7 @@ const captcha = useCaptcha();
 const form = ref<RegistryAddGameForm>({
   account: "",
   password: "",
-  platform: 1,
+  platform: GAME_PLATFORM_CODE.OFFICIAL,
 });
 
 const handleCreateBtnOnClick = async () => {
@@ -145,7 +147,7 @@ const createGame = async () => {
   }
   setMsg("叠甲成功，提交托管信息中", Type.Success);
   const createGameResp = await captcha.createGame(slotUUID, form.value);
-  if (createGameResp.code === 1) {
+  if (createGameResp.code === API_RESPONSE_CODE.SUCCESS) {
     return createGameResp;
   }
   setMsg(createGameResp.message, Type.Error);

@@ -1,9 +1,9 @@
 import { computed, ref } from "vue";
 import axios from "axios";
+import { ARK_RESOURCE_DOMAIN } from "@/constants/hosts";
 import type { Items, Stages, Characters } from "@/shared/types/gamedata";
 import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/shared/components/toast/enum";
-import { constants } from "@/shared/constants/config";
+import { Type } from "@/constants/toast";
 
 const itemData = ref<Items>({});
 const stageData = ref<Stages>({});
@@ -67,7 +67,7 @@ const assets = computed(() => {
       return "";
     }
     // 使用新的资源域名和webp格式
-    return `${constants.ArkResourceDomain}/items/${item.icon}.webp`;
+    return `${ARK_RESOURCE_DOMAIN}/items/${item.icon}.webp`;
   };
 
   return {
@@ -86,7 +86,7 @@ const assets = computed(() => {
 
 const loadItems = async () => {
   try {
-    const response = await axios.get<Items>(`${constants.ArkResourceDomain}/item_table.json`);
+    const response = await axios.get<Items>(`${ARK_RESOURCE_DOMAIN}/item_table.json`);
     itemData.value = response.data;
   } catch (error) {
     console.error("Error loading items data:", error);
@@ -96,7 +96,7 @@ const loadItems = async () => {
 
 const loadStages = async () => {
   try {
-    const response = await axios.get<Stages>(`${constants.ArkResourceDomain}/stage_table.json`);
+    const response = await axios.get<Stages>(`${ARK_RESOURCE_DOMAIN}/stage_table.json`);
     stageData.value = response.data;
   } catch (error) {
     console.error("Error loading stages data:", error);
@@ -106,7 +106,7 @@ const loadStages = async () => {
 
 const loadCharacters = async () => {
   try {
-    const response = await axios.get<Characters>(`${constants.ArkResourceDomain}/character_table.json`);
+    const response = await axios.get<Characters>(`${ARK_RESOURCE_DOMAIN}/character_table.json`);
     characterData.value = response.data;
   } catch (error) {
     console.error("Error loading characters data:", error);

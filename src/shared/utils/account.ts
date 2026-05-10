@@ -1,3 +1,5 @@
+import { GAME_ACCOUNT_PREFIX, GAME_PLATFORM_CODE } from "@/constants/game";
+
 /**
  * 解析游戏账号前缀，返回平台代码和纯账号
  * "G12345" → { code: 1, remaining: "12345" }
@@ -11,10 +13,10 @@ export function processGameAccount(account: string): { code: number; remaining: 
   const firstChar = account.charAt(0);
   const remaining = account.slice(1);
 
-  if (firstChar === "G") {
-    return { code: 1, remaining };
-  } else if (firstChar === "B") {
-    return { code: 2, remaining };
+  if (firstChar === GAME_ACCOUNT_PREFIX.OFFICIAL) {
+    return { code: GAME_PLATFORM_CODE.OFFICIAL, remaining };
+  } else if (firstChar === GAME_ACCOUNT_PREFIX.BILIBILI) {
+    return { code: GAME_PLATFORM_CODE.BILIBILI, remaining };
   }
 
   return null;
@@ -28,7 +30,10 @@ export function getRealGameAccount(gameAccount: string | undefined): string {
   if (!gameAccount) {
     return "";
   }
-  if (gameAccount.startsWith("G") || gameAccount.startsWith("B")) {
+  if (
+    gameAccount.startsWith(GAME_ACCOUNT_PREFIX.OFFICIAL) ||
+    gameAccount.startsWith(GAME_ACCOUNT_PREFIX.BILIBILI)
+  ) {
     return gameAccount.substring(1);
   }
   return gameAccount;
@@ -40,11 +45,11 @@ export function getRealGameAccount(gameAccount: string | undefined): string {
  * ("12345", 2) → "B12345"
  */
 export function buildGameAccount(account: string, platform: number): string {
-  if (platform === 1) {
-    return "G" + account;
+  if (platform === GAME_PLATFORM_CODE.OFFICIAL) {
+    return GAME_ACCOUNT_PREFIX.OFFICIAL + account;
   }
-  if (platform === 2) {
-    return "B" + account;
+  if (platform === GAME_PLATFORM_CODE.BILIBILI) {
+    return GAME_ACCOUNT_PREFIX.BILIBILI + account;
   }
   return account;
 }

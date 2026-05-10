@@ -1,4 +1,5 @@
-import { Permission, addPermission, hasPermission, isAdmin, listPermissions, removePermission } from "./permission";
+import { Permission } from "@/constants/permission";
+import { addPermission, hasPermission, isAdmin, listPermissions, removePermission } from "./permission";
 
 describe("Permissions System", () => {
     test("SuperAdmin has all permissions", () => {

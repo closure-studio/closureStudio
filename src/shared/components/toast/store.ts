@@ -1,11 +1,10 @@
 import { computed, reactive } from "vue";
 import { Toast } from "./interface";
-import { Appearance, Position, Type } from "./enum";
+import { Appearance, Position, TOAST_DURATION, Type } from "@/constants/toast";
 
 const state = reactive({
     toasts: {} as Record<string, Toast>,
 });
-const DURATION = 3000;
 const defaultCfg = (): Toast => ({
     id: `${Date.now()}_${Math.random().toString(36).slice(-8)}`,
     message: "",
@@ -15,7 +14,7 @@ const defaultCfg = (): Toast => ({
         automatically: true,
         manually: true,
     },
-    duration: DURATION,
+    duration: TOAST_DURATION,
     showProgress: true,
     appearance: Appearance.Light,
     position: Position.TopRight,

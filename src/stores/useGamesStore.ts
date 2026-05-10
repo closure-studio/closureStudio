@@ -14,7 +14,9 @@ import apiClient from "@/shared/services/apiClient";
 import registryClient from "@/shared/services/registryClient";
 import { arknightsGameCaptcha } from "@/shared/services/captcha";
 import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/shared/components/toast/enum";
+import { API_RESPONSE_CODE } from "@/constants/request";
+import { Type } from "@/constants/toast";
+import { STORAGE_KEYS } from "@/constants/storage";
 import showDialog from "@/shared/components/dialog/dialog";
 import NewSSRNotice from "@/features/games/components/NewSSRNotice.vue";
 import { useUserStore } from "@/stores/useUserStore";
@@ -101,7 +103,7 @@ export const useGamesStore = defineStore("games", () => {
     isLoadingGameList.value = true;
     try {
       const resp = await apiClient.fetchGameList();
-      if (resp && resp.code === 1) {
+      if (resp && resp.code === API_RESPONSE_CODE.SUCCESS) {
         updateGameList(resp.data);
         updateCaptcha(resp.data);
         return true;
@@ -120,7 +122,7 @@ export const useGamesStore = defineStore("games", () => {
       try {
         const resp = await apiClient.fetchGameList();
         if (isLoadingGameList.value) return;
-        if (resp && resp.code === 1 && resp.data) {
+        if (resp && resp.code === API_RESPONSE_CODE.SUCCESS && resp.data) {
           updateGameList(resp.data);
           updateCaptcha(resp.data);
         }
@@ -151,7 +153,7 @@ export const useGamesStore = defineStore("games", () => {
   const queryUserQuota = async () => {
     try {
       const resp = await registryClient.fetchUserSlots();
-      if (resp.code === 1 && resp.data) {
+      if (resp.code === API_RESPONSE_CODE.SUCCESS && resp.data) {
         resp.data.slots = quotaSlotsSort(resp.data.slots);
         userQuota.value = resp.data;
         return true;
@@ -219,7 +221,7 @@ export const useGamesStore = defineStore("games", () => {
 
       event.addEventListener("ssr", (sourceEvent) => {
         globalSSR.value = JSON.parse(sourceEvent.data) ?? [];
-        const lastReadTs = Number(localStorage.getItem("lastReadTs")) || 0;
+        const lastReadTs = Number(localStorage.getItem(STORAGE_KEYS.LAST_READ_TS)) || 0;
         globalSSR.value = globalSSR.value.filter((item) => item.createdAt > lastReadTs);
         if (globalSSR.value.length > 0) {
           setMsg("可露希尔又双叒叕抽到 6 星干员啦!!!", Type.Info);
@@ -271,7 +273,7 @@ export const useGamesStore = defineStore("games", () => {
     isLoadingChars.value = true;
     try {
       const resp = await apiClient.fetchGameChars(account);
-      if (resp.code === 1 && resp.data) {
+      if (resp.code === API_RESPONSE_CODE.SUCCESS && resp.data) {
         // 存入缓存
         charsCache.value[account] = resp.data;
         return resp.data;

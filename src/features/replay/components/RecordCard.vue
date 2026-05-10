@@ -165,7 +165,7 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
 import { reactive, ref, watch } from "vue";
-import { constants } from "@/shared/constants/config";
+import { ARK_RESOURCE_DOMAIN } from "@/constants/hosts";
 import { formatTime } from "@/shared/utils/format";
 import type {
   ReplayAuditStatus,
@@ -215,11 +215,11 @@ watch(
 );
 
 const avatarUrl = (avatar: ReplayAvatar) =>
-  `${constants.ArkResourceDomain}/avatar/${avatar.type}/${avatar.id}.webp`;
+  `${ARK_RESOURCE_DOMAIN}/avatar/${avatar.type}/${avatar.id}.webp`;
 
 const onAvatarError = (event: Event) => {
   (event.target as HTMLImageElement).src =
-    `${constants.ArkResourceDomain}/avatar/DEFAULT/avatar_def_mc.webp`;
+    `${ARK_RESOURCE_DOMAIN}/avatar/DEFAULT/avatar_def_mc.webp`;
 };
 
 const validationLabel = (status: ReplayValidationStatus) => {

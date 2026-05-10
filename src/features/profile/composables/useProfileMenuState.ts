@@ -1,13 +1,5 @@
 import { ref } from "vue";
-
-export const PROFILE_MENU_KEYS = {
-  OVERVIEW: "overview",
-  NETWORK: "network",
-  ACCOUNT: "account",
-  ACKNOWLEDGEMENTS: "acknowledgements",
-} as const;
-
-export type ProfileMenuKey = (typeof PROFILE_MENU_KEYS)[keyof typeof PROFILE_MENU_KEYS];
+import { PROFILE_MENU_KEYS, type ProfileMenuKey } from "@/constants/profile";
 
 const activeProfileMenuKey = ref<ProfileMenuKey>(PROFILE_MENU_KEYS.OVERVIEW);
 

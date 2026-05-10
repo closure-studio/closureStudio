@@ -8,9 +8,9 @@ import {
   NETWORK_ERROR_MSG,
   REQUEST_TIMEOUT_CODE,
   REQUEST_TIMEOUT_MSG,
-} from "@/shared/constants/config";
+} from "@/constants/request";
 import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/shared/components/toast/enum";
+import { Type } from "@/constants/toast";
 
 type ErrorStatus = keyof typeof ERROR_STATUS;
 

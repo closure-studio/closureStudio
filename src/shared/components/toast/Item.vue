@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { PropType, computed, onMounted, ref } from "vue";
-import { Appearance, Layout, Type } from './enum';
+import { Appearance, Layout, Type } from "@/constants/toast";
 import { Toast } from './interface';
 import { Store } from "./store";
 const props = defineProps({

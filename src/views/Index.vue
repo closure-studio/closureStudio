@@ -112,6 +112,7 @@ import type { ApiSystemHall } from "@/shared/types/api";
 import Login from "@/features/auth/components/LoginDialog.vue";
 import { useUserStore } from "@/stores/useUserStore";
 import { isNight } from "@/shared/utils/misc";
+import { API_RESPONSE_CODE } from "@/constants/request";
 import { getArkResourceUrl } from "@/shared/utils/resource";
 import APIStatusBoard from "@/features/system/components/APIStatus/APIStatusBoard.vue";
 import apiClient from "@/shared/services/apiClient";
@@ -126,7 +127,7 @@ onMounted(async () => {
     closure.value = true;
   });
   const resp = await apiClient.fetchSystemList();
-  if (resp.code === 1 && resp.data) {
+  if (resp.code === API_RESPONSE_CODE.SUCCESS && resp.data) {
     list.value = resp.data;
   }
 });

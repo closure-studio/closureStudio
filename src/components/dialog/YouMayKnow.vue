@@ -7,7 +7,8 @@
 </template>
 <script lang="ts" setup>
 import { onMounted, ref } from "vue";
-import { selectRandomElement, YouMayKnowArray } from "@/shared/utils/misc";
+import { YOU_MAY_KNOW_MESSAGES } from "@/constants/tips";
+import { selectRandomElement } from "@/shared/utils/misc";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
 // export interface YouMayKnowProps extends DialogComponentProps {
 //   message: string;
@@ -16,7 +17,7 @@ const props = defineProps<DialogComponentProps>();
 const { dialogClose } = props;
 const message = ref("");
 onMounted(() => {
-  const element = selectRandomElement<string>(YouMayKnowArray);
+  const element = selectRandomElement<string>(YOU_MAY_KNOW_MESSAGES);
   if (element) message.value = element;
 });
 const iknow = () => {

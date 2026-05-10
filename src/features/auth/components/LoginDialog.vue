@@ -58,7 +58,8 @@ import LoginForm from "@/features/auth/components/LoginForm.vue";
 import RegisterForm from "@/features/auth/components/RegisterForm.vue";
 import ForgotPasswordForm from "@/features/auth/components/ForgotPasswordForm.vue";
 import ForgotAccountForm from "@/features/auth/components/ForgotAccountForm.vue";
-import { AuthModelType, useAuthForm } from "@/features/auth/composables/useAuthForm";
+import { AuthModelType } from "@/constants/auth";
+import { useAuthForm } from "@/features/auth/composables/useAuthForm";
 import { useAuthActions } from "@/features/auth/composables/useAuthActions";
 
 const {

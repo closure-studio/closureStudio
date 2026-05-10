@@ -11,20 +11,20 @@
         <label
           class="block rounded-lg px-3 py-3 cursor-pointer transition-colors"
           :class="
-            handleAPIClientRadioIsChecked(APIHostLTSC)
+            handleAPIClientRadioIsChecked(API_HOST_LTSC)
               ? 'bg-primary/5'
               : 'bg-base-100 hover:bg-base-200/20'
           "
-          @click="handleAPIClientRadioOnClick(APIHostLTSC)"
+          @click="handleAPIClientRadioOnClick(API_HOST_LTSC)"
         >
           <div class="flex items-center justify-between gap-3">
             <div class="flex items-center gap-3 min-w-0 flex-1">
               <span
                 class="h-2.5 w-2.5 rounded-full shrink-0"
-                :class="handleAPIClientRadioIsChecked(APIHostLTSC) ? 'bg-primary' : 'bg-base-300'"
+                :class="handleAPIClientRadioIsChecked(API_HOST_LTSC) ? 'bg-primary' : 'bg-base-300'"
               />
               <div class="min-w-0">
-                <p class="text-sm font-semibold truncate">{{ APIHostLTSC.label }}</p>
+                <p class="text-sm font-semibold truncate">{{ API_HOST_LTSC.label }}</p>
               </div>
             </div>
             <div class="flex items-center gap-3 shrink-0">
@@ -32,12 +32,12 @@
               <span
                 class="text-xs font-medium"
                 :class="
-                  handleAPIClientRadioIsChecked(APIHostLTSC)
+                  handleAPIClientRadioIsChecked(API_HOST_LTSC)
                     ? 'text-primary'
                     : 'text-base-content/60'
                 "
               >
-                {{ handleAPIClientRadioIsChecked(APIHostLTSC) ? "使用中" : "切换" }}
+                {{ handleAPIClientRadioIsChecked(API_HOST_LTSC) ? "使用中" : "切换" }}
               </span>
             </div>
           </div>
@@ -48,22 +48,22 @@
         <label
           class="block rounded-lg px-3 py-3 cursor-pointer transition-colors"
           :class="
-            handleAPIClientRadioIsChecked(APIHostCloudflare)
+            handleAPIClientRadioIsChecked(API_HOST_CLOUDFLARE)
               ? 'bg-primary/5'
               : 'bg-base-100 hover:bg-base-200/20'
           "
-          @click="handleAPIClientRadioOnClick(APIHostCloudflare)"
+          @click="handleAPIClientRadioOnClick(API_HOST_CLOUDFLARE)"
         >
           <div class="flex items-center justify-between gap-3">
             <div class="flex items-center gap-3 min-w-0 flex-1">
               <span
                 class="h-2.5 w-2.5 rounded-full shrink-0"
                 :class="
-                  handleAPIClientRadioIsChecked(APIHostCloudflare) ? 'bg-primary' : 'bg-base-300'
+                  handleAPIClientRadioIsChecked(API_HOST_CLOUDFLARE) ? 'bg-primary' : 'bg-base-300'
                 "
               />
               <div class="min-w-0">
-                <p class="text-sm font-semibold truncate">{{ APIHostCloudflare.label }}</p>
+                <p class="text-sm font-semibold truncate">{{ API_HOST_CLOUDFLARE.label }}</p>
               </div>
             </div>
             <div class="flex items-center gap-3 shrink-0">
@@ -73,12 +73,12 @@
               <span
                 class="text-xs font-medium"
                 :class="
-                  handleAPIClientRadioIsChecked(APIHostCloudflare)
+                  handleAPIClientRadioIsChecked(API_HOST_CLOUDFLARE)
                     ? 'text-primary'
                     : 'text-base-content/60'
                 "
               >
-                {{ handleAPIClientRadioIsChecked(APIHostCloudflare) ? "使用中" : "切换" }}
+                {{ handleAPIClientRadioIsChecked(API_HOST_CLOUDFLARE) ? "使用中" : "切换" }}
               </span>
             </div>
           </div>
@@ -91,10 +91,10 @@
 
 <script setup lang="ts">
 import apiClient, { APIClient } from "@/shared/services/apiClient";
-import { APIHostCloudflare, APIHostLTSC, IHostServer } from "@/shared/services/host";
+import { API_HOST_CLOUDFLARE, API_HOST_LTSC, type IHostServer } from "@/constants/hosts";
 import { computed, ref } from "vue";
 
-import { Type } from "@/shared/components/toast/enum";
+import { Type } from "@/constants/toast";
 import { setMsg } from "@/shared/utils/toast";
 
 const isLoading = ref(false);
@@ -104,8 +104,8 @@ const cloudflareRadioBtnText = ref("N/A");
 
 const selectedHost = ref(apiClient.getHostServer());
 
-const ltscClient = new APIClient(APIHostLTSC);
-const cloudflareClient = new APIClient(APIHostCloudflare);
+const ltscClient = new APIClient(API_HOST_LTSC);
+const cloudflareClient = new APIClient(API_HOST_CLOUDFLARE);
 
 const measureTimeCost = async (client: APIClient, setBtnText: (text: string) => void) => {
   try {

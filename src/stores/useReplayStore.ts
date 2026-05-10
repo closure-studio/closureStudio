@@ -1,5 +1,7 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
+import { REPLAY_PAGE_LIMIT } from "@/constants/replay";
+import { API_RESPONSE_CODE } from "@/constants/request";
 import { replayApi } from "@/shared/services/replayClient";
 import type {
   ReplayAutoResult,
@@ -7,9 +9,7 @@ import type {
   UpdateReplayPayload,
 } from "@/shared/types/replay";
 import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/shared/components/toast/enum";
-
-const PAGE_LIMIT = 20;
+import { Type } from "@/constants/toast";
 
 function mergeReplayPage(current: ReplayRecord[], incoming: ReplayRecord[]) {
   const map = new Map(current.map((item) => [item.uuid, item]));
@@ -58,7 +58,7 @@ export const useReplayStore = defineStore("replay", () => {
     selectedAccount.value = account;
   };
 
-  const fetchPublicReplays = async (stageId = publicStageId.value, limit = PAGE_LIMIT) => {
+  const fetchPublicReplays = async (stageId = publicStageId.value, limit = REPLAY_PAGE_LIMIT) => {
     publicStageId.value = stageId;
     isLoadingPublicReplays.value = true;
     try {
@@ -67,7 +67,7 @@ export const useReplayStore = defineStore("replay", () => {
         limit,
         stage_id: stageId || undefined,
       });
-      if (resp.code === 1 && resp.data) {
+      if (resp.code === API_RESPONSE_CODE.SUCCESS && resp.data) {
         publicReplays.value = resp.data;
         publicPage.value = 1;
         publicHasMore.value = resp.data.length >= limit;
@@ -89,7 +89,7 @@ export const useReplayStore = defineStore("replay", () => {
     }
   };
 
-  const fetchMorePublicReplays = async (limit = PAGE_LIMIT) => {
+  const fetchMorePublicReplays = async (limit = REPLAY_PAGE_LIMIT) => {
     if (!publicHasMore.value || isLoadingPublicReplays.value) return null;
 
     const nextPage = publicPage.value + 1;
@@ -100,7 +100,7 @@ export const useReplayStore = defineStore("replay", () => {
         limit,
         stage_id: publicStageId.value || undefined,
       });
-      if (resp.code === 1 && resp.data) {
+      if (resp.code === API_RESPONSE_CODE.SUCCESS && resp.data) {
         publicReplays.value = mergeReplayPage(publicReplays.value, resp.data);
         publicPage.value = nextPage;
         publicHasMore.value = resp.data.length >= limit;
@@ -118,7 +118,7 @@ export const useReplayStore = defineStore("replay", () => {
     }
   };
 
-  const fetchMyReplays = async (account = selectedAccount.value, limit = PAGE_LIMIT) => {
+  const fetchMyReplays = async (account = selectedAccount.value, limit = REPLAY_PAGE_LIMIT) => {
     myAccount.value = account;
     if (!account) {
       myReplays.value = [];
@@ -136,7 +136,7 @@ export const useReplayStore = defineStore("replay", () => {
         mine: true,
         account,
       });
-      if (resp.code === 1 && resp.data) {
+      if (resp.code === API_RESPONSE_CODE.SUCCESS && resp.data) {
         myReplays.value = resp.data;
         myPage.value = 1;
         myHasMore.value = resp.data.length >= limit;
@@ -158,7 +158,7 @@ export const useReplayStore = defineStore("replay", () => {
     }
   };
 
-  const fetchMoreMyReplays = async (limit = PAGE_LIMIT) => {
+  const fetchMoreMyReplays = async (limit = REPLAY_PAGE_LIMIT) => {
     if (!myAccount.value || !myHasMore.value || isLoadingMyReplays.value) return null;
 
     const nextPage = myPage.value + 1;
@@ -170,7 +170,7 @@ export const useReplayStore = defineStore("replay", () => {
         mine: true,
         account: myAccount.value,
       });
-      if (resp.code === 1 && resp.data) {
+      if (resp.code === API_RESPONSE_CODE.SUCCESS && resp.data) {
         myReplays.value = mergeReplayPage(myReplays.value, resp.data);
         myPage.value = nextPage;
         myHasMore.value = resp.data.length >= limit;
@@ -188,7 +188,7 @@ export const useReplayStore = defineStore("replay", () => {
     }
   };
 
-  const fetchAutoResults = async (account = selectedAccount.value, limit = PAGE_LIMIT) => {
+  const fetchAutoResults = async (account = selectedAccount.value, limit = REPLAY_PAGE_LIMIT) => {
     autoResultsAccount.value = account;
     if (!account) {
       autoResults.value = [];
@@ -204,7 +204,7 @@ export const useReplayStore = defineStore("replay", () => {
         page: 1,
         limit,
       });
-      if (resp.code === 1 && resp.data) {
+      if (resp.code === API_RESPONSE_CODE.SUCCESS && resp.data) {
         autoResults.value = resp.data;
         autoResultsPage.value = 1;
         autoResultsHasMore.value = resp.data.length >= limit;
@@ -226,7 +226,7 @@ export const useReplayStore = defineStore("replay", () => {
     }
   };
 
-  const fetchMoreAutoResults = async (limit = PAGE_LIMIT) => {
+  const fetchMoreAutoResults = async (limit = REPLAY_PAGE_LIMIT) => {
     if (!autoResultsAccount.value || !autoResultsHasMore.value || isLoadingAutoResults.value) {
       return null;
     }
@@ -238,7 +238,7 @@ export const useReplayStore = defineStore("replay", () => {
         page: nextPage,
         limit,
       });
-      if (resp.code === 1 && resp.data) {
+      if (resp.code === API_RESPONSE_CODE.SUCCESS && resp.data) {
         autoResults.value = mergeAutoResultPage(autoResults.value, resp.data);
         autoResultsPage.value = nextPage;
         autoResultsHasMore.value = resp.data.length >= limit;
@@ -258,7 +258,7 @@ export const useReplayStore = defineStore("replay", () => {
 
   const updateReplay = async (uuid: string, payload: UpdateReplayPayload) => {
     const resp = await replayApi.updateReplay(uuid, payload);
-    if (resp.code !== 1 || !resp.data) {
+    if (resp.code !== API_RESPONSE_CODE.SUCCESS || !resp.data) {
       setMsg(resp.message || "更新录像失败", Type.Warning);
       return resp;
     }
@@ -282,7 +282,7 @@ export const useReplayStore = defineStore("replay", () => {
         action_type: "SHARE",
       },
     ]);
-    if (resp.code === 1) {
+    if (resp.code === API_RESPONSE_CODE.SUCCESS) {
       setMsg("分享动作已追加，后端不会自动去重", Type.Success);
     } else {
       setMsg(resp.message || "追加分享动作失败", Type.Warning);
@@ -298,7 +298,7 @@ export const useReplayStore = defineStore("replay", () => {
         action_type: "AUTO_BATTLE",
       },
     ]);
-    if (resp.code === 1) {
+    if (resp.code === API_RESPONSE_CODE.SUCCESS) {
       setMsg("自动作战动作已追加", Type.Success);
       await fetchAutoResults(account);
     } else {

@@ -1,4 +1,5 @@
 import { onBeforeUnmount, onMounted, ref } from "vue";
+import { DEFAULT_MOBILE_MEDIA_QUERY, DEFAULT_SWIPE_THRESHOLD } from "@/constants/ui";
 
 export type SwipeAxis = "x" | "y";
 export type HorizontalSwipeDirection = "left" | "right";
@@ -11,9 +12,6 @@ interface UseSwipeNavigationOptions<TDirection extends SwipeDirection> {
   threshold?: number;
   mediaQuery?: string;
 }
-
-const DEFAULT_SWIPE_THRESHOLD = 40;
-const DEFAULT_MOBILE_MEDIA_QUERY = "(max-width: 767px)";
 
 const isMobile = (mediaQuery: string) => window.matchMedia(mediaQuery).matches;
 

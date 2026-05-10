@@ -1,5 +1,5 @@
 import type { ApiGameCaptchaInfo } from "@/shared/types/api";
-import { Type } from "@/shared/components/toast/enum";
+import { Type } from "@/constants/toast";
 import apiClient from "@/shared/services/apiClient";
 import { setMsg } from "@/shared/utils/toast";
 

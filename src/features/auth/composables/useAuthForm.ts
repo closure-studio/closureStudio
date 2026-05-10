@@ -1,11 +1,6 @@
 import { ref } from "vue";
-
-export enum AuthModelType {
-  Login,
-  Register,
-  ForgetPassword,
-  ForgetAccount,
-}
+import { GAME_PLATFORM_CODE } from "@/constants/game";
+import { AuthModelType } from "@/constants/auth";
 
 export interface LoginParams {
   email: string;
@@ -51,7 +46,7 @@ export function useAuthForm() {
   });
   const findAccountParams = ref<FindAccountParams>({
     gameAccount: "",
-    platform: 1,
+    platform: GAME_PLATFORM_CODE.OFFICIAL,
   });
   const agreeTerms = ref(false);
   const findAccountRespData = ref("");

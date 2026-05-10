@@ -1,5 +1,4 @@
 export {
-  Permission,
   addPermission,
   getPermissionName,
   hasPermission,
