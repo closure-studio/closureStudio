@@ -1,10 +1,7 @@
 <template>
   <div class="flex h-full">
     <div
-      class="w-full flex-col max-w-4xl 2xl:max-w-6xl xl:mr-auto s-margin md:!flex"
-      :class="
-        show ? 'xl:ml-0 !hidden' : 'lg:ml-[calc((100vw-56rem)/2)] 2xl:ml-[calc((100vw-72rem)/2)]'
-      "
+      class="w-full flex-col max-w-4xl 2xl:max-w-6xl xl:mr-auto s-margin md:!flex lg:ml-[calc((100vw-56rem)/2)] 2xl:ml-[calc((100vw-72rem)/2)]"
     >
       <div class="bg-base-300 shadow-lg rounded-lg px-4 py-1 blog relative">
         <div class="text-2xl md:text-4xl font-bold text-info mt-3">📢 今日特价</div>
@@ -51,28 +48,12 @@
         @repair="handleRepairBtnOnClick"
       />
     </div>
-    <div
-      class="bg-base-300 flex-1 flex flex-col md:ml-8 max-w-xl p-4 shadow-lg rounded-lg items-center animate__animated"
-      v-show="show"
-      :class="show ? 'animate__fadeInRight' : 'animate__fadeOutRight'"
-    >
-      <GamePanel
-        :account="selectGame"
-        :closeFunc="
-          () => {
-            setShow(false);
-          }
-        "
-      />
-    </div>
   </div>
 </template>
 <script setup lang="ts">
-import "animate.css";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import type { ApiSystemConfig, RegistrySlot, RegistryAddGameForm } from "@/shared/types/api";
-import GamePanel from "@/features/games/components/GamePanel.vue";
 import IndexStatus from "@/features/system/components/VersionStatus.vue";
 import StatusMessage from "@/features/system/components/StatusMessage.vue";
 import GameList from "@/features/games/components/GameList.vue";
@@ -90,7 +71,6 @@ import apiClient from "@/shared/services/apiClient";
 import { ROUTES } from "@/constants/routes";
 
 const router = useRouter();
-const show = ref(false);
 const user = useUserStore();
 const gamesStore = useGamesStore();
 const selectedSlotUUID = ref("");
@@ -156,11 +136,9 @@ const handleAPIStatusBoardOnClick = () => {
 };
 
 const handleGameSuspendBtnOnClick = (gameAccount: string) => {
-  show.value = !show.value;
   gameSuspend(gameAccount);
 };
 const handleGameLoginBtnOnClick = (gameAccount: string) => {
-  show.value = !show.value;
   gameLogin(gameAccount);
 };
 
@@ -168,10 +146,6 @@ const handleCreateGame = (slot: RegistrySlot, slotUUID: string) => {
   createGameButtonOnClick(slot, slotUUID, gameLogin);
 };
 
-const selectGame = ref("");
-const setShow = (value: boolean) => {
-  show.value = value;
-};
 const openGameConf = (account: string) => {
   const game = findGame(account);
   if (!game) return;
