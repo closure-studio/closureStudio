@@ -143,6 +143,9 @@ useSwipeNavigation({
 
 // 获取游戏详情
 const getGameDetails = async () => {
+  const game = selectedGame.value;
+  if (!game || !GAME_LOG_QUERYABLE_STATUS_CODES.includes(game.status.code)) return;
+
   try {
     const res = await apiClient.fetchGameDetails(account.value);
     if (res.data) {
