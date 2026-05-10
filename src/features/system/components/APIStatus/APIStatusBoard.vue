@@ -2,7 +2,7 @@
     <div>
         <pre class="font-bold text-center mb-2">服务监控</pre>
         <div :style="gridStyle" class="grid gap-1 justify-center">
-            <div v-for="(address, label) in healthRecords" :key="address" class="text-left">
+            <div v-for="(address, label) in API_HEALTH_RECORDS" :key="address" class="text-left">
                 <APIStatusBtn :label="label" :address="address" />
             </div>
         </div>
@@ -11,8 +11,8 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { API_HEALTH_RECORDS } from "@/constants/system";
 import APIStatusBtn from "./APIStatusBtn.vue";
-import { healthRecords } from "./config";
 const containerWidth = ref(0);
 const elementWidth = 90; // 每个元素的宽度
 

@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const VERSION_API_URL = "https://closure-studio-version-api.arknights.app";
+import { VERSION_API_URL } from "@/constants/hosts";
 
 export async function checkVersion(): Promise<number> {
   try {

@@ -87,7 +87,7 @@ import showDialog from "@/shared/components/dialog/dialog";
 import APIStatusBoard from "@/features/system/components/APIStatus/APIStatusBoard.vue";
 import authClient from "@/shared/services/authClient";
 import apiClient from "@/shared/services/apiClient";
-import { ROUTES } from "@/shared/constants/routes";
+import { ROUTES } from "@/constants/routes";
 
 const router = useRouter();
 const show = ref(false);

@@ -26,7 +26,7 @@
 import { useLoading } from "@/shared/composables/useLoading";
 import { setMsg } from "@/shared/utils/toast";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
-import { Type } from "@/shared/components/toast/enum";
+import { Type } from "@/constants/toast";
 import { useUserStore } from "@/stores/useUserStore";
 
 interface Props extends DialogComponentProps {

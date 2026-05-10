@@ -4,7 +4,8 @@ import type { ApiUserInfo } from "@/shared/types/api";
 import apiClient from "@/shared/services/apiClient";
 import authClient from "@/shared/services/authClient";
 import registryClient from "@/shared/services/registryClient";
-import { hasPermission, Permission } from "@/shared/utils/permission";
+import { Permission } from "@/constants/permission";
+import { hasPermission } from "@/shared/utils/permission";
 import { decodeJwtPayload } from "@/shared/utils/jwt";
 
 interface UserState {

@@ -67,7 +67,7 @@ import { useGamesStore } from "@/stores/useGamesStore";
 import showDialog from "@/shared/components/dialog/dialog";
 import BattleScreenShots from "@/features/games/components/BattleScreenShots.vue";
 import GameConfig from "@/features/games/components/GameConfig.vue";
-import { Type } from "@/shared/components/toast/enum";
+import { Type } from "@/constants/toast";
 interface Props {
   account: string;
   closeFunc: () => void;

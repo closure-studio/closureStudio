@@ -1,3 +1,5 @@
+import { STORAGE_KEYS } from "@/constants/storage";
+
 interface PeriodicSyncManager {
   register(tag: string, options?: { minInterval: number }): Promise<void>;
 }
@@ -37,7 +39,7 @@ async function subscribeUser(swRegistration: ServiceWorkerRegistration) {
     });
     console.log("user is subscribed:", JSON.stringify(subscription));
   } catch {
-    const localState = JSON.parse(localStorage.getItem("test") || "{}");
+    const localState = JSON.parse(localStorage.getItem(STORAGE_KEYS.SW_LOADER_STATE) || "{}");
     if (localState?.config?.subscribe) {
       alert("尝试获取【通知】权限失败，将无法自动推送新内容");
     }

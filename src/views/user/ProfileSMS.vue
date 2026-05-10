@@ -25,7 +25,8 @@
 </template>
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { Type } from "@/shared/components/toast/enum";
+import { Type } from "@/constants/toast";
+import { API_RESPONSE_CODE } from "@/constants/request";
 import { setMsg } from "@/shared/utils/toast";
 import { useLoading } from "@/shared/composables/useLoading";
 import { useUserStore } from "@/stores/useUserStore";
@@ -55,7 +56,7 @@ const handleSubmitBtnOnClick = async () => {
   try {
     isLoading.value = true;
     const authResp = await authClient.verify(smsCode.value);
-    if (authResp.code === 1) {
+    if (authResp.code === API_RESPONSE_CODE.SUCCESS) {
       setMsg("认证成功,请重新登录", Type.Success);
       user.logout();
       window.location.reload();

@@ -94,6 +94,7 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
+import { DEFAULT_GAME_CONFIG } from "@/constants/game";
 import type { ApiGameGameConfig } from "@/shared/types/api";
 import { assets } from "@/shared/services/assets";
 import apiClient from "@/shared/services/apiClient";
@@ -101,7 +102,7 @@ import { setMsg } from "@/shared/utils/toast";
 import { useLoading } from "@/shared/composables/useLoading";
 import { useGamesStore } from "@/stores/useGamesStore";
 import BaseDesign from "@/features/games/components/BaseDesign.vue";
-import { Type } from "@/shared/components/toast/enum";
+import { Type } from "@/constants/toast";
 
 interface Props {
   account: string;
@@ -111,22 +112,10 @@ const props = defineProps<Props>();
 
 const { account } = props;
 const gamesStore = useGamesStore();
-const initConfig = {
-  account: "",
-  accelerate_slot: "",
-  accelerate_slot_cn: "",
-  battle_maps: [],
-  enable_building_arrange: false,
-  is_auto_battle: false,
-  is_stopped: false,
-  keeping_ap: 0,
-  recruit_ignore_robot: false,
-  recruit_reserve: 0,
-  map_id: "",
-  allow_login_assist: false,
-};
 const game = gamesStore.findGame(account);
-const config = ref<ApiGameGameConfig>(game?.game_config || initConfig);
+const config = ref<ApiGameGameConfig>(
+  game?.game_config || { ...DEFAULT_GAME_CONFIG, battle_maps: [...DEFAULT_GAME_CONFIG.battle_maps] }
+);
 
 const { isLoading } = useLoading();
 const stageKeyWord = ref("");

@@ -1,6 +1,6 @@
 import {
     Appearance, Position, Type
-} from "./enum";
+} from "@/constants/toast";
 
 interface ToastDismiss {
     automatically: boolean;

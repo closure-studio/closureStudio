@@ -1,7 +1,9 @@
-import { LINUXDO_OAUTH_CONFIG, getRedirectUri } from "@/shared/config/oauth";
+import {
+  LINUXDO_OAUTH_CONFIG,
+  OAUTH_STATE_EXPIRES_IN_MS,
+} from "@/constants/oauth";
+import { STORAGE_KEYS } from "@/constants/storage";
 import type { OAuthState } from "@/shared/types/oauth";
-
-const OAUTH_STATE_KEY = "oauth_state";
 
 class OAuthClient {
   /**
@@ -17,14 +19,14 @@ class OAuthClient {
    * 保存 OAuth state 到 sessionStorage
    */
   private saveState(state: OAuthState): void {
-    sessionStorage.setItem(OAUTH_STATE_KEY, JSON.stringify(state));
+    sessionStorage.setItem(STORAGE_KEYS.OAUTH_STATE, JSON.stringify(state));
   }
 
   /**
    * 从 sessionStorage 获取并验证 OAuth state
    */
   getAndValidateState(stateParam: string): OAuthState | null {
-    const stateJson = sessionStorage.getItem(OAUTH_STATE_KEY);
+    const stateJson = sessionStorage.getItem(STORAGE_KEYS.OAUTH_STATE);
     if (!stateJson) {
       return null;
     }
@@ -40,7 +42,7 @@ class OAuthClient {
 
       // 验证 state 是否过期（10分钟）
       const now = Date.now();
-      if (now - state.timestamp > 10 * 60 * 1000) {
+      if (now - state.timestamp > OAUTH_STATE_EXPIRES_IN_MS) {
         console.error("State expired");
         return null;
       }
@@ -51,7 +53,7 @@ class OAuthClient {
       return null;
     } finally {
       // 清除已使用的 state
-      sessionStorage.removeItem(OAUTH_STATE_KEY);
+      sessionStorage.removeItem(STORAGE_KEYS.OAUTH_STATE);
     }
   }
 
@@ -59,7 +61,7 @@ class OAuthClient {
    * 发起 Linux.do OAuth 登录
    */
   initiateLinuxDoLogin(): void {
-    const redirectUri = getRedirectUri();
+    const redirectUri = `${window.location.origin}${LINUXDO_OAUTH_CONFIG.callbackPath}`;
     const state = this.generateState();
 
     // 保存 state

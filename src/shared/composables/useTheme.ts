@@ -1,11 +1,12 @@
 import { ref } from "vue";
+import { DEFAULT_THEME } from "@/constants/ui";
 import { loadTheme, setTheme, getTheme } from "@/shared/utils/theme";
 
 /**
  * 主题管理 composable
  */
 export function useTheme() {
-  const currentTheme = ref(getTheme() || "halloween");
+  const currentTheme = ref(getTheme() || DEFAULT_THEME);
 
   function applyTheme(name: string) {
     setTheme(name);
@@ -14,7 +15,7 @@ export function useTheme() {
 
   function initTheme() {
     loadTheme();
-    currentTheme.value = getTheme() || "halloween";
+    currentTheme.value = getTheme() || DEFAULT_THEME;
   }
 
   return { currentTheme, applyTheme, initTheme };

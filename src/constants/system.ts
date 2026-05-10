@@ -1,8 +1,10 @@
 import type { HealthRecord } from "@/shared/types/api";
 
-export const healthRecords: HealthRecord = {
-  游戏管理:
-    "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm50pgv0r01fc38mwr7zski3d/badge.svg",
+const GAME_MANAGEMENT_HEALTH_BADGE_URL =
+  "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm50pgv0r01fc38mwr7zski3d/badge.svg";
+
+export const API_HEALTH_RECORDS: HealthRecord = {
+  游戏管理: GAME_MANAGEMENT_HEALTH_BADGE_URL,
   主控中心:
     "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm4zsgrx4000138mwl7ukyby9/badge.svg",
   智能问答:
@@ -13,6 +15,5 @@ export const healthRecords: HealthRecord = {
     "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm2alu1bv00dr7x57sl8933m5/badge.svg",
   QQ机器人:
     "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm50sb1hg01oe38mwpfhg4sza/badge.svg",
-  授权服务:
-    "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm50pgv0r01fc38mwr7zski3d/badge.svg",
+  授权服务: GAME_MANAGEMENT_HEALTH_BADGE_URL,
 };

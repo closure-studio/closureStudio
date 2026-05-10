@@ -1,7 +1,9 @@
 import type { AxiosInstance } from "axios";
 import axios from "axios";
+import { REGISTRY_SERVER, type IHostServer } from "@/constants/hosts";
+import { API_RESPONSE_CODE } from "@/constants/request";
+import { STORAGE_KEYS } from "@/constants/storage";
 import type { RequestResult } from "@/shared/types/service";
-import { IHostServer, RegistryServer } from "./host";
 
 const version = import.meta.env.VITE_APP_VERSION;
 
@@ -43,10 +45,15 @@ export class AxiosServer {
 
     this.service.interceptors.response.use((response) => {
       switch (this.hostServer.baseURL) {
-        case RegistryServer.baseURL: {
+        case REGISTRY_SERVER.baseURL: {
           const code = this.buildCodeFromRegisterResp(response);
           const data: RequestResult<unknown> = {
-            message: code === 0 ? (response.data.err ? response.data.err : "大失败") : "成功",
+            message:
+              code === API_RESPONSE_CODE.FAILURE
+                ? response.data.err
+                  ? response.data.err
+                  : "大失败"
+                : "成功",
             code,
             data: response.data,
           };
@@ -60,7 +67,7 @@ export class AxiosServer {
 
   private getStoredToken(): string | null {
     try {
-      const raw = localStorage.getItem("closureV3_user");
+      const raw = localStorage.getItem(STORAGE_KEYS.USER);
       if (!raw) return null;
       return JSON.parse(raw)?.user?.Token ?? null;
     } catch {
@@ -82,12 +89,12 @@ export class AxiosServer {
   }
 
   buildCodeFromRegisterResp(resp: RegistryResponse): number {
-    if (!resp.data.err && !resp.data.code) return 1;
-    return resp.data.err || resp.data.code !== 1
-      ? 0
+    if (!resp.data.err && !resp.data.code) return API_RESPONSE_CODE.SUCCESS;
+    return resp.data.err || resp.data.code !== API_RESPONSE_CODE.SUCCESS
+      ? API_RESPONSE_CODE.FAILURE
       : resp.data.available && resp.data.results !== undefined && resp.data.results !== null
-        ? 1
-        : (resp.data.code ?? 0);
+        ? API_RESPONSE_CODE.SUCCESS
+        : (resp.data.code ?? API_RESPONSE_CODE.FAILURE);
   }
 
   async asyncRequest<T>(param: RequestParam): Promise<RequestResult<T>> {

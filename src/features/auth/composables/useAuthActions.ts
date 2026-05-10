@@ -3,13 +3,15 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import authClient from "@/shared/services/authClient";
 import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/shared/components/toast/enum";
+import { Type } from "@/constants/toast";
+import { AuthModelType } from "@/constants/auth";
+import { API_RESPONSE_CODE } from "@/constants/request";
+import { EMAIL_USERNAME_MAX_LENGTH, EMAIL_USERNAME_MIN_LENGTH } from "@/constants/validation";
 import { buildGameAccount } from "@/shared/utils/account";
 import { checkIsEmail, getEmailUsernameLength } from "@/shared/utils/regex";
 import { useCaptcha } from "@/shared/composables/useCaptcha";
 import { useUserStore } from "@/stores/useUserStore";
 import {
-  AuthModelType,
   type FindAccountParams,
   type ForgetParams,
   type LoginParams,
@@ -76,7 +78,7 @@ export function useAuthActions(options: AuthActionOptions) {
     try {
       isSendCodingIsLoading.value = true;
       const resp = await authClient.sendCodeOnRegister({ email });
-      if (resp.code === 0) {
+      if (resp.code === API_RESPONSE_CODE.FAILURE) {
         setMsg(resp.message || "发送失败", Type.Warning);
       } else {
         setMsg("发送成功", Type.Success);
@@ -102,12 +104,12 @@ export function useAuthActions(options: AuthActionOptions) {
       setMsg("邮箱格式不正确", Type.Warning);
       return;
     }
-    if (getEmailUsernameLength(regParams.value.email) > 20) {
-      setMsg("邮箱用户名长度不能超过20个字符", Type.Warning);
+    if (getEmailUsernameLength(regParams.value.email) > EMAIL_USERNAME_MAX_LENGTH) {
+      setMsg(`邮箱用户名长度不能超过${EMAIL_USERNAME_MAX_LENGTH}个字符`, Type.Warning);
       return;
     }
-    if (getEmailUsernameLength(regParams.value.email) < 6) {
-      setMsg("邮箱用户名长度不能少于6个字符", Type.Warning);
+    if (getEmailUsernameLength(regParams.value.email) < EMAIL_USERNAME_MIN_LENGTH) {
+      setMsg(`邮箱用户名长度不能少于${EMAIL_USERNAME_MIN_LENGTH}个字符`, Type.Warning);
       return;
     }
 
@@ -124,7 +126,7 @@ export function useAuthActions(options: AuthActionOptions) {
       );
 
       const res = await authClient.register(regParams.value);
-      if (res.code === 0 || !res.data) {
+      if (res.code === API_RESPONSE_CODE.FAILURE || !res.data) {
         setMsg(res.message || "注册失败", Type.Warning);
         return;
       }
@@ -151,7 +153,7 @@ export function useAuthActions(options: AuthActionOptions) {
     isLoading.value = true;
     try {
       const res = await authClient.resetPassword(forgetParams.value);
-      if (res.code === 0) {
+      if (res.code === API_RESPONSE_CODE.FAILURE) {
         setMsg(res.message || "重置失败", Type.Warning);
         return;
       }
@@ -176,10 +178,10 @@ export function useAuthActions(options: AuthActionOptions) {
         findAccountParams.value.platform
       );
       const resp = await captcha.findAccount(account);
-      if (resp.code === 0) {
+      if (resp.code === API_RESPONSE_CODE.FAILURE) {
         setMsg(resp.message || "查询失败", Type.Warning);
       }
-      if (resp.code === 1 && resp.data) {
+      if (resp.code === API_RESPONSE_CODE.SUCCESS && resp.data) {
         findAccountRespData.value = resp.data.account;
       }
     } catch {

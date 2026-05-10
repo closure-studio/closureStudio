@@ -10,7 +10,7 @@
           <button
             class="btn btn-outline btn-sm btn-block btn-primary"
             v-if="isSuspendStatus(game.status.account)"
-            @click="$emit('suspend', game.status.account)"
+            @click.stop="$emit('suspend', game.status.account)"
             :disabled="isLoading"
           >
             暂停
@@ -19,7 +19,7 @@
           <button
             class="btn btn-outline btn-sm btn-block btn-primary"
             v-else-if="isUpdateStatus(game.status.account)"
-            @click="$emit('update-passwd', getSlot(game.status.account))"
+            @click.stop="$emit('update-passwd', getSlot(game.status.account))"
             :disabled="isLoading"
           >
             更新密码
@@ -28,7 +28,7 @@
           <button
             class="btn btn-outline btn-sm btn-block btn-info"
             v-else
-            @click="$emit('login', game.status.account)"
+            @click.stop="$emit('login', game.status.account)"
             :disabled="isLoginBtnDisabled(game.status.account)"
           >
             启动

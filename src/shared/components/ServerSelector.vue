@@ -2,7 +2,7 @@
   <div>
     <div class="divider my-4">服务器选择</div>
     <div class="flex flex-col md:flex-row gap-4 w-full mb-3">
-      <div v-for="server in servers" :key="server.value" @click="selectServer(server.value)" :class="[
+      <div v-for="server in GAME_PLATFORM_OPTIONS" :key="server.value" @click="selectServer(server.value)" :class="[
         'flex-1 rounded-lg p-4 cursor-pointer transition-all duration-200',
         'flex items-center justify-between',
         modelValue === server.value
@@ -24,6 +24,8 @@
 </template>
 
 <script lang="ts" setup>
+import { GAME_PLATFORM_OPTIONS } from "@/constants/game";
+
 /**
  * ServerSelector - 服务器选择组件
  *
@@ -43,11 +45,6 @@ defineProps<ServerSelectorProps>();
 const emit = defineEmits<{
   "update:modelValue": [value: number];
 }>();
-
-const servers = [
-  { value: 2, label: "BiliBili服" },
-  { value: 1, label: "官服(安卓 / IOS)" },
-];
 
 const selectServer = (platform: number) => {
   emit("update:modelValue", platform);

@@ -12,7 +12,8 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/shared/components/toast/enum";
+import { Type } from "@/constants/toast";
+import { API_RESPONSE_CODE } from "@/constants/request";
 import { useUserStore } from "@/stores/useUserStore";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
 import authClient from "@/shared/services/authClient";
@@ -35,14 +36,14 @@ const handleSubmitBtnOnClick = async () => {
   }
   try {
     const authResp = await authClient.verify(smsCode.value);
-    if (authResp.code === 1) {
+    if (authResp.code === API_RESPONSE_CODE.SUCCESS) {
       setMsg("认证成功,请重新登录", Type.Success);
       user.logout();
       window.location.reload();
       dialogClose();
       return;
     }
-    if (authResp.code !== 1) {
+    if (authResp.code !== API_RESPONSE_CODE.SUCCESS) {
       setMsg("验证码错误", Type.Warning);
       return;
     }

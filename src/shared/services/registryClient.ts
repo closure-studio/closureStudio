@@ -1,4 +1,4 @@
-import { IHostServer, RegistryServer } from "./host";
+import { REGISTRY_SERVER, type IHostServer } from "@/constants/hosts";
 import { AxiosServer } from "./server";
 import type {
   RegistryAccountFound,
@@ -44,5 +44,5 @@ class RegistryClient extends AxiosServer {
   }
 }
 
-const registryClient = new RegistryClient(RegistryServer);
+const registryClient = new RegistryClient(REGISTRY_SERVER);
 export default registryClient;

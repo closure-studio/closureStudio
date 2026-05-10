@@ -95,7 +95,7 @@
 import { useProfileData } from "@/features/profile/composables/useProfileData";
 import MobileSwipeMenuHeader from "@/shared/components/ui/MobileSwipeMenuHeader.vue";
 import { useSwipeNavigation } from "@/shared/composables/useSwipeNavigation";
-import { ROUTES } from "@/shared/constants/routes";
+import { ROUTES } from "@/constants/routes";
 import { useGamesStore } from "@/stores/useGamesStore";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref, watch } from "vue";

@@ -60,6 +60,7 @@
 }
 </style>
 <script lang="ts" setup>
+import { STORAGE_KEYS } from "@/constants/storage";
 import { getArkResourceUrl } from "@/shared/utils/resource";
 import type { ApiGameSSR } from "@/shared/types/api";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
@@ -74,11 +75,11 @@ const props = withDefaults(defineProps<Props>(), {
   },
 });
 const { dialogClose, users } = props;
-const lastReadTs = Number(localStorage.getItem("lastReadTs")) || 0;
+const lastReadTs = Number(localStorage.getItem(STORAGE_KEYS.LAST_READ_TS)) || 0;
 
 const handleCloseBtnOnClick = () => {
   dialogClose();
   const now = Math.floor(Date.now() / 1000);
-  localStorage.setItem("lastReadTs", now.toString());
+  localStorage.setItem(STORAGE_KEYS.LAST_READ_TS, now.toString());
 };
 </script>

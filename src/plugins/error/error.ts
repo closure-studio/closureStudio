@@ -1,5 +1,5 @@
 import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/shared/components/toast/enum";
+import { Type } from "@/constants/toast";
 export const reportError = (error: unknown) => {
   if (error instanceof Error) {
     // 处理特定类型的错误

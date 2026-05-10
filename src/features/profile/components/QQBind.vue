@@ -48,10 +48,11 @@
 </template>
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted, computed } from "vue";
-import { NOTIFY } from "@/shared/constants/config";
+import { NOTIFY } from "@/constants/notifications";
+import { API_RESPONSE_CODE } from "@/constants/request";
 import { setMsg } from "@/shared/utils/toast";
 import { sleep } from "@/shared/utils/misc";
-import { Type } from "@/shared/components/toast/enum";
+import { Type } from "@/constants/toast";
 import { Icon } from "@iconify/vue";
 import { useGamesStore } from "@/stores/useGamesStore";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
@@ -106,11 +107,11 @@ const getQQBindCode = async () => {
   }
   try {
     const res = await authClient.fetchQQBindCode();
-    if (res.code === 1) {
+    if (res.code === API_RESPONSE_CODE.SUCCESS) {
       qqCode.value = ("verifyCode:" + res.data) as string;
       return;
     }
-    if (res.code === 2) {
+    if (res.code === API_RESPONSE_CODE.ALREADY_BOUND) {
       qqCode.value = NOTIFY.ALREADY_BIND_QQ;
       if (intervalId) {
         clearInterval(intervalId);

@@ -1,10 +1,5 @@
-export enum Permission {
-  SuperAdmin = 1 << 0,
-  CreateGame = 1 << 4,
-  QueryGame = 1 << 5,
-  UpdateGame = 1 << 6,
-  DelGame = 1 << 7,
-}
+import { Permission } from "@/constants/permission";
+
 export function hasPermission(userRights: number, requiredPermission: number): boolean {
   if ((userRights & Permission.SuperAdmin) === Permission.SuperAdmin) {
     return true;

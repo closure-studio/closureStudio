@@ -1,4 +1,4 @@
-import { AuthServer, IHostServer } from "./host";
+import { AUTH_SERVER, type IHostServer } from "@/constants/hosts";
 import { AxiosServer } from "./server";
 import type { ApiUserAuth, ApiUserUser } from "@/shared/types/api";
 
@@ -64,5 +64,5 @@ class AuthClient extends AxiosServer {
   }
 }
 
-const authClient = new AuthClient(AuthServer);
+const authClient = new AuthClient(AUTH_SERVER);
 export default authClient;

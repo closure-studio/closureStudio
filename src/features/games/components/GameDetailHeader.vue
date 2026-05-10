@@ -73,11 +73,8 @@
 </template>
 
 <script setup lang="ts">
-import {
-  getGameResourceIconUrl,
-  GameResourceType,
-  formatLargeNumber,
-} from "@/shared/utils/resource";
+import { GameResourceType } from "@/constants/game";
+import { getGameResourceIconUrl, formatLargeNumber } from "@/shared/utils/resource";
 import type { ApiGameGame, ApiGameDetail } from "@/shared/types/api";
 
 defineProps<{

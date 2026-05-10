@@ -33,7 +33,8 @@ import { useCaptcha } from "@/shared/composables/useCaptcha";
 import { setMsg } from "@/shared/utils/toast";
 import { useGamesStore } from "@/stores/useGamesStore";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
-import { Type } from "@/shared/components/toast/enum";
+import { Type } from "@/constants/toast";
+import { API_RESPONSE_CODE } from "@/constants/request";
 import ServerSelector from "@/shared/components/ServerSelector.vue";
 
 export interface UpdateGamePasswdProps extends DialogComponentProps {
@@ -64,7 +65,7 @@ const handleUpdateGamePasswdOnBtnClick = async () => {
     const data = myForm.value;
     const resp = await captcha.updateGamePasswd(slotUUID, data);
     await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
-    if (resp.code === 1) {
+    if (resp.code === API_RESPONSE_CODE.SUCCESS) {
       setMsg("更新密码成功", Type.Success);
       window.location.reload();
       dialogClose();

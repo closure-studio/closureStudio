@@ -1,4 +1,5 @@
-import { APIHostCloudflare, IHostServer } from "./host";
+import { API_HOST_CLOUDFLARE, type IHostServer } from "@/constants/hosts";
+import { STORAGE_KEYS } from "@/constants/storage";
 import { AxiosServer } from "./server";
 import type {
   ApiGameLogs,
@@ -16,7 +17,7 @@ export class APIClient extends AxiosServer {
   }
 
   saveLocalStorage() {
-    localStorage.setItem("apiHost", JSON.stringify(this.hostServer));
+    localStorage.setItem(STORAGE_KEYS.API_HOST, JSON.stringify(this.hostServer));
   }
   fetchGameLogs(account: string, id: number) {
     return this.get<ApiGameLogs>(`/game/log/${account}/${id}`);
@@ -67,15 +68,15 @@ export class APIClient extends AxiosServer {
 
 let hostServer: IHostServer;
 
-const apiHost = localStorage.getItem("apiHost");
+const apiHost = localStorage.getItem(STORAGE_KEYS.API_HOST);
 if (!apiHost) {
-  hostServer = APIHostCloudflare;
-  localStorage.setItem("apiHost", JSON.stringify(hostServer));
+  hostServer = API_HOST_CLOUDFLARE;
+  localStorage.setItem(STORAGE_KEYS.API_HOST, JSON.stringify(hostServer));
 } else {
   const tempHost = JSON.parse(apiHost);
   if (!tempHost.baseURL) {
-    hostServer = APIHostCloudflare;
-    localStorage.setItem("apiHost", JSON.stringify(hostServer));
+    hostServer = API_HOST_CLOUDFLARE;
+    localStorage.setItem(STORAGE_KEYS.API_HOST, JSON.stringify(hostServer));
   } else {
     hostServer = tempHost;
   }

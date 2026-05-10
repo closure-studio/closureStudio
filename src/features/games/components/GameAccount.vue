@@ -42,6 +42,7 @@
 </template>
 <script lang="ts" setup>
 import { assets } from "@/shared/services/assets";
+import { GAME_PLATFORM_CODE, GAME_PLATFORM_LABEL } from "@/constants/game";
 import { maskPhoneNumber } from "@/shared/utils/format";
 import { getArkResourceUrl } from "@/shared/utils/resource";
 import { ref, onMounted, onUnmounted, computed } from "vue";
@@ -79,7 +80,9 @@ const getGameLevel = () => {
 
 const getGamePlatformStr = () => {
   if (!game.value) return "未知";
-  return game.value.status?.platform === 1 ? "官服" : "B服";
+  return game.value.status?.platform === GAME_PLATFORM_CODE.OFFICIAL
+    ? GAME_PLATFORM_LABEL[GAME_PLATFORM_CODE.OFFICIAL]
+    : GAME_PLATFORM_LABEL[GAME_PLATFORM_CODE.BILIBILI];
 };
 
 const getGameNickName = () => {

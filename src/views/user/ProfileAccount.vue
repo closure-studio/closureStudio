@@ -54,7 +54,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import DeleteAccount from "@/features/profile/components/DeleteAccount.vue";
-import { Type } from "@/shared/components/toast/enum";
+import { Type } from "@/constants/toast";
+import { API_RESPONSE_CODE } from "@/constants/request";
 import { setMsg } from "@/shared/utils/toast";
 import { useLoading } from "@/shared/composables/useLoading";
 import showDialog from "@/shared/components/dialog/dialog";
@@ -96,7 +97,7 @@ const handleUpdatePasswordBtnOnClick = async () => {
       currentPasswd: currentPassword.value,
       newPasswd: newPassword.value,
     });
-    if (updatePasswordResp.code === 1) {
+    if (updatePasswordResp.code === API_RESPONSE_CODE.SUCCESS) {
       setMsg("密码修改成功，请重新登录", Type.Success);
       user.logout();
       window.location.reload();
