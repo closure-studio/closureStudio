@@ -56,13 +56,14 @@
       </div>
       <div class="flex-1 mb-4" />
       <div class="grid gap-4 grid-cols-2 mt-2">
-        <label
+        <button
           @click="handleCloseBtnOnClick"
           class="btn btn-block btn-outline btn-error disabled:text-base-content/90"
+          :disabled="isLoading"
         >
           <span v-if="isLoading" class="loading loading-bars" />
           关闭
-        </label>
+        </button>
         <button
           class="btn btn-block btn-info disabled:text-base-content/90"
           :disabled="isLoading"

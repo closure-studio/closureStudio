@@ -38,7 +38,6 @@
         :get-slot="getSlot"
         :is-suspend-status="isSuspendStatus"
         :is-update-status="isUpdateStatus"
-        :is-login-btn-disabled="isLoginBtnDisabled"
         @open-game-conf="openGameConf"
         @suspend="handleGameSuspendBtnOnClick"
         @update-passwd="handleUpdatePasswdBtnOnClick"
@@ -95,7 +94,6 @@ const {
   createGameButtonOnClick,
   isUpdateStatus,
   isSuspendStatus,
-  isLoginBtnDisabled,
   handleDeleteBtnOnClick,
   handleRepairBtnOnClick,
   handleUpdatePasswdBtnOnClick,

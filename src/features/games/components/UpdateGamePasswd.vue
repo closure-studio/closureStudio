@@ -14,13 +14,21 @@
     </div>
     <ServerSelector v-model="form.platform" />
     <div class="flex justify-center space-x-4 mb-3">
-      <button @click="dialogClose()" class="btn btn-error btn-outline w-32">
+      <button
+        @click="dialogClose()"
+        class="btn btn-error btn-outline w-32"
+        :disabled="isLoading"
+      >
         <span v-if="isLoading" class="loading loading-bars" />
-        <span v-else>关闭</span>
+        关闭
       </button>
-      <button class="btn btn-info w-32" @click="handleUpdateGamePasswdOnBtnClick">
+      <button
+        class="btn btn-info w-32"
+        :disabled="isLoading"
+        @click="handleUpdateGamePasswdOnBtnClick"
+      >
         <span v-if="isLoading" class="loading loading-bars" />
-        <span v-else>更新游戏密码</span>
+        更新游戏密码
       </button>
     </div>
   </div>
