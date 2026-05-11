@@ -35,8 +35,8 @@ import { useUserStore } from "@/stores/useUserStore";
 import authClient from "@/shared/services/authClient";
 import oauthClient from "@/shared/services/oauthClient";
 import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/constants/toast";
-import { ROUTES } from "@/constants/routes";
+import { Type } from "@/constants/ui";
+import { ROUTES } from "@/constants/app";
 
 const router = useRouter();
 const route = useRoute();

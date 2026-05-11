@@ -25,8 +25,8 @@
 </template>
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { Type } from "@/constants/toast";
-import { API_RESPONSE_CODE } from "@/constants/request";
+import { Type } from "@/constants/ui";
+import { API_RESPONSE_CODE } from "@/constants/api";
 import { setMsg } from "@/shared/utils/toast";
 import { useLoading } from "@/shared/composables/useLoading";
 import { useUserStore } from "@/stores/useUserStore";

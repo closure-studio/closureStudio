@@ -12,8 +12,8 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/constants/toast";
-import { API_RESPONSE_CODE } from "@/constants/request";
+import { Type } from "@/constants/ui";
+import { API_RESPONSE_CODE } from "@/constants/api";
 import { useUserStore } from "@/stores/useUserStore";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
 import authClient from "@/shared/services/authClient";

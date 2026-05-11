@@ -38,7 +38,6 @@
         :get-slot="getSlot"
         :is-suspend-status="isSuspendStatus"
         :is-update-status="isUpdateStatus"
-        :is-login-btn-disabled="isLoginBtnDisabled"
         @open-game-conf="openGameConf"
         @suspend="handleGameSuspendBtnOnClick"
         @update-passwd="handleUpdatePasswdBtnOnClick"
@@ -68,7 +67,7 @@ import showDialog from "@/shared/components/dialog/dialog";
 import APIStatusBoard from "@/features/system/components/APIStatus/APIStatusBoard.vue";
 import authClient from "@/shared/services/authClient";
 import apiClient from "@/shared/services/apiClient";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/app";
 
 const router = useRouter();
 const user = useUserStore();
@@ -95,7 +94,6 @@ const {
   createGameButtonOnClick,
   isUpdateStatus,
   isSuspendStatus,
-  isLoginBtnDisabled,
   handleDeleteBtnOnClick,
   handleRepairBtnOnClick,
   handleUpdatePasswdBtnOnClick,

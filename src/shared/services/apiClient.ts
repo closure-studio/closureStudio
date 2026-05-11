@@ -1,5 +1,5 @@
-import { API_HOST_CLOUDFLARE, type IHostServer } from "@/constants/hosts";
-import { STORAGE_KEYS } from "@/constants/storage";
+import { API_HOST_CLOUDFLARE, type IHostServer } from "@/constants/api";
+import { STORAGE_KEYS } from "@/constants/app";
 import { AxiosServer } from "./server";
 import type {
   ApiGameLogs,

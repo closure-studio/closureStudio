@@ -6,7 +6,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import ToastItem from "./Item.vue";
-import { Layout, Position } from "@/constants/toast";
+import { Layout, Position } from "@/constants/ui";
 import { Store } from "./store";
 
 const { toasts } = Store()

@@ -1,6 +1,6 @@
 import type { RequestResult } from "@/shared/types/service";
 import type { ApiGameCaptchaInfo } from "@/shared/types/api";
-import { Type } from "@/constants/toast";
+import { Type } from "@/constants/ui";
 import { setMsg } from "@/shared/utils/toast";
 import { handleGT3Captcha } from "./geetestV3";
 import { handleGT4Captcha } from "./geetestV4";

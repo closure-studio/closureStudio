@@ -53,3 +53,28 @@ export enum GameResourceType {
   DIAMOND = "DIAMOND",
   AP_GAMEPLAY = "AP_GAMEPLAY",
 }
+
+export const GAME_STATUS_CODE = {
+  LOGIN_FAILED: -1,
+  NOT_STARTED: 0,
+  LOGGING_IN: 1,
+  RUNNING: 2,
+  GAME_ERROR: 3,
+} as const;
+
+export const GAME_LOG_QUERYABLE_STATUS_CODES: readonly number[] = [
+  GAME_STATUS_CODE.LOGGING_IN,
+  GAME_STATUS_CODE.RUNNING,
+  GAME_STATUS_CODE.GAME_ERROR,
+];
+
+export const REPLAY_PAGE_LIMIT = 20;
+
+export const FALLBACK_HOT_STAGE_IDS: readonly string[] = Object.freeze([
+  "main_01-07",
+  "wk_kc_5",
+  "wk_armor_5",
+  "wk_fly_5",
+  "wk_melee_5",
+  "wk_toxic_5",
+]);

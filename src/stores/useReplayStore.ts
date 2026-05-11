@@ -1,7 +1,7 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
-import { REPLAY_PAGE_LIMIT } from "@/constants/replay";
-import { API_RESPONSE_CODE } from "@/constants/request";
+import { REPLAY_PAGE_LIMIT } from "@/constants/game";
+import { API_RESPONSE_CODE } from "@/constants/api";
 import { replayApi } from "@/shared/services/replayClient";
 import type {
   ReplayAutoResult,
@@ -9,7 +9,7 @@ import type {
   UpdateReplayPayload,
 } from "@/shared/types/replay";
 import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/constants/toast";
+import { Type } from "@/constants/ui";
 
 function mergeReplayPage(current: ReplayRecord[], incoming: ReplayRecord[]) {
   const map = new Map(current.map((item) => [item.uuid, item]));

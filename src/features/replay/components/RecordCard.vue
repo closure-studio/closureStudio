@@ -165,7 +165,7 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
 import { reactive, ref, watch } from "vue";
-import { ARK_RESOURCE_DOMAIN } from "@/constants/hosts";
+import { ARK_RESOURCE_DOMAIN } from "@/constants/api";
 import { formatTime } from "@/shared/utils/format";
 import type {
   ReplayAuditStatus,

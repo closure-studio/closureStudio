@@ -1,5 +1,5 @@
 import { ref, readonly } from "vue";
-import { FALLBACK_HOT_STAGE_IDS } from "@/constants/replay";
+import { FALLBACK_HOT_STAGE_IDS } from "@/constants/game";
 
 /**
  * 提供「热门作战地图」的关卡 ID 列表。

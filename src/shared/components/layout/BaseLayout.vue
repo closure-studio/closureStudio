@@ -34,13 +34,13 @@
   </main>
 </template>
 <script setup lang="ts">
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/app";
 import { setMsg } from "@/shared/utils/toast";
 import { useGamesStore } from "@/stores/useGamesStore";
 import { useUserStore } from "@/stores/useUserStore";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { Type } from "@/constants/toast";
+import { Type } from "@/constants/ui";
 import Header from "./Header.vue";
 
 const user = useUserStore();

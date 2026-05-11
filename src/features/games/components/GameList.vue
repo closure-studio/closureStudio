@@ -29,7 +29,7 @@
             class="btn btn-outline btn-sm btn-block btn-info"
             v-else
             @click.stop="$emit('login', game.status.account)"
-            :disabled="isLoginBtnDisabled(game.status.account)"
+            :disabled="isLoading || game.status.code === GAME_STATUS_CODE.LOGGING_IN"
           >
             启动
           </button>
@@ -52,7 +52,8 @@
         v-if="!slot.gameAccount"
         :slot="slot"
         :userQuota="userQuota"
-        @click="$emit('create', slot, slot.uuid)"
+        :class="{ 'pointer-events-none opacity-60': isLoading }"
+        @click="isLoading ? undefined : $emit('create', slot, slot.uuid)"
       />
       <GameAccount v-else-if="!findGame(slot.gameAccount)" :gameAccount="slot.gameAccount">
         <div class="divider mt-2 mb-3 text-info font-arknights text-xl">START</div>
@@ -72,6 +73,7 @@
 
 <script setup lang="ts">
 import type { ApiGameGame, RegistrySlot, RegistryUserInfo } from "@/shared/types/api";
+import { GAME_STATUS_CODE } from "@/constants/game";
 import GameAccount from "@/features/games/components/GameAccount.vue";
 import GameAddCard from "@/features/games/components/GameAddCard.vue";
 
@@ -83,7 +85,6 @@ defineProps<{
   getSlot: (account: string) => RegistrySlot | undefined;
   isSuspendStatus: (gameAccount: string) => boolean;
   isUpdateStatus: (gameAccount: string) => boolean;
-  isLoginBtnDisabled: (gameAccount: string) => boolean;
 }>();
 
 defineEmits<{

@@ -7,7 +7,7 @@
 </template>
 <script lang="ts" setup>
 import { onMounted, ref } from "vue";
-import { YOU_MAY_KNOW_MESSAGES } from "@/constants/tips";
+import { YOU_MAY_KNOW_MESSAGES } from "@/constants/ui";
 import { selectRandomElement } from "@/shared/utils/misc";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
 // export interface YouMayKnowProps extends DialogComponentProps {

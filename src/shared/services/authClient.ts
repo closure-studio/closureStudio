@@ -1,4 +1,4 @@
-import { AUTH_SERVER, type IHostServer } from "@/constants/hosts";
+import { AUTH_SERVER, type IHostServer } from "@/constants/api";
 import { AxiosServer } from "./server";
 import type { ApiUserAuth, ApiUserUser } from "@/shared/types/api";
 

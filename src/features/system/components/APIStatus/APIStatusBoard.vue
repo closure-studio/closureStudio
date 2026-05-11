@@ -11,7 +11,7 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { API_HEALTH_RECORDS } from "@/constants/system";
+import { API_HEALTH_RECORDS } from "@/constants/api";
 import APIStatusBtn from "./APIStatusBtn.vue";
 const containerWidth = ref(0);
 const elementWidth = 90; // 每个元素的宽度

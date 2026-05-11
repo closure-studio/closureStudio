@@ -1,9 +1,9 @@
 import { computed, ref } from "vue";
 import axios from "axios";
-import { ARK_RESOURCE_DOMAIN } from "@/constants/hosts";
+import { ARK_RESOURCE_DOMAIN } from "@/constants/api";
 import type { Items, Stages, Characters } from "@/shared/types/gamedata";
 import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/constants/toast";
+import { Type } from "@/constants/ui";
 
 const itemData = ref<Items>({});
 const stageData = ref<Stages>({});

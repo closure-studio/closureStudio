@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/app";
 import type { ApiGameGame } from "@/shared/types/api";
 
 const {

@@ -56,13 +56,14 @@
       </div>
       <div class="flex-1 mb-4" />
       <div class="grid gap-4 grid-cols-2 mt-2">
-        <label
+        <button
           @click="handleCloseBtnOnClick"
           class="btn btn-block btn-outline btn-error disabled:text-base-content/90"
+          :disabled="isLoading"
         >
           <span v-if="isLoading" class="loading loading-bars" />
           关闭
-        </label>
+        </button>
         <button
           class="btn btn-block btn-info disabled:text-base-content/90"
           :disabled="isLoading"
@@ -85,9 +86,9 @@ import { setMsg } from "@/shared/utils/toast";
 import { useGamesStore } from "@/stores/useGamesStore";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
 import { checkIsMobile } from "@/shared/utils/regex";
-import { Type } from "@/constants/toast";
+import { Type } from "@/constants/ui";
 import { GAME_PLATFORM_CODE } from "@/constants/game";
-import { API_RESPONSE_CODE } from "@/constants/request";
+import { API_RESPONSE_CODE } from "@/constants/api";
 import ServerSelector from "@/shared/components/ServerSelector.vue";
 
 interface Props extends DialogComponentProps {
