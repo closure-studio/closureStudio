@@ -1,4 +1,4 @@
-import { EMAIL_PATTERN, MOBILE_PHONE_PATTERN } from "@/constants/validation";
+import { EMAIL_PATTERN, MOBILE_PHONE_PATTERN } from "@/constants/auth";
 
 export function checkIsMobile(content: string): boolean {
   return MOBILE_PHONE_PATTERN.test(content);

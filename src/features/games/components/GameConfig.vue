@@ -102,7 +102,7 @@ import { setMsg } from "@/shared/utils/toast";
 import { useLoading } from "@/shared/composables/useLoading";
 import { useGamesStore } from "@/stores/useGamesStore";
 import BaseDesign from "@/features/games/components/BaseDesign.vue";
-import { Type } from "@/constants/toast";
+import { Type } from "@/constants/ui";
 
 interface Props {
   account: string;

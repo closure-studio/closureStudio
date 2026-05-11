@@ -1,6 +1,6 @@
 import { computed, reactive } from "vue";
 import { Toast } from "./interface";
-import { Appearance, Position, TOAST_DURATION, Type } from "@/constants/toast";
+import { Appearance, Position, TOAST_DURATION, Type } from "@/constants/ui";
 
 const state = reactive({
     toasts: {} as Record<string, Toast>,

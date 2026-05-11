@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { PROFILE_MENU_KEYS, type ProfileMenuKey } from "@/constants/profile";
+import { PROFILE_MENU_KEYS, type ProfileMenuKey } from "@/constants/app";
 
 const activeProfileMenuKey = ref<ProfileMenuKey>(PROFILE_MENU_KEYS.OVERVIEW);
 

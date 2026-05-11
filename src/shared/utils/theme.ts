@@ -1,4 +1,4 @@
-import { STORAGE_KEYS } from "@/constants/storage";
+import { STORAGE_KEYS } from "@/constants/app";
 import { DEFAULT_THEME, THEME_ATTRIBUTE } from "@/constants/ui";
 
 export function loadTheme() {

@@ -16,4 +16,20 @@ export const ROUTES = {
   ADMIN: { name: "系统管理", path: "/admin" },
 } as const;
 
-export type RouteName = (typeof ROUTES)[keyof typeof ROUTES]["name"];
+export const STORAGE_KEYS = {
+  API_HOST: "apiHost",
+  LAST_READ_TS: "lastReadTs",
+  OAUTH_STATE: "oauth_state",
+  THEME: "theme",
+  USER: "closureV3_user",
+  SW_LOADER_STATE: "test",
+} as const;
+
+export const PROFILE_MENU_KEYS = {
+  OVERVIEW: "overview",
+  NETWORK: "network",
+  ACCOUNT: "account",
+  ACKNOWLEDGEMENTS: "acknowledgements",
+} as const;
+
+export type ProfileMenuKey = (typeof PROFILE_MENU_KEYS)[keyof typeof PROFILE_MENU_KEYS];

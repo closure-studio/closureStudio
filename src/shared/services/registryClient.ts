@@ -1,4 +1,4 @@
-import { REGISTRY_SERVER, type IHostServer } from "@/constants/hosts";
+import { REGISTRY_SERVER, type IHostServer } from "@/constants/api";
 import { AxiosServer } from "./server";
 import type {
   RegistryAccountFound,

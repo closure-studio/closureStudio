@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES } from "@/constants/app";
 import { useUserStore } from "@/stores/useUserStore";
 import { useGamesStore } from "@/stores/useGamesStore";
 declare module "vue-router" {

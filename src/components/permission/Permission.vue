@@ -32,10 +32,10 @@ import {
   addPermission,
   removePermission,
 } from "@/shared/utils/permission";
-import { Permission } from "@/constants/permission";
-import { API_RESPONSE_CODE } from "@/constants/request";
+import { Permission } from "@/constants/auth";
+import { API_RESPONSE_CODE } from "@/constants/api";
 import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/constants/toast";
+import { Type } from "@/constants/ui";
 import authClient from "@/shared/services/authClient";
 
 const props = withDefaults(defineProps<Props>(), {

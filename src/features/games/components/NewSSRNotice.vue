@@ -60,7 +60,7 @@
 }
 </style>
 <script lang="ts" setup>
-import { STORAGE_KEYS } from "@/constants/storage";
+import { STORAGE_KEYS } from "@/constants/app";
 import { getArkResourceUrl } from "@/shared/utils/resource";
 import type { ApiGameSSR } from "@/shared/types/api";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";

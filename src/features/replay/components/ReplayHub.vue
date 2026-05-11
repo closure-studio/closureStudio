@@ -113,7 +113,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import RecordCard from "./RecordCard.vue";
 import { assets } from "@/shared/services/assets";
 import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/constants/toast";
+import { Type } from "@/constants/ui";
 import { useGamesStore } from "@/stores/useGamesStore";
 import { useReplayStore } from "@/stores/useReplayStore";
 

@@ -48,11 +48,11 @@
 </template>
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted, computed } from "vue";
-import { NOTIFY } from "@/constants/notifications";
-import { API_RESPONSE_CODE } from "@/constants/request";
+import { NOTIFY } from "@/constants/ui";
+import { API_RESPONSE_CODE } from "@/constants/api";
 import { setMsg } from "@/shared/utils/toast";
 import { sleep } from "@/shared/utils/misc";
-import { Type } from "@/constants/toast";
+import { Type } from "@/constants/ui";
 import { Icon } from "@iconify/vue";
 import { useGamesStore } from "@/stores/useGamesStore";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";

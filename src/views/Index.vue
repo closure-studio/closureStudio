@@ -112,7 +112,7 @@ import type { ApiSystemHall } from "@/shared/types/api";
 import Login from "@/features/auth/components/LoginDialog.vue";
 import { useUserStore } from "@/stores/useUserStore";
 import { isNight } from "@/shared/utils/misc";
-import { API_RESPONSE_CODE } from "@/constants/request";
+import { API_RESPONSE_CODE } from "@/constants/api";
 import { getArkResourceUrl } from "@/shared/utils/resource";
 import APIStatusBoard from "@/features/system/components/APIStatus/APIStatusBoard.vue";
 import apiClient from "@/shared/services/apiClient";

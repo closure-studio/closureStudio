@@ -1,5 +1,5 @@
 import axios from "axios";
-import { VERSION_API_URL } from "@/constants/hosts";
+import { VERSION_API_URL } from "@/constants/api";
 
 export async function checkVersion(): Promise<number> {
   try {

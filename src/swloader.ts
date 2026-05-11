@@ -1,4 +1,4 @@
-import { STORAGE_KEYS } from "@/constants/storage";
+import { STORAGE_KEYS } from "@/constants/app";
 
 interface PeriodicSyncManager {
   register(tag: string, options?: { minInterval: number }): Promise<void>;

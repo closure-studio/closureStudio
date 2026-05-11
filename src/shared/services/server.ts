@@ -1,8 +1,8 @@
 import type { AxiosInstance } from "axios";
 import axios from "axios";
-import { REGISTRY_SERVER, type IHostServer } from "@/constants/hosts";
-import { API_RESPONSE_CODE } from "@/constants/request";
-import { STORAGE_KEYS } from "@/constants/storage";
+import { REGISTRY_SERVER, type IHostServer } from "@/constants/api";
+import { API_RESPONSE_CODE } from "@/constants/api";
+import { STORAGE_KEYS } from "@/constants/app";
 import type { RequestResult } from "@/shared/types/service";
 
 const version = import.meta.env.VITE_APP_VERSION;

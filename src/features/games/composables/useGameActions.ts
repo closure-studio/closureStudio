@@ -1,11 +1,11 @@
 import type { Ref } from "vue";
 import type { RegistryAddGameForm, RegistrySlot } from "@/shared/types/api";
-import { Type } from "@/constants/toast";
-import { GAME_STATUS_CODE } from "@/constants/gameStatus";
-import { API_RESPONSE_CODE } from "@/constants/request";
+import { Type } from "@/constants/ui";
+import { GAME_STATUS_CODE } from "@/constants/game";
+import { API_RESPONSE_CODE } from "@/constants/api";
 import { getRealGameAccount, processGameAccount } from "@/shared/utils/account";
 import { setMsg } from "@/shared/utils/toast";
-import { NOTIFY } from "@/constants/notifications";
+import { NOTIFY } from "@/constants/ui";
 import { allowGameCreate, canDeleteGame } from "@/features/games/composables/useGameQuota";
 import type { useGamesStore } from "@/stores/useGamesStore";
 import showDialog from "@/shared/components/dialog/dialog";

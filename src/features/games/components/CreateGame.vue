@@ -85,9 +85,9 @@ import { setMsg } from "@/shared/utils/toast";
 import { useGamesStore } from "@/stores/useGamesStore";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
 import { checkIsMobile } from "@/shared/utils/regex";
-import { Type } from "@/constants/toast";
+import { Type } from "@/constants/ui";
 import { GAME_PLATFORM_CODE } from "@/constants/game";
-import { API_RESPONSE_CODE } from "@/constants/request";
+import { API_RESPONSE_CODE } from "@/constants/api";
 import ServerSelector from "@/shared/components/ServerSelector.vue";
 
 interface Props extends DialogComponentProps {

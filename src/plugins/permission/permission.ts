@@ -1,4 +1,4 @@
-import { Permission } from "@/constants/permission";
+import { Permission } from "@/constants/auth";
 
 export function hasPermission(userRights: number, requiredPermission: number): boolean {
   if ((userRights & Permission.SuperAdmin) === Permission.SuperAdmin) {

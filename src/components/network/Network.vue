@@ -91,10 +91,10 @@
 
 <script setup lang="ts">
 import apiClient, { APIClient } from "@/shared/services/apiClient";
-import { API_HOST_CLOUDFLARE, API_HOST_LTSC, type IHostServer } from "@/constants/hosts";
+import { API_HOST_CLOUDFLARE, API_HOST_LTSC, type IHostServer } from "@/constants/api";
 import { computed, ref } from "vue";
 
-import { Type } from "@/constants/toast";
+import { Type } from "@/constants/ui";
 import { setMsg } from "@/shared/utils/toast";
 
 const isLoading = ref(false);

@@ -1,8 +1,8 @@
 import {
   LINUXDO_OAUTH_CONFIG,
   OAUTH_STATE_EXPIRES_IN_MS,
-} from "@/constants/oauth";
-import { STORAGE_KEYS } from "@/constants/storage";
+} from "@/constants/auth";
+import { STORAGE_KEYS } from "@/constants/app";
 import type { OAuthState } from "@/shared/types/oauth";
 
 class OAuthClient {
@@ -74,7 +74,7 @@ class OAuthClient {
 
     // 构造授权 URL
     const params = new URLSearchParams({
-      client_id: LINUXDO_OAUTH_CONFIG.clientId,
+      client_id: import.meta.env.VITE_OAUTH_LINUXDO_CLIENT_ID,
       redirect_uri: redirectUri,
       response_type: LINUXDO_OAUTH_CONFIG.responseType,
       scope: LINUXDO_OAUTH_CONFIG.scopes.join(" "),

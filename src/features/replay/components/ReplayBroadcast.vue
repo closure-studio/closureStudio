@@ -142,7 +142,7 @@ import HotStagesPanel from "@/features/replay/components/HotStagesPanel.vue";
 import { assets } from "@/shared/services/assets";
 import apiClient from "@/shared/services/apiClient";
 import { setMsg } from "@/shared/utils/toast";
-import { Type } from "@/constants/toast";
+import { Type } from "@/constants/ui";
 import { useGamesStore } from "@/stores/useGamesStore";
 import type { ApiGameConfig } from "@/shared/types/api";
 import type { BattleReplayAction } from "@/shared/types/replay";

@@ -1,6 +1,6 @@
 import {
     Appearance, Position, Type
-} from "@/constants/toast";
+} from "@/constants/ui";
 
 interface ToastDismiss {
     automatically: boolean;

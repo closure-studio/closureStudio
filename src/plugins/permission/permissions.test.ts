@@ -1,4 +1,4 @@
-import { Permission } from "@/constants/permission";
+import { Permission } from "@/constants/auth";
 import { addPermission, hasPermission, isAdmin, listPermissions, removePermission } from "./permission";
 
 describe("Permissions System", () => {

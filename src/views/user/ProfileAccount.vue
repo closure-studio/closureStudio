@@ -54,8 +54,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import DeleteAccount from "@/features/profile/components/DeleteAccount.vue";
-import { Type } from "@/constants/toast";
-import { API_RESPONSE_CODE } from "@/constants/request";
+import { Type } from "@/constants/ui";
+import { API_RESPONSE_CODE } from "@/constants/api";
 import { setMsg } from "@/shared/utils/toast";
 import { useLoading } from "@/shared/composables/useLoading";
 import showDialog from "@/shared/components/dialog/dialog";

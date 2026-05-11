@@ -1,5 +1,5 @@
 import { GameResourceType } from "@/constants/game";
-import { ARK_RESOURCE_DOMAIN } from "@/constants/hosts";
+import { ARK_RESOURCE_DOMAIN } from "@/constants/api";
 
 /**
  * 获取明日方舟资源的完整URL

@@ -33,8 +33,8 @@ import { useCaptcha } from "@/shared/composables/useCaptcha";
 import { setMsg } from "@/shared/utils/toast";
 import { useGamesStore } from "@/stores/useGamesStore";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
-import { Type } from "@/constants/toast";
-import { API_RESPONSE_CODE } from "@/constants/request";
+import { Type } from "@/constants/ui";
+import { API_RESPONSE_CODE } from "@/constants/api";
 import ServerSelector from "@/shared/components/ServerSelector.vue";
 
 export interface UpdateGamePasswdProps extends DialogComponentProps {
