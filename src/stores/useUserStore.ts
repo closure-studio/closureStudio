@@ -1,12 +1,12 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import type { ApiUserInfo } from "@/shared/types/api";
-import apiClient from "@/shared/services/apiClient";
-import authClient from "@/shared/services/authClient";
-import registryClient from "@/shared/services/registryClient";
+import apiClient from "@/services/apiClient";
+import authClient from "@/services/authClient";
+import registryClient from "@/services/registryClient";
 import { Permission } from "@/constants/auth";
-import { hasPermission } from "@/shared/utils/permission";
-import { decodeJwtPayload } from "@/shared/utils/jwt";
+import { hasPermission } from "@/utils/permission";
+import { decodeJwtPayload } from "@/utils/jwt";
 
 interface UserState {
   isLogin: boolean;

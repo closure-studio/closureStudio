@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import { DEFAULT_THEME } from "@/constants/ui";
-import { loadTheme, setTheme, getTheme } from "@/shared/utils/theme";
+import { loadTheme, setTheme, getTheme } from "@/utils/theme";
 
 /**
  * 主题管理 composable

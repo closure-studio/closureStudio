@@ -1,4 +1,4 @@
-jest.mock("@/shared/services/replayClient", () => ({
+jest.mock("@/services/replayClient", () => ({
   __esModule: true,
   replayApi: {
     listReplays: jest.fn(),
@@ -8,14 +8,14 @@ jest.mock("@/shared/services/replayClient", () => ({
   },
 }));
 
-jest.mock("@/shared/utils/toast", () => ({
+jest.mock("@/utils/toast", () => ({
   __esModule: true,
   setMsg: jest.fn(),
 }));
 
 import { createPinia, setActivePinia } from "pinia";
-import { replayApi } from "@/shared/services/replayClient";
-import { setMsg } from "@/shared/utils/toast";
+import { replayApi } from "@/services/replayClient";
+import { setMsg } from "@/utils/toast";
 import { useReplayStore } from "./useReplayStore";
 import type { ReplayAutoResult, ReplayRecord } from "@/shared/types/replay";
 

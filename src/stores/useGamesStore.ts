@@ -10,17 +10,17 @@ import type {
   ApiSystemConfig,
   RegistryUserInfo,
 } from "@/shared/types/api";
-import apiClient from "@/shared/services/apiClient";
-import registryClient from "@/shared/services/registryClient";
-import { arknightsGameCaptcha } from "@/shared/services/captcha";
-import { setMsg } from "@/shared/utils/toast";
+import apiClient from "@/services/apiClient";
+import registryClient from "@/services/registryClient";
+import { arknightsGameCaptcha } from "@/services/captcha";
+import { setMsg } from "@/utils/toast";
 import { API_RESPONSE_CODE } from "@/constants/api";
 import { Type } from "@/constants/ui";
 import { STORAGE_KEYS } from "@/constants/app";
 import showDialog from "@/shared/components/dialog/dialog";
-import NewSSRNotice from "@/features/games/components/NewSSRNotice.vue";
+import NewSSRNotice from "@/components/dashboard/dialogs/NewSSRNotice.vue";
 import { useUserStore } from "@/stores/useUserStore";
-import { quotaSlotsSort } from "@/features/games/composables/useGameQuota";
+import { quotaSlotsSort } from "@/services/gameQuota";
 
 const intervalTime = 5000;
 
