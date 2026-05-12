@@ -1,8 +1,6 @@
 <template>
   <Docker />
-  <div id="captcha" :class="{ 'h-0': true }">
-    <Geetest />
-  </div>
+  <CaptchaMount />
   <router-view v-slot="{ Component }">
     <keep-alive>
       <component :is="Component" />
@@ -12,11 +10,11 @@
 </template>
 <script setup lang="ts">
 import { onMounted } from "vue";
-import Geetest from "./components/Geetest.vue";
+import CaptchaMount from "@/shared/components/captcha/CaptchaMount.vue";
 import BrowserInfo from "@/shared/components/toast/BrowserInfo.vue";
 import Docker from "@/shared/components/toast/Docker.vue";
-import { loadAssets } from "./plugins/assets/assets";
-import { isLarge } from "@/shared/utils/toast";
+import { loadAssets } from "@/services/assets";
+import { isLarge } from "@/utils/toast";
 import { useTheme } from "@/shared/composables/useTheme";
 const { initTheme } = useTheme();
 initTheme();

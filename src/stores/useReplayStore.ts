@@ -2,13 +2,13 @@ import { ref } from "vue";
 import { defineStore } from "pinia";
 import { REPLAY_PAGE_LIMIT } from "@/constants/game";
 import { API_RESPONSE_CODE } from "@/constants/api";
-import { replayApi } from "@/shared/services/replayClient";
+import { replayApi } from "@/services/replayClient";
 import type {
   ReplayAutoResult,
   ReplayRecord,
   UpdateReplayPayload,
 } from "@/shared/types/replay";
-import { setMsg } from "@/shared/utils/toast";
+import { setMsg } from "@/utils/toast";
 import { Type } from "@/constants/ui";
 
 function mergeReplayPage(current: ReplayRecord[], incoming: ReplayRecord[]) {

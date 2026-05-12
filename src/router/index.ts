@@ -31,32 +31,32 @@ export const router = createRouter({
     {
       path: ROUTES.OAUTH_CALLBACK_LINUXDO.path,
       name: ROUTES.OAUTH_CALLBACK_LINUXDO.name,
-      component: () => import("../views/auth/OAuthCallback.vue"),
+      component: () => import("../views/auth/callback/LinuxDoOAuthCallbackView.vue"),
       meta: { noAuth: true },
     },
     {
       path: "/",
-      component: () => import("../shared/components/layout/BaseLayout.vue"),
+      component: () => import("../components/layout/BaseLayout.vue"),
       children: [
         {
           path: ROUTES.HOME.path,
           name: ROUTES.HOME.name,
-          component: () => import("../views/Index.vue"),
+          component: () => import("../views/home/HomeView.vue"),
         },
         {
           path: ROUTES.TERMS_POLICIES.path,
           name: ROUTES.TERMS_POLICIES.name,
-          component: () => import("../views/blog/TermsPolicies.vue"),
+          component: () => import("../views/blog/terms-policies/TermsPoliciesView.vue"),
         },
         {
           path: ROUTES.FAQ.path,
           name: ROUTES.FAQ.name,
-          component: () => import("../views/blog/FAQ.vue"),
+          component: () => import("../views/blog/faq/FaqView.vue"),
         },
         {
           path: ROUTES.PROFILE.path,
           name: ROUTES.PROFILE.name,
-          component: () => import("../views/user/Profile.vue"),
+          component: () => import("../views/profile/ProfileLayout.vue"),
           beforeEnter: (to, from, next) => {
             if (checkAuth()) {
               next(); // 用户已认证
@@ -68,29 +68,29 @@ export const router = createRouter({
             {
               path: ROUTES.PROFILE_NETWORK.path,
               name: ROUTES.PROFILE_NETWORK.name,
-              component: () => import("../views/user/ProfileNetwork.vue"),
+              component: () => import("../views/profile/network/NetworkView.vue"),
             },
             {
               path: ROUTES.PROFILE_ACCOUNT.path,
               name: ROUTES.PROFILE_ACCOUNT.name,
-              component: () => import("../views/user/ProfileAccount.vue"),
+              component: () => import("../views/profile/account/AccountView.vue"),
             },
             {
               path: ROUTES.PROFILE_SMS_VERIFY.path,
               name: ROUTES.PROFILE_SMS_VERIFY.name,
-              component: () => import("../views/user/ProfileSMS.vue"),
+              component: () => import("../views/profile/sms-verify/SmsVerifyView.vue"),
             },
             {
               path: ROUTES.PROFILE_ACKNOWLEDGEMENTS.path,
               name: ROUTES.PROFILE_ACKNOWLEDGEMENTS.name,
-              component: () => import("../views/user/ProfileAcknowledgements.vue"),
+              component: () => import("../views/profile/acknowledgements/AcknowledgementsView.vue"),
             },
           ],
         },
         {
           path: ROUTES.DASHBOARD.path,
           name: ROUTES.DASHBOARD.name,
-          component: () => import("../views/Dashboard.vue"),
+          component: () => import("../views/dashboard/DashboardView.vue"),
           beforeEnter: (to, from, next) => {
             if (checkAuth()) {
               next();
@@ -102,7 +102,7 @@ export const router = createRouter({
         {
           path: ROUTES.GAME_DETAIL.path,
           name: ROUTES.GAME_DETAIL.name,
-          component: () => import("../views/user/GameDetail.vue"),
+          component: () => import("../views/dashboard/game/GameDetailView.vue"),
           beforeEnter: (to, from, next) => {
             if (!checkAuth()) {
               next({ name: ROUTES.HOME.name });
@@ -121,7 +121,7 @@ export const router = createRouter({
         {
           path: ROUTES.REPLAY_HUB.path,
           name: ROUTES.REPLAY_HUB.name,
-          component: () => import("../views/replay/Replay.vue"),
+          component: () => import("../views/replay/ReplayHubView.vue"),
           beforeEnter: (to, from, next) => {
             if (checkAuth()) {
               next();

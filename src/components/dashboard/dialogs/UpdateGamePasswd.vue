@@ -1,0 +1,89 @@
+<template>
+  <div class="bg-base-100 w-96 mx-4 px-6 py-4 shadow-lg max-w-md rounded-lg blog">
+    <div class="text-3xl text-info font-bold text-center">修改密码</div>
+    <div class="divider">账号信息</div>
+    <div class="w-full mb-3">
+      <div class="s-combo mb-6">
+        <input class="s-input peer focus:ring-info" disabled v-model="props.form.account" />
+        <label class="s-label peer-focus:text-info">登录账号</label>
+      </div>
+      <div class="s-combo">
+        <input class="s-input peer focus:ring-info" v-model="form.password" />
+        <label class="s-label peer-focus:text-info">密码（请确认无误）</label>
+      </div>
+    </div>
+    <ServerSelector v-model="form.platform" />
+    <div class="flex justify-center space-x-4 mb-3">
+      <button
+        @click="dialogClose()"
+        class="btn btn-error btn-outline w-32"
+        :disabled="isLoading"
+      >
+        <span v-if="isLoading" class="loading loading-bars" />
+        关闭
+      </button>
+      <button
+        class="btn btn-info w-32"
+        :disabled="isLoading"
+        @click="handleUpdateGamePasswdOnBtnClick"
+      >
+        <span v-if="isLoading" class="loading loading-bars" />
+        更新游戏密码
+      </button>
+    </div>
+  </div>
+</template>
+<script lang="ts" setup>
+import { ref } from "vue";
+import type { RegistryAddGameForm } from "@/shared/types/api";
+import { useLoading } from "@/shared/composables/useLoading";
+import { useCaptcha } from "@/services/captchaActions";
+import { setMsg } from "@/utils/toast";
+import { useGamesStore } from "@/stores/useGamesStore";
+import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
+import { Type } from "@/constants/ui";
+import { API_RESPONSE_CODE } from "@/constants/api";
+import ServerSelector from "@/components/game/ServerSelector.vue";
+
+export interface UpdateGamePasswdProps extends DialogComponentProps {
+  slotUUID: string;
+  form: RegistryAddGameForm;
+}
+
+const props = defineProps<UpdateGamePasswdProps>();
+const { dialogClose, slotUUID, form } = props;
+const gamesStore = useGamesStore();
+
+const myForm = ref<RegistryAddGameForm>(props.form);
+const { isLoading } = useLoading();
+const captcha = useCaptcha();
+
+const handleUpdateGamePasswdOnBtnClick = async () => {
+  if (isLoading.value) return;
+  if (slotUUID === "") {
+    setMsg("请刷新页面后重试", Type.Warning);
+    return;
+  }
+  if (myForm.value.password.length === 0 || myForm.value.password.length > 32) {
+    setMsg("请刷新页面后重试", Type.Warning);
+    return;
+  }
+  try {
+    isLoading.value = true;
+    const data = myForm.value;
+    const resp = await captcha.updateGamePasswd(slotUUID, data);
+    await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
+    if (resp.code === API_RESPONSE_CODE.SUCCESS) {
+      setMsg("更新密码成功", Type.Success);
+      window.location.reload();
+      dialogClose();
+    } else {
+      setMsg("请刷新页面后重试", Type.Warning);
+    }
+  } catch (error) {
+    setMsg(error, Type.Error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+</script>
