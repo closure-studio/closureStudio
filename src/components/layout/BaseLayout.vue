@@ -38,9 +38,10 @@ import { ROUTES } from "@/constants/app";
 import { setMsg } from "@/utils/toast";
 import { useGamesStore } from "@/stores/useGamesStore";
 import { useUserStore } from "@/stores/useUserStore";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { Type } from "@/constants/ui";
+import { canAccessSystemAdmin } from "@/utils/permission";
 import Header from "./Header.vue";
 
 const user = useUserStore();
@@ -48,9 +49,21 @@ const gamesStore = useGamesStore();
 const router = useRouter();
 const isDrawerOpen = ref(false);
 
-const navItems = [ROUTES.HOME, ROUTES.DASHBOARD, ROUTES.REPLAY_HUB, ROUTES.PROFILE, ROUTES.ADMIN];
+interface NavItem {
+  name: string;
+  path: string;
+}
 
-const isActive = (item: { name: string }) => router.currentRoute.value.name === item.name;
+const navItems = computed(() => {
+  const items: NavItem[] = [ROUTES.HOME, ROUTES.DASHBOARD, ROUTES.REPLAY_HUB, ROUTES.PROFILE];
+  if (canAccessSystemAdmin(user.info.permission)) {
+    items.push(ROUTES.ADMIN);
+  }
+  return items;
+});
+
+const isActive = (item: NavItem) =>
+  router.currentRoute.value.name === item.name || router.currentRoute.value.path === item.path;
 
 const closeDrawer = () => {
   isDrawerOpen.value = false;

@@ -15,7 +15,25 @@ export interface ApiSystemConfig {
   allowGameCreate: boolean;
   allowGameUpdate: boolean;
   allowGameDelete: boolean;
+  recaptchaScore?: number | null;
+  captcha?: {
+    autoPassV3: boolean;
+    autoPassV4: boolean;
+  };
+  database?: {
+    apiLogBatchSize: number;
+    gameLogBatchSize: number;
+    gameStatBatchSize: number;
+  };
+  apiVersion?: string | null;
 }
+
+export type ApiSystemConfigEditable = Pick<
+  ApiSystemConfig,
+  "announcement" | "allowGameLogin" | "allowGameCreate" | "allowGameUpdate" | "allowGameDelete"
+>;
+
+export type ApiSystemConfigUpdate = Partial<ApiSystemConfigEditable>;
 
 export interface ApiSystemHall {
   Account: string;
