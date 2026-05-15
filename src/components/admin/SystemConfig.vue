@@ -12,23 +12,23 @@
         </div>
         <textarea
           v-model="draftConfig.announcement"
-          class="textarea textarea-bordered min-h-36 w-full resize-y bg-base-100 text-sm leading-6"
+          class="admin-announcement-field textarea textarea-bordered min-h-36 w-full resize-y border-base-300/55 text-sm leading-6 focus:border-info/60"
           :disabled="isPublishing"
           placeholder="请输入系统公告"
         ></textarea>
       </section>
 
-      <div class="divider my-0">权限开关</div>
+      <div class="divider mb-3 mt-0">权限开关</div>
 
       <section class="grid grid-cols-1 gap-3 md:grid-cols-2">
         <label
           v-for="item in serviceSwitches"
           :key="item.key"
-          class="flex min-h-24 cursor-pointer items-center justify-between gap-4 rounded-lg border border-base-300/70 bg-base-100 px-4 py-3 transition-colors hover:bg-base-200/30"
+          class="admin-switch-card flex min-h-24 cursor-pointer items-center justify-between gap-4 rounded-lg px-4 py-3 transition-colors"
         >
           <span class="min-w-0">
             <span class="block text-sm font-semibold">{{ item.title }}</span>
-            <span class="mt-1 block text-xs leading-5 text-base-content/55">
+            <span class="mt-1 block text-xs leading-5 text-base-content/60">
               {{ item.description }}
             </span>
           </span>
@@ -41,45 +41,46 @@
         </label>
       </section>
 
-      <div class="divider my-0">QQ 群通知</div>
+      <div class="divider mb-3 mt-0">QQ 群通知</div>
 
       <section class="space-y-3">
-        <div class="flex flex-wrap gap-2">
-          <span
+        <div class="flex w-full flex-col gap-2 rounded-box bg-base-100">
+          <div
             v-for="group in systemAdminStore.defaultQQGroups"
             :key="group"
-            class="badge badge-info badge-outline"
+            class="block rounded-lg bg-[#251E15] px-3 py-3 transition-colors"
           >
-            {{ group }}
-          </span>
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex min-w-0 flex-1 items-center gap-3">
+                <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-primary" />
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-semibold">{{ group }}</p>
+                </div>
+              </div>
+              <span class="shrink-0 text-xs font-medium text-base-content/60">默认通知</span>
+            </div>
+          </div>
           <button
-            v-for="group in systemAdminStore.customQQGroups"
+            v-for="(group, index) in systemAdminStore.customQQGroups"
             :key="group"
             type="button"
-            class="badge badge-warning badge-outline gap-1"
+            class="block w-full rounded-lg px-3 py-3 text-left transition-colors hover:bg-base-200/20"
             :disabled="isPublishing"
             @click="systemAdminStore.removeCustomQQGroup(group)"
           >
-            {{ group }}
-            <span aria-hidden="true">x</span>
-          </button>
-        </div>
-
-        <div class="flex flex-col gap-2 sm:flex-row">
-          <input
-            v-model="qqGroupInput"
-            class="input input-sm input-bordered w-full"
-            :disabled="isPublishing"
-            placeholder="输入自定义 QQ 群号"
-            @keyup.enter="handleAddQQGroup"
-          />
-          <button
-            type="button"
-            class="btn btn-info btn-sm sm:w-24"
-            :disabled="isPublishing"
-            @click="handleAddQQGroup"
-          >
-            添加
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex min-w-0 flex-1 items-center gap-3">
+                <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-base-300" />
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-semibold">{{ group }}</p>
+                </div>
+              </div>
+              <span class="shrink-0 text-xs font-medium text-base-content/60">点击移除</span>
+            </div>
+            <div
+              v-if="index < systemAdminStore.customQQGroups.length - 1"
+              class="divider my-0"
+            />
           </button>
         </div>
       </section>
@@ -91,7 +92,7 @@
     </div>
 
     <div v-else class="py-10 text-center">
-      <button class="btn btn-info btn-sm" :disabled="isLoadingConfig" @click="loadConfig">
+      <button class="btn btn-outline btn-info btn-sm" :disabled="isLoadingConfig" @click="loadConfig">
         重新加载
       </button>
     </div>
@@ -148,7 +149,6 @@ const systemAdminStore = useSystemAdminStore();
 
 const originalConfig = ref<ApiSystemConfigEditable | null>(null);
 const draftConfig = ref<ApiSystemConfigEditable | null>(null);
-const qqGroupInput = ref("");
 const isLoadingConfig = ref(false);
 const isPublishing = ref(false);
 
@@ -171,26 +171,6 @@ const loadConfig = async () => {
   } finally {
     isLoadingConfig.value = false;
   }
-};
-
-const handleAddQQGroup = () => {
-  const group = qqGroupInput.value.trim();
-  if (!group) {
-    setMsg(SYSTEM_CONFIG_MESSAGES.INVALID_QQ_GROUP, Type.Warning);
-    return;
-  }
-  const added = systemAdminStore.addCustomQQGroup(group);
-  if (!added) {
-    setMsg(
-      systemAdminStore.notificationQQGroups.includes(group)
-        ? SYSTEM_CONFIG_MESSAGES.QQ_GROUP_EXISTS
-        : SYSTEM_CONFIG_MESSAGES.INVALID_QQ_GROUP,
-      Type.Warning
-    );
-    return;
-  }
-  qqGroupInput.value = "";
-  setMsg(SYSTEM_CONFIG_MESSAGES.QQ_GROUP_ADDED, Type.Success);
 };
 
 const handlePublish = async () => {
@@ -223,3 +203,41 @@ const handlePublish = async () => {
 
 onMounted(loadConfig);
 </script>
+
+<style scoped>
+.admin-announcement-field {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-base-100) 94%, var(--color-base-content) 6%),
+      color-mix(in oklab, var(--color-base-100) 82%, var(--color-base-200) 18%)
+    );
+}
+
+.admin-switch-card {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-base-300) 52%, var(--color-base-100) 48%),
+      color-mix(in oklab, var(--color-base-300) 38%, var(--color-base-100) 62%)
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-base-content) 7%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--color-base-content) 8%, transparent),
+    0 0.35rem 0.9rem color-mix(in oklab, black 16%, transparent);
+}
+
+.admin-switch-card:hover {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-base-300) 62%, var(--color-base-100) 38%),
+      color-mix(in oklab, var(--color-base-300) 46%, var(--color-base-100) 54%)
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-base-content) 9%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--color-base-content) 11%, transparent),
+    0 0.45rem 1rem color-mix(in oklab, black 18%, transparent);
+}
+
+</style>
