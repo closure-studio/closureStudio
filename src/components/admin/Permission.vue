@@ -31,8 +31,8 @@ import {
   hasPermission,
   addPermission,
   removePermission,
+  getPermissionValues,
 } from "@/utils/permission";
-import { Permission } from "@/constants/auth";
 import { API_RESPONSE_CODE } from "@/constants/api";
 import { setMsg } from "@/utils/toast";
 import { Type } from "@/constants/ui";
@@ -44,7 +44,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const myPermission = ref(0);
 const isUploading = ref(false);
-const permissionValues = Object.values(Permission).filter((value) => typeof value === "number");
+const permissionValues = getPermissionValues();
 
 watch(
   () => props.userPermission,

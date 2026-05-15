@@ -133,11 +133,11 @@ const handleAPIStatusBoardOnClick = () => {
   isAPIStatusBoardShow.value = false;
 };
 
-const handleGameSuspendBtnOnClick = (gameAccount: string) => {
-  gameSuspend(gameAccount);
+const handleGameSuspendBtnOnClick = async (gameAccount: string) => {
+  await gameSuspend(gameAccount);
 };
-const handleGameLoginBtnOnClick = (gameAccount: string) => {
-  gameLogin(gameAccount);
+const handleGameLoginBtnOnClick = async (gameAccount: string) => {
+  await gameLogin(gameAccount);
 };
 
 const handleCreateGame = (slot: RegistrySlot, slotUUID: string) => {

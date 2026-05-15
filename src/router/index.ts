@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import { ROUTES } from "@/constants/app";
 import { useUserStore } from "@/stores/useUserStore";
 import { useGamesStore } from "@/stores/useGamesStore";
+import { canAccessSystemAdmin } from "@/utils/permission";
 declare module "vue-router" {
   interface RouteMeta {
     noAuth?: boolean;
@@ -128,6 +129,23 @@ export const router = createRouter({
             } else {
               next({ name: ROUTES.HOME.name });
             }
+          },
+        },
+        {
+          path: ROUTES.ADMIN.path,
+          name: ROUTES.ADMIN.name,
+          component: () => import("../views/admin/AdminView.vue"),
+          beforeEnter: (to, from, next) => {
+            if (!checkAuth()) {
+              next({ name: ROUTES.HOME.name });
+              return;
+            }
+            const user = useUserStore();
+            if (!canAccessSystemAdmin(user.info.permission)) {
+              next({ name: ROUTES.HOME.name });
+              return;
+            }
+            next();
           },
         },
       ],

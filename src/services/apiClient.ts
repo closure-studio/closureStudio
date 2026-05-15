@@ -9,6 +9,7 @@ import type {
   ApiGameChars,
   ApiSystemConfig,
   ApiSystemHall,
+  ApiSystemConfigUpdate,
 } from "@/shared/types/api";
 
 export class APIClient extends AxiosServer {
@@ -38,6 +39,10 @@ export class APIClient extends AxiosServer {
 
   fetchSystemConfig() {
     return this.get<ApiSystemConfig>("/system/config");
+  }
+
+  doUpdateSystemConfig(config: ApiSystemConfigUpdate) {
+    return this.post<void>("/system/config", config);
   }
 
   fetchSystemList() {

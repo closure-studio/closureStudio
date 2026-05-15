@@ -1,12 +1,38 @@
 import { Permission } from "@/constants/auth";
-import { addPermission, hasPermission, isAdmin, listPermissions, removePermission } from "./permission";
+import {
+    addPermission,
+    canAccessSystemAdmin,
+    hasPermission,
+    isAdmin,
+    listPermissions,
+    removePermission,
+} from "./permission";
 
 describe("Permissions System", () => {
+    test("permission bit values match backend iota order", () => {
+        expect(Permission.SuperAdmin).toBe(1);
+        expect(Permission.TicketCreate).toBe(2);
+        expect(Permission.TicketUpdate).toBe(4);
+        expect(Permission.TicketOperate).toBe(8);
+        expect(Permission.CreateGame).toBe(16);
+        expect(Permission.QueryGame).toBe(32);
+        expect(Permission.UpdateGame).toBe(64);
+        expect(Permission.DelGame).toBe(128);
+    });
+
     test("SuperAdmin has all permissions", () => {
         const superAdminRights = Permission.SuperAdmin;
+        expect(hasPermission(superAdminRights, Permission.TicketOperate)).toBe(true);
         expect(hasPermission(superAdminRights, Permission.CreateGame)).toBe(true);
         expect(hasPermission(superAdminRights, Permission.DelGame)).toBe(true);
         expect(isAdmin({ user: { Info: { permission: superAdminRights } } })).toBe(true);
+    });
+
+    test("system admin access requires SuperAdmin or TicketOperate", () => {
+        expect(canAccessSystemAdmin(Permission.SuperAdmin)).toBe(true);
+        expect(canAccessSystemAdmin(Permission.TicketOperate)).toBe(true);
+        expect(canAccessSystemAdmin(Permission.CreateGame)).toBe(false);
+        expect(canAccessSystemAdmin(0)).toBe(false);
     });
 
     test("Add and check permission", () => {
@@ -37,8 +63,15 @@ describe("Permissions System", () => {
         let userRights = addPermission(0, Permission.CreateGame);
         userRights = addPermission(userRights, Permission.UpdateGame);
         userRights = addPermission(userRights, Permission.QueryGame);
-        const expectedPermissions = [Permission.CreateGame, Permission.UpdateGame, Permission.QueryGame];
+        userRights = addPermission(userRights, Permission.TicketOperate);
+        const expectedPermissions = [
+            Permission.CreateGame,
+            Permission.UpdateGame,
+            Permission.QueryGame,
+            Permission.TicketOperate,
+        ];
         expect(listPermissions(userRights)).toEqual(expect.arrayContaining(expectedPermissions));
+        expect(listPermissions(userRights)).not.toEqual(expect.arrayContaining([NaN]));
     });
 
     test("listPermissions includes SuperAdmin and ignores other permissions", () => {
@@ -55,7 +88,17 @@ describe("Permissions System", () => {
         let userRights = Permission.SuperAdmin;
         userRights = addPermission(userRights, Permission.CreateGame); // This should not affect the outcome
         userRights = addPermission(userRights, Permission.DelGame); // This should not affect the outcome
-        const expectedPermissions = [Permission.SuperAdmin];
+        const expectedPermissions = [
+            Permission.SuperAdmin,
+            Permission.TicketCreate,
+            Permission.TicketUpdate,
+            Permission.TicketOperate,
+            Permission.CreateGame,
+            Permission.QueryGame,
+            Permission.UpdateGame,
+            Permission.DelGame,
+        ];
         expect(listPermissions(userRights)).toEqual(expect.arrayContaining(expectedPermissions));
+        expect(listPermissions(userRights)).not.toEqual(expect.arrayContaining([NaN]));
     });
 });

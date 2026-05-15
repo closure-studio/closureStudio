@@ -8,6 +8,7 @@
         <div class="divider mt-2 mb-3 text-info font-arknights text-xl">START</div>
         <div class="grid gap-4 grid-cols-2 mt-2">
           <button
+            type="button"
             class="btn btn-outline btn-sm btn-block btn-primary"
             v-if="isSuspendStatus(game.status.account)"
             @click.stop="$emit('suspend', game.status.account)"
@@ -17,6 +18,7 @@
           </button>
 
           <button
+            type="button"
             class="btn btn-outline btn-sm btn-block btn-primary"
             v-else-if="isUpdateStatus(game.status.account)"
             @click.stop="$emit('update-passwd', getSlot(game.status.account))"
@@ -26,6 +28,7 @@
           </button>
 
           <button
+            type="button"
             class="btn btn-outline btn-sm btn-block btn-info"
             v-else
             @click.stop="$emit('login', game.status.account)"
@@ -35,6 +38,7 @@
           </button>
 
           <button
+            type="button"
             :disabled="isLoading"
             class="btn btn-outline btn-sm btn-block btn-error"
             @click.stop="
@@ -59,6 +63,7 @@
         <div class="divider mt-2 mb-3 text-info font-arknights text-xl">START</div>
         <div>
           <button
+            type="button"
             :disabled="isLoading"
             class="btn btn-outline btn-sm btn-block btn-error mt-2"
             @click.stop="$emit('repair', slot.uuid, slot.gameAccount)"

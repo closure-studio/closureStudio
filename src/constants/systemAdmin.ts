@@ -1,0 +1,23 @@
+import type { ApiSystemConfigEditable } from "@/shared/types/api";
+
+export const EDITABLE_SYSTEM_CONFIG_KEYS = [
+  "announcement",
+  "allowGameLogin",
+  "allowGameCreate",
+  "allowGameUpdate",
+  "allowGameDelete",
+] as const satisfies readonly (keyof ApiSystemConfigEditable)[];
+
+export const DEFAULT_QQ_GROUPS = ["1345795", "450555868"] as const;
+
+export const SYSTEM_CONFIG_MESSAGES = {
+  LOAD_FAILED: "加载系统配置失败",
+  UPDATE_FAILED: "更新系统配置失败",
+  NO_PERMISSION: "无权更新系统配置",
+  NO_CHANGES: "配置未变更",
+  QQBOT_NOT_READY: "QQ bot API 未接入",
+  PUBLISH_SUCCESS: "系统配置已发布",
+  INVALID_QQ_GROUP: "请输入正确的 QQ 群号",
+  QQ_GROUP_EXISTS: "QQ群已存在",
+  QQ_GROUP_ADDED: "QQ群已添加",
+} as const;

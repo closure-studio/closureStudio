@@ -1,5 +1,9 @@
 import { Permission } from "@/constants/auth";
 
+export function getPermissionValues(): Permission[] {
+  return Object.values(Permission).filter((value): value is Permission => typeof value === "number");
+}
+
 export function hasPermission(userRights: number, requiredPermission: number): boolean {
   if ((userRights & Permission.SuperAdmin) === Permission.SuperAdmin) {
     return true;
@@ -15,25 +19,17 @@ export function removePermission(userRights: number, permission: number): number
   return userRights & ~permission;
 }
 
+export function canAccessSystemAdmin(userRights: number): boolean {
+  return hasPermission(userRights, Permission.SuperAdmin) || hasPermission(userRights, Permission.TicketOperate);
+}
+
 // return a list of permissions that the user has
 export function listPermissions(userRights: number): Permission[] {
-  // if this user is a SuperAdmin, return all permissions
-  const permissions: Permission[] = [];
   if ((userRights & Permission.SuperAdmin) === Permission.SuperAdmin) {
-    // return all permissions
-    for (const permission in Permission) {
-      const permissionValue = parseInt(permission);
-      permissions.push(permissionValue);
-    }
+    return getPermissionValues();
   }
 
-  for (const permission in Permission) {
-    const permissionValue = parseInt(permission);
-    if (hasPermission(userRights, permissionValue)) {
-      permissions.push(permissionValue);
-    }
-  }
-  return permissions;
+  return getPermissionValues().filter((permission) => hasPermission(userRights, permission));
 }
 
 export function getPermissionName(permissionValue: number): string {
