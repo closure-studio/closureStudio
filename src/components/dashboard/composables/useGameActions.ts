@@ -116,15 +116,15 @@ export function useGameActions(options: UseGameActionsOptions) {
   };
 
   const handleDeleteBtnOnClick = async (slotUUID: string, gameAccount: string) => {
-    if (gamesStore.userQuota === undefined) {
-      setMsg("游戏托管槽位数据异常，无法提交", Type.Warning);
-      return;
-    }
-    if (!canDeleteGame(gamesStore.userQuota, gameAccount)) {
-      setMsg(NOTIFY.NOT_ALLOW_DELETE_GAME, Type.Warning);
-      return;
-    }
     await runGameAction(async () => {
+      if (gamesStore.userQuota === undefined) {
+        setMsg("游戏托管槽位数据异常，无法提交", Type.Warning);
+        return;
+      }
+      if (!canDeleteGame(gamesStore.userQuota, gameAccount)) {
+        setMsg(NOTIFY.NOT_ALLOW_DELETE_GAME, Type.Warning);
+        return;
+      }
       try {
         const deleteResp = await captcha.deleteGame(slotUUID);
         await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
@@ -140,15 +140,15 @@ export function useGameActions(options: UseGameActionsOptions) {
   };
 
   const handleRepairBtnOnClick = async (slotUUID: string, gameAccount: string) => {
-    if (gamesStore.userQuota === undefined) {
-      setMsg("游戏托管槽位数据异常，无法提交", Type.Warning);
-      return;
-    }
-    if (!canDeleteGame(gamesStore.userQuota, gameAccount)) {
-      setMsg(NOTIFY.NOT_ALLOW_DELETE_GAME, Type.Warning);
-      return;
-    }
     await runGameAction(async () => {
+      if (gamesStore.userQuota === undefined) {
+        setMsg("游戏托管槽位数据异常，无法提交", Type.Warning);
+        return;
+      }
+      if (!canDeleteGame(gamesStore.userQuota, gameAccount)) {
+        setMsg(NOTIFY.NOT_ALLOW_DELETE_GAME, Type.Warning);
+        return;
+      }
       try {
         const accountInfo = processGameAccount(gameAccount);
         if (!accountInfo) {
