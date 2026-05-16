@@ -1,4 +1,4 @@
-import { Permission } from "@/constants/auth";
+import { PERMISSION_DETAILS, Permission } from "@/constants/auth";
 import {
     addPermission,
     canAccessSystemAdmin,
@@ -18,6 +18,20 @@ describe("Permissions System", () => {
         expect(Permission.QueryGame).toBe(32);
         expect(Permission.UpdateGame).toBe(64);
         expect(Permission.DelGame).toBe(128);
+    });
+
+    test("permission details cover every permission value", () => {
+        const permissionValues = Object.values(Permission).filter(
+            (value): value is Permission => typeof value === "number"
+        );
+
+        expect(Object.keys(PERMISSION_DETAILS).map(Number).sort((a, b) => a - b)).toEqual(
+            permissionValues.sort((a, b) => a - b)
+        );
+        permissionValues.forEach((permission) => {
+            expect(PERMISSION_DETAILS[permission].label).toBeTruthy();
+            expect(PERMISSION_DETAILS[permission].description).toBeTruthy();
+        });
     });
 
     test("SuperAdmin has all permissions", () => {

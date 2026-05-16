@@ -8,7 +8,9 @@
       <section class="space-y-5">
         <div>
           <h2 class="text-base font-bold">公告广播</h2>
-          <p class="text-xs text-base-content/55">公告更新后会通知默认 QQ 群</p>
+          <p class="text-xs font-medium text-warning">
+            公告发布后会通知默认 QQ 群并 @全体成员，请确认内容无误后再发布
+          </p>
         </div>
         <textarea
           v-model="draftConfig.announcement"
@@ -21,24 +23,15 @@
       <div class="divider mb-3 mt-0">权限开关</div>
 
       <section class="grid grid-cols-1 gap-3 md:grid-cols-2">
-        <label
+        <ToggleInfoCard
           v-for="item in serviceSwitches"
           :key="item.key"
-          class="admin-switch-card flex min-h-24 cursor-pointer items-center justify-between gap-4 rounded-lg px-4 py-3 transition-colors"
-        >
-          <span class="min-w-0">
-            <span class="block text-sm font-semibold">{{ item.title }}</span>
-            <span class="mt-1 block text-xs leading-5 text-base-content/60">
-              {{ item.description }}
-            </span>
-          </span>
-          <input
-            v-model="draftConfig[item.key]"
-            type="checkbox"
-            class="toggle toggle-sm toggle-info shrink-0"
-            :disabled="isPublishing"
-          />
-        </label>
+          v-model:active="draftConfig[item.key]"
+          :title="item.title"
+          :description="item.description"
+          clickable
+          :disabled="isPublishing"
+        />
       </section>
 
       <div class="divider mb-3 mt-0">QQ 群通知</div>
@@ -106,6 +99,7 @@ import { Type } from "@/constants/ui";
 import { useSystemAdminStore } from "@/stores/useSystemAdminStore";
 import { useUserStore } from "@/stores/useUserStore";
 import StatusListItem from "@/shared/components/ui/StatusListItem.vue";
+import ToggleInfoCard from "@/shared/components/ui/ToggleInfoCard.vue";
 
 type ServiceSwitchKey = Exclude<keyof ApiSystemConfigEditable, "announcement">;
 
@@ -119,22 +113,22 @@ const serviceSwitches: ServiceSwitch[] = [
   {
     key: "allowGameLogin",
     title: "游戏登录",
-    description: "当前允许玩家登录游戏",
+    description: "全局控制所有用户是否可以登录游戏服务",
   },
   {
     key: "allowGameCreate",
     title: "游戏创建",
-    description: "当前允许创建托管账号",
+    description: "全局控制所有用户是否可以创建托管账号",
   },
   {
     key: "allowGameUpdate",
     title: "游戏更新",
-    description: "当前允许更新托管配置",
+    description: "全局控制所有用户是否可以更新托管配置",
   },
   {
     key: "allowGameDelete",
     title: "游戏删除",
-    description: "当前允许删除托管账号",
+    description: "全局控制所有用户是否可以删除托管账号",
   },
 ];
 
@@ -218,32 +212,6 @@ onMounted(loadConfig);
       color-mix(in oklab, var(--color-base-100) 94%, var(--color-base-content) 6%),
       color-mix(in oklab, var(--color-base-100) 82%, var(--color-base-200) 18%)
     );
-}
-
-.admin-switch-card {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--color-base-300) 52%, var(--color-base-100) 48%),
-      color-mix(in oklab, var(--color-base-300) 38%, var(--color-base-100) 62%)
-    );
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, var(--color-base-content) 7%, transparent),
-    0 0 0 1px color-mix(in oklab, var(--color-base-content) 8%, transparent),
-    0 0.35rem 0.9rem color-mix(in oklab, black 16%, transparent);
-}
-
-.admin-switch-card:hover {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--color-base-300) 62%, var(--color-base-100) 38%),
-      color-mix(in oklab, var(--color-base-300) 46%, var(--color-base-100) 54%)
-    );
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, var(--color-base-content) 9%, transparent),
-    0 0 0 1px color-mix(in oklab, var(--color-base-content) 11%, transparent),
-    0 0.45rem 1rem color-mix(in oklab, black 18%, transparent);
 }
 
 </style>

@@ -32,13 +32,15 @@ class AuthClient extends AxiosServer {
   }
 
   queryUser(value: string) {
-    return this.get<ApiUserUser[]>(`/admin/users/query?value=${value}`);
+    return this.get<ApiUserUser[]>(`/admin/users/query?value=${encodeURIComponent(value)}`);
   }
   sendSmsAdmin(params: { uuid: string; phone: string }) {
     return this.post<string>(`/admin/users/sms`, params);
   }
   updateUserPermission(uuid: string, permission: number) {
-    return this.post(`/admin/permission?uuid=${uuid}&permission=${permission}`);
+    return this.post(
+      `/admin/permission?uuid=${encodeURIComponent(uuid)}&permission=${encodeURIComponent(permission)}`
+    );
   }
   sendCodeOnRegister(params: { email: string }) {
     return this.post(`/mail/register/code`, params);
