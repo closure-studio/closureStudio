@@ -3,6 +3,7 @@ import type {
   ApiSystemConfig,
   ApiSystemConfigEditable,
   ApiSystemConfigUpdate,
+  ApiQQBotSpecialNotifyResponse,
 } from "@/shared/types/api";
 import { canAccessSystemAdmin } from "@/utils/permission";
 import { mergeQQGroups } from "@/stores/useSystemAdminStore";
@@ -12,6 +13,14 @@ import {
   EDITABLE_SYSTEM_CONFIG_KEYS,
   SYSTEM_CONFIG_MESSAGES,
 } from "@/constants/systemAdmin";
+import qqBotClient from "@/services/qqBotClient";
+
+export interface SaveApiSystemConfigEditableResult {
+  payload: ApiSystemConfigUpdate;
+  config: ApiSystemConfigEditable;
+  notifyResult?: ApiQQBotSpecialNotifyResponse;
+  notifyError?: string;
+}
 
 export const pickApiSystemConfigEditable = (config: ApiSystemConfig): ApiSystemConfigEditable => ({
   announcement: config.announcement,
@@ -39,8 +48,11 @@ export const hasApiSystemConfigUpdate = (payload: ApiSystemConfigUpdate) =>
 export const getAnnouncementNotifyGroups = (customGroups: string[]) =>
   mergeQQGroups([...DEFAULT_QQ_GROUPS, ...customGroups]);
 
-export const notifyAnnouncementPlaceholder = async (announcement: string, groups: string[]) => {
-  console.info(SYSTEM_CONFIG_MESSAGES.QQBOT_NOT_READY, { announcement, groups: mergeQQGroups(groups) });
+export const notifyAnnouncement = async (announcement: string, groups: string[]) => {
+  return qqBotClient.specialNotify({
+    message: announcement,
+    groups: mergeQQGroups(groups),
+  });
 };
 
 export const loadApiSystemConfigEditable = async () => {
@@ -56,7 +68,7 @@ export const saveApiSystemConfigEditable = async (params: {
   originalConfig: ApiSystemConfigEditable;
   draftConfig: ApiSystemConfigEditable;
   customQQGroups: string[];
-}) => {
+}): Promise<SaveApiSystemConfigEditableResult> => {
   if (!canAccessSystemAdmin(params.userPermission)) {
     throw new Error(SYSTEM_CONFIG_MESSAGES.NO_PERMISSION);
   }
@@ -74,15 +86,23 @@ export const saveApiSystemConfigEditable = async (params: {
     throw new Error(response.message || SYSTEM_CONFIG_MESSAGES.UPDATE_FAILED);
   }
 
+  let notifyResult: ApiQQBotSpecialNotifyResponse | undefined;
+  let notifyError: string | undefined;
   if (payload.announcement !== undefined) {
-    await notifyAnnouncementPlaceholder(
-      payload.announcement,
-      getAnnouncementNotifyGroups(params.customQQGroups)
-    );
+    try {
+      notifyResult = await notifyAnnouncement(
+        payload.announcement,
+        getAnnouncementNotifyGroups(params.customQQGroups)
+      );
+    } catch (error) {
+      notifyError = error instanceof Error ? error.message : SYSTEM_CONFIG_MESSAGES.QQBOT_NOTIFY_FAILED;
+    }
   }
 
   return {
     payload,
     config: params.draftConfig,
+    notifyResult,
+    notifyError,
   };
 };

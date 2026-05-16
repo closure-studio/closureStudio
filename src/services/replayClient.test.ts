@@ -9,6 +9,7 @@ jest.mock("./apiClient", () => ({
 
 import apiClient from "./apiClient";
 import { replayApi } from "./replayClient";
+import { REPLAY_ACTION_TYPE } from "@/shared/types/replay";
 
 const mockedApiClient = apiClient as jest.Mocked<typeof apiClient>;
 
@@ -48,7 +49,7 @@ describe("replayClient", () => {
       {
         stage_id: "main_01-07",
         uuid: "",
-        action_type: "SHARE",
+        action_type: REPLAY_ACTION_TYPE.SHARE,
       },
     ]);
 
@@ -57,7 +58,7 @@ describe("replayClient", () => {
         {
           stage_id: "main_01-07",
           uuid: "",
-          action_type: "SHARE",
+          action_type: REPLAY_ACTION_TYPE.SHARE,
         },
       ],
     });

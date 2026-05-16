@@ -1,5 +1,5 @@
 import type { AxiosError } from "axios";
-import type { RequestError } from "@/shared/types/service";
+import { REQUEST_ERROR_TYPE, type RequestError } from "@/shared/types/service";
 import {
   DEFAULT_REQUEST_ERROR_CODE,
   DEFAULT_REQUEST_ERROR_MSG,
@@ -26,7 +26,7 @@ export function exeStrategyActions(actions: StrategyAction[]) {
 
 export function handleAxiosError(axiosError: AxiosError) {
   const error: RequestError = {
-    type: "axios",
+    type: REQUEST_ERROR_TYPE.AXIOS,
     code: DEFAULT_REQUEST_ERROR_CODE,
     msg: DEFAULT_REQUEST_ERROR_MSG,
   };

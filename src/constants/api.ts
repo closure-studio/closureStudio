@@ -33,6 +33,12 @@ export const REGISTRY_SERVER: IHostServer = {
   baseURL: "https://arkquota-tunnel.arknights.app",
 };
 
+export const QQBOT_SERVER: IHostServer = {
+  label: "QQ机器人",
+  description: "QQ Bot Server",
+  baseURL: "http://qqbot.arknights.app",
+};
+
 export const API_RESPONSE_CODE = {
   FAILURE: 0,
   SUCCESS: 1,

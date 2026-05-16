@@ -46,6 +46,34 @@ export interface ApiSystemHall {
   };
 }
 
+// --- ApiQQBot ---
+
+export interface ApiQQBotSpecialNotifyParams {
+  message: string;
+  groups: string[];
+}
+
+export interface ApiQQBotSpecialNotifyResult {
+  group: string;
+  ok: boolean;
+  message_id: number | null;
+  error: string | null;
+}
+
+export const API_QQBOT_SPECIAL_NOTIFY_STATUS = {
+  OK: "ok",
+  PARTIAL_FAILED: "partial_failed",
+  FAILED: "failed",
+} as const;
+
+export type ApiQQBotSpecialNotifyStatus =
+  (typeof API_QQBOT_SPECIAL_NOTIFY_STATUS)[keyof typeof API_QQBOT_SPECIAL_NOTIFY_STATUS];
+
+export interface ApiQQBotSpecialNotifyResponse {
+  status: ApiQQBotSpecialNotifyStatus;
+  results: ApiQQBotSpecialNotifyResult[];
+}
+
 // --- ApiUser ---
 
 export interface ApiUserAuth {

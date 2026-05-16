@@ -167,12 +167,14 @@ import { Icon } from "@iconify/vue";
 import { reactive, ref, watch } from "vue";
 import { formatTime } from "@/utils/format";
 import { getArkResourceUrl } from "@/utils/resource";
-import type {
-  ReplayAuditStatus,
-  ReplayAvatar,
-  ReplayRecord,
-  ReplayValidationStatus,
-  UpdateReplayPayload,
+import {
+  REPLAY_AUDIT_STATUS,
+  REPLAY_VALIDATION_STATUS,
+  type ReplayAuditStatus,
+  type ReplayAvatar,
+  type ReplayRecord,
+  type ReplayValidationStatus,
+  type UpdateReplayPayload,
 } from "@/shared/types/replay";
 
 const props = withDefaults(defineProps<{
@@ -222,9 +224,9 @@ const onAvatarError = (event: Event) => {
 
 const validationLabel = (status: ReplayValidationStatus) => {
   switch (status) {
-    case "PASSED":
+    case REPLAY_VALIDATION_STATUS.PASSED:
       return "已通过";
-    case "FAILED":
+    case REPLAY_VALIDATION_STATUS.FAILED:
       return "已失败";
     default:
       return "待校验";
@@ -233,9 +235,9 @@ const validationLabel = (status: ReplayValidationStatus) => {
 
 const auditLabel = (status: ReplayAuditStatus) => {
   switch (status) {
-    case "APPROVED":
+    case REPLAY_AUDIT_STATUS.APPROVED:
       return "已审核";
-    case "REJECTED":
+    case REPLAY_AUDIT_STATUS.REJECTED:
       return "已拒绝";
     default:
       return "待审核";
@@ -244,9 +246,9 @@ const auditLabel = (status: ReplayAuditStatus) => {
 
 const auditBadgeClass = (status: ReplayAuditStatus) => {
   switch (status) {
-    case "APPROVED":
+    case REPLAY_AUDIT_STATUS.APPROVED:
       return "bg-emerald-500/15 text-emerald-100";
-    case "REJECTED":
+    case REPLAY_AUDIT_STATUS.REJECTED:
       return "bg-rose-500/15 text-rose-200";
     default:
       return "bg-amber-400/15 text-amber-100";

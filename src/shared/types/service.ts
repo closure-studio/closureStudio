@@ -8,7 +8,13 @@
  * - http: 请求成功，响应的http状态码非200的错误
  * - backend: 请求成功，响应的http状态码为200，由后端定义的业务错误
  */
-export type RequestErrorType = "axios" | "http" | "backend";
+export const REQUEST_ERROR_TYPE = {
+  AXIOS: "axios",
+  HTTP: "http",
+  BACKEND: "backend",
+} as const;
+
+export type RequestErrorType = (typeof REQUEST_ERROR_TYPE)[keyof typeof REQUEST_ERROR_TYPE];
 
 /** 请求错误 */
 export interface RequestError {

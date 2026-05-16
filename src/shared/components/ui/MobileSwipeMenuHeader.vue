@@ -178,6 +178,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { SWIPE_AXIS, type SwipeAxis } from "@/shared/composables/useSwipeNavigation";
 
 interface SwipeMenuItem {
   key?: string | number;
@@ -190,13 +191,13 @@ interface Props {
   items: SwipeMenuItem[];
   activeIndex: number;
   swipeText: string;
-  axis: "x" | "y";
+  axis: SwipeAxis;
 }
 
 const props = defineProps<Props>();
 
 const hintClass = computed(() =>
-  props.axis === "x" ? "mobile-swipe-menu-hint-x" : "mobile-swipe-menu-hint-y"
+  props.axis === SWIPE_AXIS.X ? "mobile-swipe-menu-hint-x" : "mobile-swipe-menu-hint-y"
 );
 
 const itemKey = (item: SwipeMenuItem, index: number) => item.key ?? item.to ?? item.name ?? index;
