@@ -8,7 +8,7 @@
       <section class="space-y-5">
         <div>
           <h2 class="text-base font-bold">公告广播</h2>
-          <p class="text-xs text-base-content/55">公告更新后会通知默认 QQ 群和自定义 QQ 群。</p>
+          <p class="text-xs text-base-content/55">公告更新后会通知默认 QQ 群</p>
         </div>
         <textarea
           v-model="draftConfig.announcement"
