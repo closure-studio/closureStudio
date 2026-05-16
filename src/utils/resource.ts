@@ -9,12 +9,23 @@ import { ARK_RESOURCE_DOMAIN } from "@/constants/api";
  */
 export function getArkResourceUrl(path: string, extension: string = "webp"): string {
   // 移除路径开头的斜杠（如果有）
-  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
+  const cleanPath = path.replace(/^\/+/, "");
 
   // 移除路径中已有的扩展名（如果有）
   const pathWithoutExt = cleanPath.replace(/\.(png|jpg|jpeg|webp)$/i, "");
 
-  return `${ARK_RESOURCE_DOMAIN}/${pathWithoutExt}.${extension}`;
+  return `${ARK_RESOURCE_DOMAIN}/assets/${pathWithoutExt}.${extension}`;
+}
+
+/**
+ * 获取明日方舟数据表的完整URL
+ * @param fileName 数据表文件名（如 'item_table.json'）
+ * @returns 完整的数据表URL
+ */
+export function getArkDataUrl(fileName: string): string {
+  const cleanPath = fileName.replace(/^\/+/, "");
+
+  return `${ARK_RESOURCE_DOMAIN}/data/${cleanPath}`;
 }
 
 /**
