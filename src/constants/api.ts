@@ -36,7 +36,7 @@ export const REGISTRY_SERVER: IHostServer = {
 export const QQBOT_SERVER: IHostServer = {
   label: "QQ机器人",
   description: "QQ Bot Server",
-  baseURL: "http://qqbot.arknights.app",
+  baseURL: "https://qqbot.arknights.app",
 };
 
 export const API_RESPONSE_CODE = {
