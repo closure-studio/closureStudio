@@ -3,10 +3,12 @@ import { defineStore } from "pinia";
 import { REPLAY_PAGE_LIMIT } from "@/constants/game";
 import { API_RESPONSE_CODE } from "@/constants/api";
 import { replayApi } from "@/services/replayClient";
-import type {
-  ReplayAutoResult,
-  ReplayRecord,
-  UpdateReplayPayload,
+import {
+  REPLAY_ACTION_TYPE,
+  REPLAY_VALIDATION_STATUS,
+  type ReplayAutoResult,
+  type ReplayRecord,
+  type UpdateReplayPayload,
 } from "@/shared/types/replay";
 import { setMsg } from "@/utils/toast";
 import { Type } from "@/constants/ui";
@@ -267,7 +269,11 @@ export const useReplayStore = defineStore("replay", () => {
     myReplays.value = myReplays.value.map((item) => (item.uuid === uuid ? updatedReplay : item));
     publicReplays.value = publicReplays.value.flatMap((item) => {
       if (item.uuid !== uuid) return [item];
-      if (updatedReplay.validation_status !== "PASSED" || updatedReplay.is_hidden) return [];
+      if (
+        updatedReplay.validation_status !== REPLAY_VALIDATION_STATUS.PASSED ||
+        updatedReplay.is_hidden
+      )
+        return [];
       return [updatedReplay];
     });
     setMsg("录像信息已更新", Type.Success);
@@ -279,7 +285,7 @@ export const useReplayStore = defineStore("replay", () => {
       {
         stage_id: stageId,
         uuid: "",
-        action_type: "SHARE",
+        action_type: REPLAY_ACTION_TYPE.SHARE,
       },
     ]);
     if (resp.code === API_RESPONSE_CODE.SUCCESS) {
@@ -295,7 +301,7 @@ export const useReplayStore = defineStore("replay", () => {
       {
         stage_id: replay.stage_id,
         uuid: replay.uuid,
-        action_type: "AUTO_BATTLE",
+        action_type: REPLAY_ACTION_TYPE.AUTO_BATTLE,
       },
     ]);
     if (resp.code === API_RESPONSE_CODE.SUCCESS) {

@@ -7,13 +7,39 @@ export interface ReplayAvatar {
   id: string;
 }
 
-export type ReplayValidationStatus = "PENDING" | "PASSED" | "FAILED";
+export const REPLAY_VALIDATION_STATUS = {
+  PENDING: "PENDING",
+  PASSED: "PASSED",
+  FAILED: "FAILED",
+} as const;
 
-export type ReplayAuditStatus = "PENDING" | "APPROVED" | "REJECTED";
+export type ReplayValidationStatus =
+  (typeof REPLAY_VALIDATION_STATUS)[keyof typeof REPLAY_VALIDATION_STATUS];
 
-export type ReplayActionType = "SHARE" | "AUTO_BATTLE";
+export const REPLAY_AUDIT_STATUS = {
+  PENDING: "PENDING",
+  APPROVED: "APPROVED",
+  REJECTED: "REJECTED",
+} as const;
 
-export type ReplayAutoResultStatus = "SUCCESS" | "FAILED" | "TIMEOUT" | "OTHER";
+export type ReplayAuditStatus = (typeof REPLAY_AUDIT_STATUS)[keyof typeof REPLAY_AUDIT_STATUS];
+
+export const REPLAY_ACTION_TYPE = {
+  SHARE: "SHARE",
+  AUTO_BATTLE: "AUTO_BATTLE",
+} as const;
+
+export type ReplayActionType = (typeof REPLAY_ACTION_TYPE)[keyof typeof REPLAY_ACTION_TYPE];
+
+export const REPLAY_AUTO_RESULT_STATUS = {
+  SUCCESS: "SUCCESS",
+  FAILED: "FAILED",
+  TIMEOUT: "TIMEOUT",
+  OTHER: "OTHER",
+} as const;
+
+export type ReplayAutoResultStatus =
+  (typeof REPLAY_AUTO_RESULT_STATUS)[keyof typeof REPLAY_AUTO_RESULT_STATUS];
 
 export interface ReplayRecord {
   uuid: string;

@@ -108,7 +108,11 @@ import RecordCard from "./RecordCard.vue";
 import { assets } from "@/services/assets";
 import { setMsg } from "@/utils/toast";
 import { Type } from "@/constants/ui";
-import type { ReplayValidationStatus, UpdateReplayPayload } from "@/shared/types/replay";
+import {
+  REPLAY_VALIDATION_STATUS,
+  type ReplayValidationStatus,
+  type UpdateReplayPayload,
+} from "@/shared/types/replay";
 import { useGamesStore } from "@/stores/useGamesStore";
 import { useReplayStore } from "@/stores/useReplayStore";
 
@@ -132,9 +136,9 @@ const accounts = computed(() =>
 
 const filterOptions: { value: MineFilter; label: string }[] = [
   { value: "all", label: "全部" },
-  { value: "PENDING", label: "待校验" },
-  { value: "PASSED", label: "已通过" },
-  { value: "FAILED", label: "已失败" },
+  { value: REPLAY_VALIDATION_STATUS.PENDING, label: "待校验" },
+  { value: REPLAY_VALIDATION_STATUS.PASSED, label: "已通过" },
+  { value: REPLAY_VALIDATION_STATUS.FAILED, label: "已失败" },
   { value: "hidden", label: "已隐藏" },
 ];
 

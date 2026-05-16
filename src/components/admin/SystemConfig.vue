@@ -101,7 +101,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import type { ApiSystemConfigEditable } from "@/shared/types/api";
+import {
+  API_QQBOT_SPECIAL_NOTIFY_STATUS,
+  type ApiSystemConfigEditable,
+} from "@/shared/types/api";
 import {
   buildApiSystemConfigUpdate,
   loadApiSystemConfigEditable,
@@ -192,7 +195,19 @@ const handlePublish = async () => {
     });
     originalConfig.value = cloneConfig(result.config);
     draftConfig.value = cloneConfig(result.config);
-    setMsg(SYSTEM_CONFIG_MESSAGES.PUBLISH_SUCCESS, Type.Success);
+    if (payload.announcement === undefined) {
+      setMsg(SYSTEM_CONFIG_MESSAGES.PUBLISH_SUCCESS, Type.Success);
+      return;
+    }
+    if (result.notifyError) {
+      setMsg(SYSTEM_CONFIG_MESSAGES.QQBOT_NOTIFY_FAILED, Type.Warning);
+      return;
+    }
+    if (result.notifyResult?.status === API_QQBOT_SPECIAL_NOTIFY_STATUS.PARTIAL_FAILED) {
+      setMsg(SYSTEM_CONFIG_MESSAGES.QQBOT_NOTIFY_PARTIAL_FAILED, Type.Warning);
+      return;
+    }
+    setMsg(SYSTEM_CONFIG_MESSAGES.QQBOT_NOTIFY_SUCCESS, Type.Success);
   } catch (error) {
     const message = error instanceof Error ? error.message : SYSTEM_CONFIG_MESSAGES.UPDATE_FAILED;
     setMsg(message, Type.Error);

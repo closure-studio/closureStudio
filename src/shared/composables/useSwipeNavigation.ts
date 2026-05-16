@@ -1,9 +1,29 @@
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { DEFAULT_MOBILE_MEDIA_QUERY, DEFAULT_SWIPE_THRESHOLD } from "@/constants/ui";
 
-export type SwipeAxis = "x" | "y";
-export type HorizontalSwipeDirection = "left" | "right";
-export type VerticalSwipeDirection = "up" | "down";
+export const SWIPE_AXIS = {
+  X: "x",
+  Y: "y",
+} as const;
+
+export type SwipeAxis = (typeof SWIPE_AXIS)[keyof typeof SWIPE_AXIS];
+
+export const HORIZONTAL_SWIPE_DIRECTION = {
+  LEFT: "left",
+  RIGHT: "right",
+} as const;
+
+export type HorizontalSwipeDirection =
+  (typeof HORIZONTAL_SWIPE_DIRECTION)[keyof typeof HORIZONTAL_SWIPE_DIRECTION];
+
+export const VERTICAL_SWIPE_DIRECTION = {
+  UP: "up",
+  DOWN: "down",
+} as const;
+
+export type VerticalSwipeDirection =
+  (typeof VERTICAL_SWIPE_DIRECTION)[keyof typeof VERTICAL_SWIPE_DIRECTION];
+
 export type SwipeDirection = HorizontalSwipeDirection | VerticalSwipeDirection;
 
 interface UseSwipeNavigationOptions<TDirection extends SwipeDirection> {
@@ -23,19 +43,20 @@ const isScrollableInGestureDirection = (
   let current = target instanceof Element ? target : null;
   while (current) {
     const styles = window.getComputedStyle(current);
-    const overflow = axis === "x" ? styles.overflowX : styles.overflowY;
+    const overflow = axis === SWIPE_AXIS.X ? styles.overflowX : styles.overflowY;
     const isScrollable =
       (overflow === "auto" || overflow === "scroll") &&
-      (axis === "x"
+      (axis === SWIPE_AXIS.X
         ? current.scrollWidth > current.clientWidth + 1
         : current.scrollHeight > current.clientHeight + 1);
 
     if (isScrollable) {
       const canScrollForward =
-        axis === "x"
+        axis === SWIPE_AXIS.X
           ? current.scrollLeft + current.clientWidth < current.scrollWidth - 1
           : current.scrollTop + current.clientHeight < current.scrollHeight - 1;
-      const canScrollBackward = axis === "x" ? current.scrollLeft > 1 : current.scrollTop > 1;
+      const canScrollBackward =
+        axis === SWIPE_AXIS.X ? current.scrollLeft > 1 : current.scrollTop > 1;
 
       if ((delta > 0 && canScrollForward) || (delta < 0 && canScrollBackward)) {
         return true;
@@ -49,7 +70,13 @@ const isScrollableInGestureDirection = (
 };
 
 const directionFromDelta = (axis: SwipeAxis, delta: number): SwipeDirection =>
-  axis === "x" ? (delta > 0 ? "left" : "right") : delta > 0 ? "up" : "down";
+  axis === SWIPE_AXIS.X
+    ? delta > 0
+      ? HORIZONTAL_SWIPE_DIRECTION.LEFT
+      : HORIZONTAL_SWIPE_DIRECTION.RIGHT
+    : delta > 0
+      ? VERTICAL_SWIPE_DIRECTION.UP
+      : VERTICAL_SWIPE_DIRECTION.DOWN;
 
 export const useSwipeNavigation = <TDirection extends SwipeDirection>({
   axis,
@@ -90,8 +117,8 @@ export const useSwipeNavigation = <TDirection extends SwipeDirection>({
 
     const deltaX = touchStartX.value - firstTouch.clientX;
     const deltaY = touchStartY.value - firstTouch.clientY;
-    const primaryDelta = axis === "x" ? deltaX : deltaY;
-    const crossDelta = axis === "x" ? deltaY : deltaX;
+    const primaryDelta = axis === SWIPE_AXIS.X ? deltaX : deltaY;
+    const crossDelta = axis === SWIPE_AXIS.X ? deltaY : deltaX;
 
     if (Math.abs(primaryDelta) <= Math.abs(crossDelta)) {
       resetTouchState();
@@ -116,7 +143,7 @@ export const useSwipeNavigation = <TDirection extends SwipeDirection>({
     window.addEventListener("touchstart", onTouchStart, { passive: true });
     window.addEventListener("touchend", onTouchEnd, { passive: true });
 
-    const styleKey = axis === "x" ? "overscrollBehaviorX" : "overscrollBehaviorY";
+    const styleKey = axis === SWIPE_AXIS.X ? "overscrollBehaviorX" : "overscrollBehaviorY";
     previousHtmlOverscrollBehavior.value = document.documentElement.style[styleKey];
     previousBodyOverscrollBehavior.value = document.body.style[styleKey];
     document.documentElement.style[styleKey] = "none";
@@ -127,7 +154,7 @@ export const useSwipeNavigation = <TDirection extends SwipeDirection>({
     window.removeEventListener("touchstart", onTouchStart);
     window.removeEventListener("touchend", onTouchEnd);
 
-    const styleKey = axis === "x" ? "overscrollBehaviorX" : "overscrollBehaviorY";
+    const styleKey = axis === SWIPE_AXIS.X ? "overscrollBehaviorX" : "overscrollBehaviorY";
     document.documentElement.style[styleKey] = previousHtmlOverscrollBehavior.value;
     document.body.style[styleKey] = previousBodyOverscrollBehavior.value;
   });

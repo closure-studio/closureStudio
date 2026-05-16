@@ -17,7 +17,14 @@ import { createPinia, setActivePinia } from "pinia";
 import { replayApi } from "@/services/replayClient";
 import { setMsg } from "@/utils/toast";
 import { useReplayStore } from "./useReplayStore";
-import type { ReplayAutoResult, ReplayRecord } from "@/shared/types/replay";
+import {
+  REPLAY_ACTION_TYPE,
+  REPLAY_AUDIT_STATUS,
+  REPLAY_AUTO_RESULT_STATUS,
+  REPLAY_VALIDATION_STATUS,
+  type ReplayAutoResult,
+  type ReplayRecord,
+} from "@/shared/types/replay";
 
 const mockedReplayApi = replayApi as jest.Mocked<typeof replayApi>;
 const mockedSetMsg = setMsg as jest.MockedFunction<typeof setMsg>;
@@ -32,9 +39,9 @@ function createReplay(overrides: Partial<ReplayRecord> = {}): ReplayRecord {
       type: "ICON",
       id: "char_1001_amiya2",
     },
-    validation_status: "PASSED",
+    validation_status: REPLAY_VALIDATION_STATUS.PASSED,
     validation_message: "执行成功",
-    audit_status: "APPROVED",
+    audit_status: REPLAY_AUDIT_STATUS.APPROVED,
     audit_message: "审核通过",
     is_hidden: false,
     created_at: 1710000000,
@@ -53,7 +60,7 @@ function createAutoResult(overrides: Partial<ReplayAutoResult> = {}): ReplayAuto
     replay_record_id: 10,
     replay_uuid: "replay-1",
     stage_id: "main_01-07",
-    result: "SUCCESS",
+    result: REPLAY_AUTO_RESULT_STATUS.SUCCESS,
     message: "执行成功",
     created_at: 1710000000,
     ...overrides,
@@ -149,7 +156,7 @@ describe("useReplayStore", () => {
       {
         stage_id: "main_01-07",
         uuid: "replay-1",
-        action_type: "AUTO_BATTLE",
+        action_type: REPLAY_ACTION_TYPE.AUTO_BATTLE,
       },
     ]);
     expect(mockedReplayApi.listAutoResults).toHaveBeenCalledWith("demo-account", {

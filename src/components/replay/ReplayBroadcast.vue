@@ -32,9 +32,13 @@
             v-for="(action, idx) in existingActions"
             :key="`${action.action_type}-${action.stage_id}-${action.uuid}-${idx}`"
             class="badge badge-outline gap-1 m-1 py-3"
-            :class="action.action_type === 'SHARE' ? 'badge-info' : 'badge-success'"
+            :class="
+              action.action_type === REPLAY_ACTION_TYPE.SHARE ? 'badge-info' : 'badge-success'
+            "
           >
-            <span class="font-semibold">{{ action.action_type === "SHARE" ? "分享" : "作战" }}</span>
+            <span class="font-semibold">{{
+              action.action_type === REPLAY_ACTION_TYPE.SHARE ? "分享" : "作战"
+            }}</span>
             <span>{{ assets.getStageName(action.stage_id) }}</span>
             <span v-if="action.uuid" class="opacity-60 text-[10px]">
               · {{ action.uuid.slice(0, 6) }}
@@ -145,7 +149,7 @@ import { setMsg } from "@/utils/toast";
 import { Type } from "@/constants/ui";
 import { useGamesStore } from "@/stores/useGamesStore";
 import type { ApiGameConfig } from "@/shared/types/api";
-import type { BattleReplayAction } from "@/shared/types/replay";
+import { REPLAY_ACTION_TYPE, type BattleReplayAction } from "@/shared/types/replay";
 
 const gamesStore = useGamesStore();
 
@@ -235,7 +239,7 @@ const onSubmit = async () => {
     const appended: BattleReplayAction[] = selectedStageIds.value.map((stage_id) => ({
       stage_id,
       uuid: "",
-      action_type: "SHARE",
+      action_type: REPLAY_ACTION_TYPE.SHARE,
     }));
 
     // 3. 仅传入 battle_replay_actions 这一个字段

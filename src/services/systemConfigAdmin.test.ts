@@ -6,10 +6,21 @@ jest.mock("@/services/systemConfigClient", () => ({
   },
 }));
 
+jest.mock("@/services/qqBotClient", () => ({
+  __esModule: true,
+  default: {
+    specialNotify: jest.fn(),
+  },
+}));
+
 import { Permission } from "@/constants/auth";
 import { SYSTEM_CONFIG_MESSAGES } from "@/constants/systemAdmin";
 import { systemConfigApi } from "@/services/systemConfigClient";
-import type { ApiSystemConfigEditable } from "@/shared/types/api";
+import qqBotClient from "@/services/qqBotClient";
+import {
+  API_QQBOT_SPECIAL_NOTIFY_STATUS,
+  type ApiSystemConfigEditable,
+} from "@/shared/types/api";
 import {
   buildApiSystemConfigUpdate,
   getAnnouncementNotifyGroups,
@@ -18,6 +29,7 @@ import {
 } from "./systemConfigAdmin";
 
 const mockedSystemConfigApi = systemConfigApi as jest.Mocked<typeof systemConfigApi>;
+const mockedQQBotClient = qqBotClient as jest.Mocked<typeof qqBotClient>;
 
 const originalConfig: ApiSystemConfigEditable = {
   announcement: "旧公告",
@@ -30,11 +42,6 @@ const originalConfig: ApiSystemConfigEditable = {
 describe("systemConfigAdmin", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(console, "info").mockImplementation(() => undefined);
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
   });
 
   test("loadApiSystemConfigEditable 只返回可编辑字段", async () => {
@@ -87,6 +94,7 @@ describe("systemConfigAdmin", () => {
     });
 
     expect(mockedSystemConfigApi.updateSystemConfig).not.toHaveBeenCalled();
+    expect(mockedQQBotClient.specialNotify).not.toHaveBeenCalled();
   });
 
   test("saveApiSystemConfigEditable 无权限时抛出错误且不调用更新 API", async () => {
@@ -103,13 +111,25 @@ describe("systemConfigAdmin", () => {
     ).rejects.toThrow(SYSTEM_CONFIG_MESSAGES.NO_PERMISSION);
 
     expect(mockedSystemConfigApi.updateSystemConfig).not.toHaveBeenCalled();
+    expect(mockedQQBotClient.specialNotify).not.toHaveBeenCalled();
   });
 
-  test("saveApiSystemConfigEditable 更新公告后调用 QQ bot 占位", async () => {
+  test("saveApiSystemConfigEditable 更新公告后调用 QQ bot 通知", async () => {
     mockedSystemConfigApi.updateSystemConfig.mockResolvedValue({
       code: 1,
       data: undefined,
       message: "大成功!",
+    });
+    mockedQQBotClient.specialNotify.mockResolvedValue({
+      status: API_QQBOT_SPECIAL_NOTIFY_STATUS.OK,
+      results: [
+        {
+          group: "1345795",
+          ok: true,
+          message_id: 123,
+          error: null,
+        },
+      ],
     });
 
     await expect(
@@ -130,15 +150,123 @@ describe("systemConfigAdmin", () => {
         ...originalConfig,
         announcement: "新公告",
       },
+      notifyResult: {
+        status: API_QQBOT_SPECIAL_NOTIFY_STATUS.OK,
+        results: [
+          {
+            group: "1345795",
+            ok: true,
+            message_id: 123,
+            error: null,
+          },
+        ],
+      },
+      notifyError: undefined,
     });
 
     expect(mockedSystemConfigApi.updateSystemConfig).toHaveBeenCalledWith({
       announcement: "新公告",
     });
-    expect(console.info).toHaveBeenCalledWith(SYSTEM_CONFIG_MESSAGES.QQBOT_NOT_READY, {
-      announcement: "新公告",
+    expect(mockedQQBotClient.specialNotify).toHaveBeenCalledWith({
+      message: "新公告",
       groups: ["1345795", "450555868", "123456"],
     });
+  });
+
+  test("saveApiSystemConfigEditable 支持 QQ bot 部分失败结果", async () => {
+    mockedSystemConfigApi.updateSystemConfig.mockResolvedValue({
+      code: 1,
+      data: undefined,
+      message: "大成功!",
+    });
+    mockedQQBotClient.specialNotify.mockResolvedValue({
+      status: API_QQBOT_SPECIAL_NOTIFY_STATUS.PARTIAL_FAILED,
+      results: [
+        {
+          group: "1345795",
+          ok: true,
+          message_id: 123,
+          error: null,
+        },
+        {
+          group: "450555868",
+          ok: false,
+          message_id: null,
+          error: "Bot 当前无法 @全体成员",
+        },
+      ],
+    });
+
+    await expect(
+      saveApiSystemConfigEditable({
+        userPermission: Permission.SuperAdmin,
+        originalConfig,
+        draftConfig: {
+          ...originalConfig,
+          announcement: "新公告",
+        },
+        customQQGroups: [],
+      })
+    ).resolves.toMatchObject({
+      payload: {
+        announcement: "新公告",
+      },
+      notifyResult: {
+        status: API_QQBOT_SPECIAL_NOTIFY_STATUS.PARTIAL_FAILED,
+      },
+    });
+  });
+
+  test("saveApiSystemConfigEditable 在 QQ bot 请求失败时保留配置保存结果", async () => {
+    mockedSystemConfigApi.updateSystemConfig.mockResolvedValue({
+      code: 1,
+      data: undefined,
+      message: "大成功!",
+    });
+    mockedQQBotClient.specialNotify.mockRejectedValue(new Error("请求过于频繁"));
+
+    await expect(
+      saveApiSystemConfigEditable({
+        userPermission: Permission.SuperAdmin,
+        originalConfig,
+        draftConfig: {
+          ...originalConfig,
+          announcement: "新公告",
+        },
+        customQQGroups: [],
+      })
+    ).resolves.toMatchObject({
+      payload: {
+        announcement: "新公告",
+      },
+      config: {
+        ...originalConfig,
+        announcement: "新公告",
+      },
+      notifyError: "请求过于频繁",
+    });
+  });
+
+  test("saveApiSystemConfigEditable 配置保存失败时不调用 QQ bot", async () => {
+    mockedSystemConfigApi.updateSystemConfig.mockResolvedValue({
+      code: 0,
+      data: undefined,
+      message: "保存失败",
+    });
+
+    await expect(
+      saveApiSystemConfigEditable({
+        userPermission: Permission.SuperAdmin,
+        originalConfig,
+        draftConfig: {
+          ...originalConfig,
+          announcement: "新公告",
+        },
+        customQQGroups: [],
+      })
+    ).rejects.toThrow("保存失败");
+
+    expect(mockedQQBotClient.specialNotify).not.toHaveBeenCalled();
   });
 
   test("getAnnouncementNotifyGroups 合并默认群、自定义群并去重", () => {
