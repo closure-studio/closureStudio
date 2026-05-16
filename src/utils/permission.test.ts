@@ -1,4 +1,4 @@
-import { Permission } from "@/constants/auth";
+import { PERMISSION_DETAILS, Permission } from "@/constants/auth";
 import {
     addPermission,
     canAccessSystemAdmin,
@@ -13,24 +13,38 @@ describe("Permissions System", () => {
         expect(Permission.SuperAdmin).toBe(1);
         expect(Permission.TicketCreate).toBe(2);
         expect(Permission.TicketUpdate).toBe(4);
-        expect(Permission.TicketOperate).toBe(8);
+        expect(Permission.CommunityHelper).toBe(8);
         expect(Permission.CreateGame).toBe(16);
         expect(Permission.QueryGame).toBe(32);
         expect(Permission.UpdateGame).toBe(64);
         expect(Permission.DelGame).toBe(128);
     });
 
+    test("permission details cover every permission value", () => {
+        const permissionValues = Object.values(Permission).filter(
+            (value): value is Permission => typeof value === "number"
+        );
+
+        expect(Object.keys(PERMISSION_DETAILS).map(Number).sort((a, b) => a - b)).toEqual(
+            permissionValues.sort((a, b) => a - b)
+        );
+        permissionValues.forEach((permission) => {
+            expect(PERMISSION_DETAILS[permission].label).toBeTruthy();
+            expect(PERMISSION_DETAILS[permission].description).toBeTruthy();
+        });
+    });
+
     test("SuperAdmin has all permissions", () => {
         const superAdminRights = Permission.SuperAdmin;
-        expect(hasPermission(superAdminRights, Permission.TicketOperate)).toBe(true);
+        expect(hasPermission(superAdminRights, Permission.CommunityHelper)).toBe(true);
         expect(hasPermission(superAdminRights, Permission.CreateGame)).toBe(true);
         expect(hasPermission(superAdminRights, Permission.DelGame)).toBe(true);
         expect(isAdmin({ user: { Info: { permission: superAdminRights } } })).toBe(true);
     });
 
-    test("system admin access requires SuperAdmin or TicketOperate", () => {
+    test("system admin access requires SuperAdmin or CommunityHelper", () => {
         expect(canAccessSystemAdmin(Permission.SuperAdmin)).toBe(true);
-        expect(canAccessSystemAdmin(Permission.TicketOperate)).toBe(true);
+        expect(canAccessSystemAdmin(Permission.CommunityHelper)).toBe(true);
         expect(canAccessSystemAdmin(Permission.CreateGame)).toBe(false);
         expect(canAccessSystemAdmin(0)).toBe(false);
     });
@@ -63,12 +77,12 @@ describe("Permissions System", () => {
         let userRights = addPermission(0, Permission.CreateGame);
         userRights = addPermission(userRights, Permission.UpdateGame);
         userRights = addPermission(userRights, Permission.QueryGame);
-        userRights = addPermission(userRights, Permission.TicketOperate);
+        userRights = addPermission(userRights, Permission.CommunityHelper);
         const expectedPermissions = [
             Permission.CreateGame,
             Permission.UpdateGame,
             Permission.QueryGame,
-            Permission.TicketOperate,
+            Permission.CommunityHelper,
         ];
         expect(listPermissions(userRights)).toEqual(expect.arrayContaining(expectedPermissions));
         expect(listPermissions(userRights)).not.toEqual(expect.arrayContaining([NaN]));
@@ -92,7 +106,7 @@ describe("Permissions System", () => {
             Permission.SuperAdmin,
             Permission.TicketCreate,
             Permission.TicketUpdate,
-            Permission.TicketOperate,
+            Permission.CommunityHelper,
             Permission.CreateGame,
             Permission.QueryGame,
             Permission.UpdateGame,

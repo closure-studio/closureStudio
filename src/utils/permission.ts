@@ -20,7 +20,7 @@ export function removePermission(userRights: number, permission: number): number
 }
 
 export function canAccessSystemAdmin(userRights: number): boolean {
-  return hasPermission(userRights, Permission.SuperAdmin) || hasPermission(userRights, Permission.TicketOperate);
+  return hasPermission(userRights, Permission.SuperAdmin) || hasPermission(userRights, Permission.CommunityHelper);
 }
 
 // return a list of permissions that the user has

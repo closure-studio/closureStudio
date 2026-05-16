@@ -23,3 +23,14 @@ export const SYSTEM_CONFIG_MESSAGES = {
   QQ_GROUP_EXISTS: "QQ群已存在",
   QQ_GROUP_ADDED: "QQ群已添加",
 } as const;
+
+export const USER_MANAGEMENT_MESSAGES = {
+  SEARCH_EMPTY: "请输入用户搜索关键字",
+  SEARCH_FAILED: "搜索用户失败",
+  USER_NOT_FOUND: "未找到匹配用户",
+  UPDATE_FAILED: "更新用户权限失败",
+  UPDATE_SUCCESS: "用户权限已更新",
+  NO_PERMISSION: "无权更新用户权限",
+  NO_CHANGES: "用户权限未变更",
+  USER_ID_EMPTY: "用户ID不能为空",
+} as const;
