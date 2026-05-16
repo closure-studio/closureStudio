@@ -165,8 +165,8 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
 import { reactive, ref, watch } from "vue";
-import { ARK_RESOURCE_DOMAIN } from "@/constants/api";
 import { formatTime } from "@/utils/format";
+import { getArkResourceUrl } from "@/utils/resource";
 import type {
   ReplayAuditStatus,
   ReplayAvatar,
@@ -214,12 +214,10 @@ watch(
   { immediate: true, deep: true }
 );
 
-const avatarUrl = (avatar: ReplayAvatar) =>
-  `${ARK_RESOURCE_DOMAIN}/avatar/${avatar.type}/${avatar.id}.webp`;
+const avatarUrl = (avatar: ReplayAvatar) => getArkResourceUrl(`avatar/${avatar.type}/${avatar.id}`);
 
 const onAvatarError = (event: Event) => {
-  (event.target as HTMLImageElement).src =
-    `${ARK_RESOURCE_DOMAIN}/avatar/DEFAULT/avatar_def_mc.webp`;
+  (event.target as HTMLImageElement).src = getArkResourceUrl("avatar/DEFAULT/avatar_def_mc");
 };
 
 const validationLabel = (status: ReplayValidationStatus) => {
