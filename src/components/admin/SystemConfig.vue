@@ -48,40 +48,30 @@
           <div
             v-for="group in systemAdminStore.defaultQQGroups"
             :key="group"
-            class="block rounded-lg bg-[#251E15] px-3 py-3 transition-colors"
+            class="bg-[#251E15] rounded-lg"
           >
-            <div class="flex items-center justify-between gap-3">
-              <div class="flex min-w-0 flex-1 items-center gap-3">
-                <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-primary" />
-                <div class="min-w-0">
-                  <p class="truncate text-sm font-semibold">{{ group }}</p>
-                </div>
-              </div>
-              <span class="shrink-0 text-xs font-medium text-base-content/60">默认通知</span>
-            </div>
+            <StatusListItem :title="group" active>
+              <template #suffix>
+                <span class="text-xs font-medium text-base-content/60">默认通知</span>
+              </template>
+            </StatusListItem>
           </div>
-          <button
+          <StatusListItem
             v-for="(group, index) in systemAdminStore.customQQGroups"
             :key="group"
-            type="button"
-            class="block w-full rounded-lg px-3 py-3 text-left transition-colors hover:bg-base-200/20"
+            :title="group"
+            clickable
             :disabled="isPublishing"
             @click="systemAdminStore.removeCustomQQGroup(group)"
           >
-            <div class="flex items-center justify-between gap-3">
-              <div class="flex min-w-0 flex-1 items-center gap-3">
-                <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-base-300" />
-                <div class="min-w-0">
-                  <p class="truncate text-sm font-semibold">{{ group }}</p>
-                </div>
-              </div>
-              <span class="shrink-0 text-xs font-medium text-base-content/60">点击移除</span>
-            </div>
+            <template #suffix>
+              <span class="text-xs font-medium text-base-content/60">点击移除</span>
+            </template>
             <div
               v-if="index < systemAdminStore.customQQGroups.length - 1"
               class="divider my-0"
             />
-          </button>
+          </StatusListItem>
         </div>
       </section>
 
@@ -115,6 +105,7 @@ import { setMsg } from "@/utils/toast";
 import { Type } from "@/constants/ui";
 import { useSystemAdminStore } from "@/stores/useSystemAdminStore";
 import { useUserStore } from "@/stores/useUserStore";
+import StatusListItem from "@/shared/components/ui/StatusListItem.vue";
 
 type ServiceSwitchKey = Exclude<keyof ApiSystemConfigEditable, "announcement">;
 

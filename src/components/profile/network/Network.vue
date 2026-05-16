@@ -8,81 +8,49 @@
     </div>
     <div>
       <div class="w-full mb-3 rounded-box bg-base-100">
-        <label
-          class="block rounded-lg px-3 py-3 cursor-pointer transition-colors"
-          :class="
-            handleAPIClientRadioIsChecked(API_HOST_LTSC)
-              ? 'bg-primary/5'
-              : 'bg-base-100 hover:bg-base-200/20'
-          "
+        <StatusListItem
+          :title="API_HOST_LTSC.label"
+          :active="handleAPIClientRadioIsChecked(API_HOST_LTSC)"
+          clickable
           @click="handleAPIClientRadioOnClick(API_HOST_LTSC)"
         >
-          <div class="flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3 min-w-0 flex-1">
-              <span
-                class="h-2.5 w-2.5 rounded-full shrink-0"
-                :class="handleAPIClientRadioIsChecked(API_HOST_LTSC) ? 'bg-primary' : 'bg-base-300'"
-              />
-              <div class="min-w-0">
-                <p class="text-sm font-semibold truncate">{{ API_HOST_LTSC.label }}</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-3 shrink-0">
-              <span :class="ltscLatencyClass">{{ formatLatencyText(ltscRadioBtnText) }}</span>
-              <span
-                class="text-xs font-medium"
-                :class="
-                  handleAPIClientRadioIsChecked(API_HOST_LTSC)
-                    ? 'text-primary'
-                    : 'text-base-content/60'
-                "
-              >
-                {{ handleAPIClientRadioIsChecked(API_HOST_LTSC) ? "使用中" : "切换" }}
-              </span>
-            </div>
-          </div>
-        </label>
+          <template #suffix>
+            <span :class="ltscLatencyClass">{{ formatLatencyText(ltscRadioBtnText) }}</span>
+            <span
+              class="text-xs font-medium"
+              :class="
+                handleAPIClientRadioIsChecked(API_HOST_LTSC)
+                  ? 'text-primary'
+                  : 'text-base-content/60'
+              "
+            >
+              {{ handleAPIClientRadioIsChecked(API_HOST_LTSC) ? "使用中" : "切换" }}
+            </span>
+          </template>
+        </StatusListItem>
 
         <div class="divider my-0" />
 
-        <label
-          class="block rounded-lg px-3 py-3 cursor-pointer transition-colors"
-          :class="
-            handleAPIClientRadioIsChecked(API_HOST_CLOUDFLARE)
-              ? 'bg-primary/5'
-              : 'bg-base-100 hover:bg-base-200/20'
-          "
+        <StatusListItem
+          :title="API_HOST_CLOUDFLARE.label"
+          :active="handleAPIClientRadioIsChecked(API_HOST_CLOUDFLARE)"
+          clickable
           @click="handleAPIClientRadioOnClick(API_HOST_CLOUDFLARE)"
         >
-          <div class="flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3 min-w-0 flex-1">
-              <span
-                class="h-2.5 w-2.5 rounded-full shrink-0"
-                :class="
-                  handleAPIClientRadioIsChecked(API_HOST_CLOUDFLARE) ? 'bg-primary' : 'bg-base-300'
-                "
-              />
-              <div class="min-w-0">
-                <p class="text-sm font-semibold truncate">{{ API_HOST_CLOUDFLARE.label }}</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-3 shrink-0">
-              <span :class="cloudflareLatencyClass">{{
-                formatLatencyText(cloudflareRadioBtnText)
-              }}</span>
-              <span
-                class="text-xs font-medium"
-                :class="
-                  handleAPIClientRadioIsChecked(API_HOST_CLOUDFLARE)
-                    ? 'text-primary'
-                    : 'text-base-content/60'
-                "
-              >
-                {{ handleAPIClientRadioIsChecked(API_HOST_CLOUDFLARE) ? "使用中" : "切换" }}
-              </span>
-            </div>
-          </div>
-        </label>
+          <template #suffix>
+            <span :class="cloudflareLatencyClass">{{ formatLatencyText(cloudflareRadioBtnText) }}</span>
+            <span
+              class="text-xs font-medium"
+              :class="
+                handleAPIClientRadioIsChecked(API_HOST_CLOUDFLARE)
+                  ? 'text-primary'
+                  : 'text-base-content/60'
+              "
+            >
+              {{ handleAPIClientRadioIsChecked(API_HOST_CLOUDFLARE) ? "使用中" : "切换" }}
+            </span>
+          </template>
+        </StatusListItem>
       </div>
       <div class="divider"></div>
     </div>
@@ -93,6 +61,7 @@
 import apiClient, { APIClient } from "@/services/apiClient";
 import { API_HOST_CLOUDFLARE, API_HOST_LTSC, type IHostServer } from "@/constants/api";
 import { computed, ref } from "vue";
+import StatusListItem from "@/shared/components/ui/StatusListItem.vue";
 
 import { Type } from "@/constants/ui";
 import { setMsg } from "@/utils/toast";
