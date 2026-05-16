@@ -83,7 +83,7 @@ describe("systemConfigAdmin", () => {
   test("saveApiSystemConfigEditable 无变化时不调用更新 API", async () => {
     await expect(
       saveApiSystemConfigEditable({
-        userPermission: Permission.TicketOperate,
+        userPermission: Permission.CommunityHelper,
         originalConfig,
         draftConfig: originalConfig,
         customQQGroups: [],
