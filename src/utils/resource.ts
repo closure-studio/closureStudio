@@ -57,8 +57,15 @@ export function getCharAvatarUrl(charId: string): string {
   return getArkResourceUrl(`avatar/ASSISTANT/${charId}`);
 }
 
+function normalizeGameAvatarId(id: string): string {
+  return id
+    .trim()
+    .replace(/#(\d+)/g, (_, skinIndex: string) => `_${Number(skinIndex) + 1}`)
+    .replace(/[@#]/g, "_");
+}
+
 export function getGameAvatarUrl(avatar?: Partial<ApiGameAvatar> | null): string {
-  const normalizedId = (avatar?.id ?? "").trim().replace(/@/g, "_").replace(/#/g, "_");
+  const normalizedId = normalizeGameAvatarId(avatar?.id ?? "");
 
   if (!normalizedId) {
     return getArkResourceUrl(

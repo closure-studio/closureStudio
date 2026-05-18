@@ -37,4 +37,10 @@ describe("resource", () => {
       `${ARK_RESOURCE_DOMAIN}/assets/avatar/ASSISTANT/char_002_amiya.webp`
     );
   });
+
+  it("maps assistant skin avatar ids to resource indexes", () => {
+    expect(getGameAvatarUrl({ type: "ASSISTANT", id: "char_1041_angel2#1" })).toBe(
+      `${ARK_RESOURCE_DOMAIN}/assets/avatar/ASSISTANT/char_1041_angel2_2.webp`
+    );
+  });
 });
