@@ -8,8 +8,8 @@
       <section class="space-y-5">
         <div>
           <h2 class="text-base font-bold">公告广播</h2>
-          <p class="text-xs font-medium text-warning">
-            公告发布后会通知默认 QQ 群并 @全体成员，请确认内容无误后再发布
+          <p class="text-xs font-medium text-base-content/60">
+            {{ SYSTEM_CONFIG_TEXT.ANNOUNCEMENT_HELP }}
           </p>
         </div>
         <textarea
@@ -18,6 +18,12 @@
           :disabled="isPublishing"
           placeholder="请输入系统公告"
         ></textarea>
+        <CheckOptionCard
+          v-model="shouldNotifyAnnouncement"
+          :title="SYSTEM_CONFIG_TEXT.ANNOUNCEMENT_NOTIFY_LABEL"
+          :description="SYSTEM_CONFIG_TEXT.ANNOUNCEMENT_NOTIFY_HELP"
+          :disabled="isPublishing"
+        />
       </section>
 
       <div class="divider mb-3 mt-0">权限开关</div>
@@ -93,11 +99,12 @@ import {
   loadApiSystemConfigEditable,
   saveApiSystemConfigEditable,
 } from "@/services/systemConfigAdmin";
-import { SYSTEM_CONFIG_MESSAGES } from "@/constants/systemAdmin";
+import { SYSTEM_CONFIG_MESSAGES, SYSTEM_CONFIG_TEXT } from "@/constants/systemAdmin";
 import { setMsg } from "@/utils/toast";
 import { Type } from "@/constants/ui";
 import { useSystemAdminStore } from "@/stores/useSystemAdminStore";
 import { useUserStore } from "@/stores/useUserStore";
+import CheckOptionCard from "@/shared/components/ui/CheckOptionCard.vue";
 import StatusListItem from "@/shared/components/ui/StatusListItem.vue";
 import ToggleInfoCard from "@/shared/components/ui/ToggleInfoCard.vue";
 
@@ -139,6 +146,7 @@ const originalConfig = ref<ApiSystemConfigEditable | null>(null);
 const draftConfig = ref<ApiSystemConfigEditable | null>(null);
 const isLoadingConfig = ref(false);
 const isPublishing = ref(false);
+const shouldNotifyAnnouncement = ref(false);
 
 const customQQGroups = computed(() => systemAdminStore.customQQGroups);
 
@@ -177,10 +185,15 @@ const handlePublish = async () => {
       originalConfig: originalConfig.value,
       draftConfig: draftConfig.value,
       customQQGroups: customQQGroups.value,
+      shouldNotifyAnnouncement: shouldNotifyAnnouncement.value,
     });
     originalConfig.value = cloneConfig(result.config);
     draftConfig.value = cloneConfig(result.config);
     if (payload.announcement === undefined) {
+      setMsg(SYSTEM_CONFIG_MESSAGES.PUBLISH_SUCCESS, Type.Success);
+      return;
+    }
+    if (!shouldNotifyAnnouncement.value) {
       setMsg(SYSTEM_CONFIG_MESSAGES.PUBLISH_SUCCESS, Type.Success);
       return;
     }

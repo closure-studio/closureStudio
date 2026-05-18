@@ -24,6 +24,12 @@ export const SYSTEM_CONFIG_MESSAGES = {
   QQ_GROUP_ADDED: "QQ群已添加",
 } as const;
 
+export const SYSTEM_CONFIG_TEXT = {
+  ANNOUNCEMENT_HELP: "编辑网站首页公告，可选择是否同步通知 QQ 群",
+  ANNOUNCEMENT_NOTIFY_LABEL: "同步发送 QQ 群通知并 @全体成员",
+  ANNOUNCEMENT_NOTIFY_HELP: "将发送到默认 QQ 群和下方追加的 QQ 群",
+} as const;
+
 export const USER_MANAGEMENT_MESSAGES = {
   SEARCH_EMPTY: "请输入用户搜索关键字",
   SEARCH_FAILED: "搜索用户失败",

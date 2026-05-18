@@ -68,6 +68,7 @@ export const saveApiSystemConfigEditable = async (params: {
   originalConfig: ApiSystemConfigEditable;
   draftConfig: ApiSystemConfigEditable;
   customQQGroups: string[];
+  shouldNotifyAnnouncement: boolean;
 }): Promise<SaveApiSystemConfigEditableResult> => {
   if (!canAccessSystemAdmin(params.userPermission)) {
     throw new Error(SYSTEM_CONFIG_MESSAGES.NO_PERMISSION);
@@ -88,7 +89,7 @@ export const saveApiSystemConfigEditable = async (params: {
 
   let notifyResult: ApiQQBotSpecialNotifyResponse | undefined;
   let notifyError: string | undefined;
-  if (payload.announcement !== undefined) {
+  if (payload.announcement !== undefined && params.shouldNotifyAnnouncement) {
     try {
       notifyResult = await notifyAnnouncement(
         payload.announcement,

@@ -87,6 +87,7 @@ describe("systemConfigAdmin", () => {
         originalConfig,
         draftConfig: originalConfig,
         customQQGroups: [],
+        shouldNotifyAnnouncement: false,
       })
     ).resolves.toEqual({
       payload: {},
@@ -107,6 +108,7 @@ describe("systemConfigAdmin", () => {
           allowGameLogin: false,
         },
         customQQGroups: [],
+        shouldNotifyAnnouncement: false,
       })
     ).rejects.toThrow(SYSTEM_CONFIG_MESSAGES.NO_PERMISSION);
 
@@ -141,6 +143,7 @@ describe("systemConfigAdmin", () => {
           announcement: "新公告",
         },
         customQQGroups: ["123456", "1345795"],
+        shouldNotifyAnnouncement: true,
       })
     ).resolves.toEqual({
       payload: {
@@ -171,6 +174,42 @@ describe("systemConfigAdmin", () => {
       message: "新公告",
       groups: ["1345795", "450555868", "123456"],
     });
+  });
+
+  test("saveApiSystemConfigEditable 更新公告但未选择通知时不调用 QQ bot", async () => {
+    mockedSystemConfigApi.updateSystemConfig.mockResolvedValue({
+      code: 1,
+      data: undefined,
+      message: "大成功!",
+    });
+
+    const params = {
+      userPermission: Permission.SuperAdmin,
+      originalConfig,
+      draftConfig: {
+        ...originalConfig,
+        announcement: "新公告",
+      },
+      customQQGroups: ["123456"],
+      shouldNotifyAnnouncement: false,
+    };
+
+    await expect(saveApiSystemConfigEditable(params)).resolves.toEqual({
+      payload: {
+        announcement: "新公告",
+      },
+      config: {
+        ...originalConfig,
+        announcement: "新公告",
+      },
+      notifyResult: undefined,
+      notifyError: undefined,
+    });
+
+    expect(mockedSystemConfigApi.updateSystemConfig).toHaveBeenCalledWith({
+      announcement: "新公告",
+    });
+    expect(mockedQQBotClient.specialNotify).not.toHaveBeenCalled();
   });
 
   test("saveApiSystemConfigEditable 支持 QQ bot 部分失败结果", async () => {
@@ -206,6 +245,7 @@ describe("systemConfigAdmin", () => {
           announcement: "新公告",
         },
         customQQGroups: [],
+        shouldNotifyAnnouncement: true,
       })
     ).resolves.toMatchObject({
       payload: {
@@ -234,6 +274,7 @@ describe("systemConfigAdmin", () => {
           announcement: "新公告",
         },
         customQQGroups: [],
+        shouldNotifyAnnouncement: true,
       })
     ).resolves.toMatchObject({
       payload: {
@@ -263,6 +304,7 @@ describe("systemConfigAdmin", () => {
           announcement: "新公告",
         },
         customQQGroups: [],
+        shouldNotifyAnnouncement: true,
       })
     ).rejects.toThrow("保存失败");
 
