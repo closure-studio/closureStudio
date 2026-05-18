@@ -26,11 +26,27 @@ export interface ApiSystemConfig {
     gameStatBatchSize: number;
   };
   apiVersion?: string | null;
+  shutdownTasks?: ApiSystemConfigShutdownTask[];
+}
+
+export type ApiSystemConfigShutdownTaskConfig = Pick<
+  ApiSystemConfig,
+  "allowGameLogin" | "allowGameCreate" | "allowGameUpdate" | "allowGameDelete"
+>;
+
+export interface ApiSystemConfigShutdownTask {
+  timestamp: number;
+  config: ApiSystemConfigShutdownTaskConfig;
 }
 
 export type ApiSystemConfigEditable = Pick<
   ApiSystemConfig,
-  "announcement" | "allowGameLogin" | "allowGameCreate" | "allowGameUpdate" | "allowGameDelete"
+  | "announcement"
+  | "allowGameLogin"
+  | "allowGameCreate"
+  | "allowGameUpdate"
+  | "allowGameDelete"
+  | "shutdownTasks"
 >;
 
 export type ApiSystemConfigUpdate = Partial<ApiSystemConfigEditable>;
