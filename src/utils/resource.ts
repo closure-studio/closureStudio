@@ -58,19 +58,23 @@ export function getCharAvatarUrl(charId: string): string {
 }
 
 function normalizeGameAvatarId(id: string): string {
+  return id.trim().replace(/[@#]/g, "_");
+}
+
+function normalizeGameAvatarIdWithNextSkinIndex(id: string): string {
   return id
     .trim()
     .replace(/#(\d+)/g, (_, skinIndex: string) => `_${Number(skinIndex) + 1}`)
     .replace(/[@#]/g, "_");
 }
 
-export function getGameAvatarUrl(avatar?: Partial<ApiGameAvatar> | null): string {
+export function getGameAvatarUrlCandidates(avatar?: Partial<ApiGameAvatar> | null): string[] {
   const normalizedId = normalizeGameAvatarId(avatar?.id ?? "");
 
   if (!normalizedId) {
-    return getArkResourceUrl(
-      `avatar/${ARK_AVATAR_RESOURCE_TYPE.DEFAULT}/${DEFAULT_ARK_AVATAR_ID}`
-    );
+    return [
+      getArkResourceUrl(`avatar/${ARK_AVATAR_RESOURCE_TYPE.DEFAULT}/${DEFAULT_ARK_AVATAR_ID}`),
+    ];
   }
 
   const resourceType =
@@ -78,7 +82,17 @@ export function getGameAvatarUrl(avatar?: Partial<ApiGameAvatar> | null): string
       ? ARK_AVATAR_RESOURCE_TYPE.DEFAULT
       : ARK_AVATAR_RESOURCE_TYPE.ASSISTANT;
 
-  return getArkResourceUrl(`avatar/${resourceType}/${normalizedId}`);
+  const candidateIds = [normalizedId];
+  const nextSkinIndexId = normalizeGameAvatarIdWithNextSkinIndex(avatar?.id ?? "");
+  if (nextSkinIndexId && nextSkinIndexId !== normalizedId) {
+    candidateIds.push(nextSkinIndexId);
+  }
+
+  return candidateIds.map((candidateId) => getArkResourceUrl(`avatar/${resourceType}/${candidateId}`));
+}
+
+export function getGameAvatarUrl(avatar?: Partial<ApiGameAvatar> | null): string {
+  return getGameAvatarUrlCandidates(avatar)[0];
 }
 
 /**

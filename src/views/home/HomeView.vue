@@ -87,6 +87,7 @@
               <div class="w-16 mask mask-squircle">
                 <img
                   :src="getGameAvatarUrl(k.avatar)"
+                  @error="useNextGameAvatarUrl($event, k.avatar)"
                   alt="斯卡蒂"
                 />
               </div>
@@ -113,7 +114,7 @@ import Login from "@/components/home/auth/LoginDialog.vue";
 import { useUserStore } from "@/stores/useUserStore";
 import { isNight } from "@/utils/misc";
 import { API_RESPONSE_CODE } from "@/constants/api";
-import { getGameAvatarUrl } from "@/utils/resource";
+import { getGameAvatarUrl, getGameAvatarUrlCandidates } from "@/utils/resource";
 import APIStatusBoard from "@/components/system/api-status/APIStatusBoard.vue";
 import apiClient from "@/services/apiClient";
 const version = import.meta.env.VITE_APP_VERSION;
@@ -131,4 +132,15 @@ onMounted(async () => {
     list.value = resp.data;
   }
 });
+
+const useNextGameAvatarUrl = (event: Event, avatar: ApiSystemHall["avatar"]) => {
+  const image = event.target as HTMLImageElement;
+  const nextIndex = Number(image.dataset.avatarIndex ?? 0) + 1;
+  const candidates = getGameAvatarUrlCandidates(avatar);
+
+  if (nextIndex >= candidates.length) return;
+
+  image.dataset.avatarIndex = String(nextIndex);
+  image.src = candidates[nextIndex];
+};
 </script>
