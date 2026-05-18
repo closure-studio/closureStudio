@@ -54,6 +54,17 @@ export enum GameResourceType {
   AP_GAMEPLAY = "AP_GAMEPLAY",
 }
 
+export const ARK_AVATAR_RESOURCE_TYPE = {
+  DEFAULT: "DEFAULT",
+  ASSISTANT: "ASSISTANT",
+} as const;
+
+export const ARK_GAME_AVATAR_TYPE = {
+  ICON: "ICON",
+} as const;
+
+export const DEFAULT_ARK_AVATAR_ID = "avatar_def_01";
+
 export const GAME_STATUS_CODE = {
   LOGIN_FAILED: -1,
   NOT_STARTED: 0,

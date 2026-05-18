@@ -86,7 +86,7 @@
             <div class="indicator avatar">
               <div class="w-16 mask mask-squircle">
                 <img
-                  :src="getArkResourceUrl(`avatar/${k.avatar?.type == 'ICON' ? 'DEFAULT' : 'ASSISTANT'}/${k.avatar?.id?.replace('@', '_').replace('#', '_') || 'avatar_activity_GK'}`)"
+                  :src="getGameAvatarUrl(k.avatar)"
                   alt="斯卡蒂"
                 />
               </div>
@@ -113,7 +113,7 @@ import Login from "@/components/home/auth/LoginDialog.vue";
 import { useUserStore } from "@/stores/useUserStore";
 import { isNight } from "@/utils/misc";
 import { API_RESPONSE_CODE } from "@/constants/api";
-import { getArkResourceUrl } from "@/utils/resource";
+import { getGameAvatarUrl } from "@/utils/resource";
 import APIStatusBoard from "@/components/system/api-status/APIStatusBoard.vue";
 import apiClient from "@/services/apiClient";
 const version = import.meta.env.VITE_APP_VERSION;
