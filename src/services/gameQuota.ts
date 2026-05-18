@@ -1,24 +1,29 @@
 import type { RegistrySlot, RegistryUserInfo } from "@/shared/types/api";
 import { checkIsMobile } from "@/utils/regex";
 import { getRealGameAccount } from "@/utils/account";
+import { GAME_SLOT_RULE_FLAGS } from "@/constants/game";
 
 export interface CanAddGameResult {
   message: string;
   isLocked: boolean;
 }
 
+const isAccountSMSSlot = (slot: RegistrySlot) =>
+  slot.ruleFlags.includes(GAME_SLOT_RULE_FLAGS.ACCOUNT_FORMAT_IS_PHONE) &&
+  slot.ruleFlags.includes(GAME_SLOT_RULE_FLAGS.ACCOUNT_SMS_VERIFIED);
+
+export const isHiddenEmptySMSSlot = (slot: RegistrySlot) =>
+  !slot.gameAccount && isAccountSMSSlot(slot);
+
 export const quotaSlotsSort = (slotArray: RegistrySlot[]) => {
-  const gameAccountNotNull = slotArray.filter((item) => item.gameAccount !== null);
-  const gameAccountNull = slotArray.filter((item) => item.gameAccount === null);
+  const visibleSlots = slotArray.filter((item) => !isHiddenEmptySMSSlot(item));
+  const gameAccountNotNull = visibleSlots.filter((item) => item.gameAccount !== null);
+  const gameAccountNull = visibleSlots.filter((item) => item.gameAccount === null);
 
   gameAccountNotNull.sort((first, second) => first.createdAt - second.createdAt);
   gameAccountNull.sort((first, second) => {
-    const firstContainsBothFlags =
-      first.ruleFlags.includes("slot_account_format_is_phone") &&
-      first.ruleFlags.includes("slot_account_sms_verified");
-    const secondContainsBothFlags =
-      second.ruleFlags.includes("slot_account_format_is_phone") &&
-      second.ruleFlags.includes("slot_account_sms_verified");
+    const firstContainsBothFlags = isAccountSMSSlot(first);
+    const secondContainsBothFlags = isAccountSMSSlot(second);
 
     if (firstContainsBothFlags === secondContainsBothFlags) {
       return first.createdAt - second.createdAt;
@@ -30,11 +35,7 @@ export const quotaSlotsSort = (slotArray: RegistrySlot[]) => {
 };
 
 export const getSMSSlot = (slotArray: RegistrySlot[]) => {
-  return slotArray.find(
-    (item) =>
-      item.ruleFlags.includes("slot_account_format_is_phone") &&
-      item.ruleFlags.includes("slot_account_sms_verified")
-  );
+  return slotArray.find(isAccountSMSSlot);
 };
 
 export const canDeleteGame = (userQuota: RegistryUserInfo, gameAccount: string) => {
@@ -62,22 +63,19 @@ export const allowGameCreate = (
   if (!userQuota) {
     return response;
   }
-  if (
-    slot.ruleFlags.includes("slot_account_format_is_phone") &&
-    slot.ruleFlags.includes("slot_account_sms_verified")
-  ) {
+  if (isAccountSMSSlot(slot)) {
     response.message = "添加第一个托管";
     response.isLocked = false;
     return response;
   }
 
-  if (slot.ruleFlags.includes("slot_user_sms_verified") && isVerify) {
+  if (slot.ruleFlags.includes(GAME_SLOT_RULE_FLAGS.USER_SMS_VERIFIED) && isVerify) {
     response.message = "添加游戏托管";
     response.isLocked = false;
     return response;
   }
 
-  if (slot.ruleFlags.includes("slot_user_qq_verified") && isVerify) {
+  if (slot.ruleFlags.includes(GAME_SLOT_RULE_FLAGS.USER_QQ_VERIFIED) && isVerify) {
     if (!userQuota.idServerQQ) {
       response.message = "请完成QQ绑定";
       return response;
