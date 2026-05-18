@@ -219,7 +219,7 @@ watch(
 const avatarUrl = (avatar: ReplayAvatar) => getArkResourceUrl(`avatar/${avatar.type}/${avatar.id}`);
 
 const onAvatarError = (event: Event) => {
-  (event.target as HTMLImageElement).src = getArkResourceUrl("avatar/DEFAULT/avatar_def_mc");
+  (event.target as HTMLImageElement).src = getArkResourceUrl("avatar/DEFAULT/avatar_def_01");
 };
 
 const validationLabel = (status: ReplayValidationStatus) => {

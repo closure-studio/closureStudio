@@ -1,9 +1,15 @@
-import { GameResourceType } from "@/constants/game";
+import {
+  ARK_AVATAR_RESOURCE_TYPE,
+  ARK_GAME_AVATAR_TYPE,
+  DEFAULT_ARK_AVATAR_ID,
+  GameResourceType,
+} from "@/constants/game";
 import { ARK_RESOURCE_DOMAIN } from "@/constants/api";
+import type { ApiGameAvatar } from "@/shared/types/api";
 
 /**
  * 获取明日方舟资源的完整URL
- * @param path 资源路径（如 'avatar/DEFAULT/avatar_def_mc'）
+ * @param path 资源路径（如 'avatar/DEFAULT/avatar_def_01'）
  * @param extension 文件扩展名，默认为 'webp'
  * @returns 完整的资源URL
  */
@@ -49,6 +55,23 @@ export function getCharPortraitUrl(charId: string, phase: number): string {
  */
 export function getCharAvatarUrl(charId: string): string {
   return getArkResourceUrl(`avatar/ASSISTANT/${charId}`);
+}
+
+export function getGameAvatarUrl(avatar?: Partial<ApiGameAvatar> | null): string {
+  const normalizedId = (avatar?.id ?? "").trim().replace(/@/g, "_").replace(/#/g, "_");
+
+  if (!normalizedId) {
+    return getArkResourceUrl(
+      `avatar/${ARK_AVATAR_RESOURCE_TYPE.DEFAULT}/${DEFAULT_ARK_AVATAR_ID}`
+    );
+  }
+
+  const resourceType =
+    avatar?.type === ARK_GAME_AVATAR_TYPE.ICON
+      ? ARK_AVATAR_RESOURCE_TYPE.DEFAULT
+      : ARK_AVATAR_RESOURCE_TYPE.ASSISTANT;
+
+  return getArkResourceUrl(`avatar/${resourceType}/${normalizedId}`);
 }
 
 /**
