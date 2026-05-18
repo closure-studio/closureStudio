@@ -1,5 +1,10 @@
 import { ARK_RESOURCE_DOMAIN } from "@/constants/api";
-import { getArkDataUrl, getArkResourceUrl, getGameAvatarUrl } from "@/utils/resource";
+import {
+  getArkDataUrl,
+  getArkResourceUrl,
+  getGameAvatarUrl,
+  getGameAvatarUrlCandidates,
+} from "@/utils/resource";
 
 describe("resource", () => {
   it("generates R2 asset URLs under the assets directory", () => {
@@ -39,8 +44,21 @@ describe("resource", () => {
   });
 
   it("maps assistant skin avatar ids to resource indexes", () => {
-    expect(getGameAvatarUrl({ type: "ASSISTANT", id: "char_1041_angel2#1" })).toBe(
-      `${ARK_RESOURCE_DOMAIN}/assets/avatar/ASSISTANT/char_1041_angel2_2.webp`
+    expect(getGameAvatarUrlCandidates({ type: "ASSISTANT", id: "char_1041_angel2#1" })).toEqual([
+      `${ARK_RESOURCE_DOMAIN}/assets/avatar/ASSISTANT/char_1041_angel2_1.webp`,
+      `${ARK_RESOURCE_DOMAIN}/assets/avatar/ASSISTANT/char_1041_angel2_2.webp`,
+    ]);
+  });
+
+  it("keeps skin ids that already match resource names as the first avatar candidate", () => {
+    expect(getGameAvatarUrl({ type: "ASSISTANT", id: "char_1012_skadi2#2" })).toBe(
+      `${ARK_RESOURCE_DOMAIN}/assets/avatar/ASSISTANT/char_1012_skadi2_2.webp`
+    );
+  });
+
+  it("keeps costume ids that already match resource names as the first avatar candidate", () => {
+    expect(getGameAvatarUrl({ type: "ASSISTANT", id: "char_1028_texas2@epoque#36" })).toBe(
+      `${ARK_RESOURCE_DOMAIN}/assets/avatar/ASSISTANT/char_1028_texas2_epoque_36.webp`
     );
   });
 });
