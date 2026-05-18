@@ -62,6 +62,13 @@ export const GAME_STATUS_CODE = {
   GAME_ERROR: 3,
 } as const;
 
+export const GAME_SLOT_RULE_FLAGS = {
+  ACCOUNT_FORMAT_IS_PHONE: "slot_account_format_is_phone",
+  ACCOUNT_SMS_VERIFIED: "slot_account_sms_verified",
+  USER_SMS_VERIFIED: "slot_user_sms_verified",
+  USER_QQ_VERIFIED: "slot_user_qq_verified",
+} as const;
+
 export const GAME_LOG_QUERYABLE_STATUS_CODES: readonly number[] = [
   GAME_STATUS_CODE.LOGGING_IN,
   GAME_STATUS_CODE.RUNNING,
