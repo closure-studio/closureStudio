@@ -2,6 +2,8 @@ import { API_RESPONSE_CODE } from "@/constants/api";
 import type {
   ApiSystemConfig,
   ApiSystemConfigEditable,
+  ApiSystemConfigShutdownTask,
+  ApiSystemConfigShutdownTaskConfig,
   ApiSystemConfigUpdate,
   ApiQQBotSpecialNotifyResponse,
 } from "@/shared/types/api";
@@ -22,12 +24,47 @@ export interface SaveApiSystemConfigEditableResult {
   notifyError?: string;
 }
 
+const cloneShutdownTaskConfig = (
+  config: ApiSystemConfigShutdownTaskConfig
+): ApiSystemConfigShutdownTaskConfig => ({
+  allowGameLogin: config.allowGameLogin,
+  allowGameCreate: config.allowGameCreate,
+  allowGameUpdate: config.allowGameUpdate,
+  allowGameDelete: config.allowGameDelete,
+});
+
+export const cloneApiSystemConfigShutdownTasks = (
+  shutdownTasks: ApiSystemConfigShutdownTask[] = []
+): ApiSystemConfigShutdownTask[] =>
+  shutdownTasks.map((task) => ({
+    timestamp: task.timestamp,
+    config: cloneShutdownTaskConfig(task.config),
+  }));
+
+const areShutdownTasksEqual = (
+  left: ApiSystemConfigShutdownTask[] = [],
+  right: ApiSystemConfigShutdownTask[] = []
+) =>
+  left.length === right.length &&
+  left.every((task, index) => {
+    const otherTask = right[index];
+    return (
+      otherTask !== undefined &&
+      task.timestamp === otherTask.timestamp &&
+      task.config.allowGameLogin === otherTask.config.allowGameLogin &&
+      task.config.allowGameCreate === otherTask.config.allowGameCreate &&
+      task.config.allowGameUpdate === otherTask.config.allowGameUpdate &&
+      task.config.allowGameDelete === otherTask.config.allowGameDelete
+    );
+  });
+
 export const pickApiSystemConfigEditable = (config: ApiSystemConfig): ApiSystemConfigEditable => ({
   announcement: config.announcement,
   allowGameLogin: config.allowGameLogin,
   allowGameCreate: config.allowGameCreate,
   allowGameUpdate: config.allowGameUpdate,
   allowGameDelete: config.allowGameDelete,
+  shutdownTasks: cloneApiSystemConfigShutdownTasks(config.shutdownTasks),
 });
 
 export const buildApiSystemConfigUpdate = (
@@ -35,6 +72,13 @@ export const buildApiSystemConfigUpdate = (
   draftConfig: ApiSystemConfigEditable
 ): ApiSystemConfigUpdate => {
   return EDITABLE_SYSTEM_CONFIG_KEYS.reduce<ApiSystemConfigUpdate>((payload, key) => {
+    if (key === "shutdownTasks") {
+      if (!areShutdownTasksEqual(originalConfig.shutdownTasks, draftConfig.shutdownTasks)) {
+        payload.shutdownTasks = cloneApiSystemConfigShutdownTasks(draftConfig.shutdownTasks);
+      }
+      return payload;
+    }
+
     if (originalConfig[key] !== draftConfig[key]) {
       payload[key] = draftConfig[key] as never;
     }
@@ -68,6 +112,7 @@ export const saveApiSystemConfigEditable = async (params: {
   originalConfig: ApiSystemConfigEditable;
   draftConfig: ApiSystemConfigEditable;
   customQQGroups: string[];
+  shouldNotifyAnnouncement: boolean;
 }): Promise<SaveApiSystemConfigEditableResult> => {
   if (!canAccessSystemAdmin(params.userPermission)) {
     throw new Error(SYSTEM_CONFIG_MESSAGES.NO_PERMISSION);
@@ -88,7 +133,7 @@ export const saveApiSystemConfigEditable = async (params: {
 
   let notifyResult: ApiQQBotSpecialNotifyResponse | undefined;
   let notifyError: string | undefined;
-  if (payload.announcement !== undefined) {
+  if (payload.announcement !== undefined && params.shouldNotifyAnnouncement) {
     try {
       notifyResult = await notifyAnnouncement(
         payload.announcement,

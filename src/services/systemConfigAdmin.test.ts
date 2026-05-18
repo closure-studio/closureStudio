@@ -37,6 +37,17 @@ const originalConfig: ApiSystemConfigEditable = {
   allowGameCreate: true,
   allowGameUpdate: true,
   allowGameDelete: true,
+  shutdownTasks: [
+    {
+      timestamp: 1800000000,
+      config: {
+        allowGameLogin: false,
+        allowGameCreate: false,
+        allowGameUpdate: false,
+        allowGameDelete: false,
+      },
+    },
+  ],
 };
 
 describe("systemConfigAdmin", () => {
@@ -87,6 +98,7 @@ describe("systemConfigAdmin", () => {
         originalConfig,
         draftConfig: originalConfig,
         customQQGroups: [],
+        shouldNotifyAnnouncement: false,
       })
     ).resolves.toEqual({
       payload: {},
@@ -107,6 +119,7 @@ describe("systemConfigAdmin", () => {
           allowGameLogin: false,
         },
         customQQGroups: [],
+        shouldNotifyAnnouncement: false,
       })
     ).rejects.toThrow(SYSTEM_CONFIG_MESSAGES.NO_PERMISSION);
 
@@ -141,6 +154,7 @@ describe("systemConfigAdmin", () => {
           announcement: "新公告",
         },
         customQQGroups: ["123456", "1345795"],
+        shouldNotifyAnnouncement: true,
       })
     ).resolves.toEqual({
       payload: {
@@ -171,6 +185,42 @@ describe("systemConfigAdmin", () => {
       message: "新公告",
       groups: ["1345795", "450555868", "123456"],
     });
+  });
+
+  test("saveApiSystemConfigEditable 更新公告但未选择通知时不调用 QQ bot", async () => {
+    mockedSystemConfigApi.updateSystemConfig.mockResolvedValue({
+      code: 1,
+      data: undefined,
+      message: "大成功!",
+    });
+
+    const params = {
+      userPermission: Permission.SuperAdmin,
+      originalConfig,
+      draftConfig: {
+        ...originalConfig,
+        announcement: "新公告",
+      },
+      customQQGroups: ["123456"],
+      shouldNotifyAnnouncement: false,
+    };
+
+    await expect(saveApiSystemConfigEditable(params)).resolves.toEqual({
+      payload: {
+        announcement: "新公告",
+      },
+      config: {
+        ...originalConfig,
+        announcement: "新公告",
+      },
+      notifyResult: undefined,
+      notifyError: undefined,
+    });
+
+    expect(mockedSystemConfigApi.updateSystemConfig).toHaveBeenCalledWith({
+      announcement: "新公告",
+    });
+    expect(mockedQQBotClient.specialNotify).not.toHaveBeenCalled();
   });
 
   test("saveApiSystemConfigEditable 支持 QQ bot 部分失败结果", async () => {
@@ -206,6 +256,7 @@ describe("systemConfigAdmin", () => {
           announcement: "新公告",
         },
         customQQGroups: [],
+        shouldNotifyAnnouncement: true,
       })
     ).resolves.toMatchObject({
       payload: {
@@ -234,6 +285,7 @@ describe("systemConfigAdmin", () => {
           announcement: "新公告",
         },
         customQQGroups: [],
+        shouldNotifyAnnouncement: true,
       })
     ).resolves.toMatchObject({
       payload: {
@@ -263,10 +315,69 @@ describe("systemConfigAdmin", () => {
           announcement: "新公告",
         },
         customQQGroups: [],
+        shouldNotifyAnnouncement: true,
       })
     ).rejects.toThrow("保存失败");
 
     expect(mockedQQBotClient.specialNotify).not.toHaveBeenCalled();
+  });
+
+  test("loadApiSystemConfigEditable 在 shutdownTasks 缺失时归一化为空数组", async () => {
+    mockedSystemConfigApi.fetchSystemConfig.mockResolvedValue({
+      code: 1,
+      data: {
+        announcement: "旧公告",
+        allowGameLogin: true,
+        allowGameCreate: true,
+        allowGameUpdate: true,
+        allowGameDelete: true,
+        isUnderMaintenance: false,
+        isDebugMode: false,
+      },
+      message: "大成功!",
+    });
+
+    await expect(loadApiSystemConfigEditable()).resolves.toEqual({
+      announcement: "旧公告",
+      allowGameLogin: true,
+      allowGameCreate: true,
+      allowGameUpdate: true,
+      allowGameDelete: true,
+      shutdownTasks: [],
+    });
+  });
+
+  test("buildApiSystemConfigUpdate 在 shutdownTasks 未变化时不提交", () => {
+    expect(
+      buildApiSystemConfigUpdate(originalConfig, {
+        ...originalConfig,
+        shutdownTasks: originalConfig.shutdownTasks?.map((task) => ({
+          timestamp: task.timestamp,
+          config: { ...task.config },
+        })),
+      })
+    ).toEqual({});
+  });
+
+  test("buildApiSystemConfigUpdate 在 shutdownTasks 变化时整体提交数组", () => {
+    const draftConfig: ApiSystemConfigEditable = {
+      ...originalConfig,
+      shutdownTasks: [
+        {
+          timestamp: 1800003600,
+          config: {
+            allowGameLogin: false,
+            allowGameCreate: true,
+            allowGameUpdate: false,
+            allowGameDelete: true,
+          },
+        },
+      ],
+    };
+
+    expect(buildApiSystemConfigUpdate(originalConfig, draftConfig)).toEqual({
+      shutdownTasks: draftConfig.shutdownTasks,
+    });
   });
 
   test("getAnnouncementNotifyGroups 合并默认群、自定义群并去重", () => {
