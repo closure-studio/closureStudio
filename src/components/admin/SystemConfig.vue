@@ -317,10 +317,20 @@ import {
   saveApiSystemConfigEditable,
 } from "@/services/systemConfigAdmin";
 import { SYSTEM_CONFIG_MESSAGES, SYSTEM_CONFIG_TEXT } from "@/constants/systemAdmin";
+import { TIME_ZONES } from "@/constants/time";
 import { setMsg } from "@/utils/toast";
 import { Type } from "@/constants/ui";
 import { useSystemAdminStore } from "@/stores/useSystemAdminStore";
 import { useUserStore } from "@/stores/useUserStore";
+import {
+  formatTimestampInTimeZone,
+  getCurrentMinuteTimestamp,
+  getDaysInMonth,
+  getMondayFirstMonthStartOffset,
+  getTimestampFromTimeZoneDateParts,
+  getTimeZoneDateParts,
+  type TimeZoneDateParts,
+} from "@/utils/time";
 import CheckOptionCard from "@/shared/components/ui/CheckOptionCard.vue";
 import StatusListItem from "@/shared/components/ui/StatusListItem.vue";
 import ToggleInfoCard from "@/shared/components/ui/ToggleInfoCard.vue";
@@ -333,22 +343,12 @@ interface ServiceSwitch {
   description: string;
 }
 
-interface BeijingDateParts {
-  year: number;
-  month: number;
-  day: number;
-  hours: number;
-  minutes: number;
-}
-
 interface CalendarCell {
   key: string;
   day: number | null;
   isSelected: boolean;
   isToday: boolean;
 }
-
-const BEIJING_UTC_OFFSET_SECONDS = 8 * 60 * 60;
 
 const serviceSwitches: ServiceSwitch[] = [
   {
@@ -401,53 +401,24 @@ const sortedShutdownTasks = computed(() =>
 
 const nextShutdownTask = computed(() => sortedShutdownTasks.value[0]);
 
-const padDatePart = (value: number) => String(value).padStart(2, "0");
+const getBeijingDateParts = (timestamp: number) =>
+  getTimeZoneDateParts(timestamp, TIME_ZONES.BEIJING);
 
-const getCurrentMinuteTimestamp = () => Math.floor(Date.now() / 60000) * 60;
+const getTimestampFromBeijingDateParts = (parts: TimeZoneDateParts) =>
+  getTimestampFromTimeZoneDateParts(parts, TIME_ZONES.BEIJING);
 
-const getDaysInBeijingMonth = (year: number, month: number) =>
-  new Date(Date.UTC(year, month, 0)).getUTCDate();
+const formatShutdownTaskTime = (timestamp: number) =>
+  formatTimestampInTimeZone(timestamp, TIME_ZONES.BEIJING, "yyyy-MM-dd HH:mm '北京时间'");
 
-const getBeijingMonthStartOffset = (year: number, month: number) => {
-  const sundayFirstDay = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
-  return (sundayFirstDay + 6) % 7;
-};
-
-const getBeijingDateParts = (timestamp: number): BeijingDateParts => {
-  const date = new Date((timestamp + BEIJING_UTC_OFFSET_SECONDS) * 1000);
-  return {
-    year: date.getUTCFullYear(),
-    month: date.getUTCMonth() + 1,
-    day: date.getUTCDate(),
-    hours: date.getUTCHours(),
-    minutes: date.getUTCMinutes(),
-  };
-};
-
-const getTimestampFromBeijingDateParts = (parts: BeijingDateParts) =>
-  Math.floor(
-    Date.UTC(parts.year, parts.month - 1, parts.day, parts.hours, parts.minutes) / 1000 -
-      BEIJING_UTC_OFFSET_SECONDS
-  );
-
-const formatShutdownTaskTime = (timestamp: number) => {
-  const parts = getBeijingDateParts(timestamp);
-  return `${parts.year}-${padDatePart(parts.month)}-${padDatePart(parts.day)} ${padDatePart(
-    parts.hours
-  )}:${padDatePart(parts.minutes)} 北京时间`;
-};
-
-const formatShutdownTaskClock = (timestamp: number) => {
-  const parts = getBeijingDateParts(timestamp);
-  return `${padDatePart(parts.hours)}:${padDatePart(parts.minutes)}`;
-};
+const formatShutdownTaskClock = (timestamp: number) =>
+  formatTimestampInTimeZone(timestamp, TIME_ZONES.BEIJING, "HH:mm");
 
 const getCalendarViewForTask = (task: ApiSystemConfigShutdownTask) => {
   const parts = getBeijingDateParts(task.timestamp);
   return calendarView.value ?? { year: parts.year, month: parts.month };
 };
 
-const isSameBeijingDate = (left: BeijingDateParts, right: BeijingDateParts) =>
+const isSameBeijingDate = (left: TimeZoneDateParts, right: TimeZoneDateParts) =>
   left.year === right.year && left.month === right.month && left.day === right.day;
 
 const formatCalendarMonthTitle = (task: ApiSystemConfigShutdownTask) => {
@@ -459,8 +430,8 @@ const getCalendarCells = (task: ApiSystemConfigShutdownTask): CalendarCell[] => 
   const view = getCalendarViewForTask(task);
   const selectedParts = getBeijingDateParts(task.timestamp);
   const todayParts = getBeijingDateParts(Math.floor(Date.now() / 1000));
-  const leadingBlankCount = getBeijingMonthStartOffset(view.year, view.month);
-  const daysInMonth = getDaysInBeijingMonth(view.year, view.month);
+  const leadingBlankCount = getMondayFirstMonthStartOffset(view.year, view.month);
+  const daysInMonth = getDaysInMonth(view.year, view.month);
   const cells: CalendarCell[] = [];
 
   for (let index = 0; index < leadingBlankCount; index += 1) {
