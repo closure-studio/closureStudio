@@ -20,6 +20,7 @@
         ></textarea>
         <CheckOptionCard
           v-model="shouldNotifyAnnouncement"
+          class="admin-announcement-notify"
           :title="SYSTEM_CONFIG_TEXT.ANNOUNCEMENT_NOTIFY_LABEL"
           :description="SYSTEM_CONFIG_TEXT.ANNOUNCEMENT_NOTIFY_HELP"
           :disabled="isPublishing"
@@ -66,10 +67,7 @@
             <template #suffix>
               <span class="text-xs font-medium text-base-content/60">点击移除</span>
             </template>
-            <div
-              v-if="index < systemAdminStore.customQQGroups.length - 1"
-              class="divider my-0"
-            />
+            <div v-if="index < systemAdminStore.customQQGroups.length - 1" class="divider my-0" />
           </StatusListItem>
         </div>
       </section>
@@ -80,20 +78,28 @@
         <button
           v-if="draftConfig.shutdownTasks?.length"
           type="button"
-          class="admin-shutdown-summary flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-left transition disabled:cursor-not-allowed disabled:opacity-60"
+          class="admin-shutdown-summary flex w-full items-center justify-between gap-4 rounded-lg px-4 py-3 text-left transition disabled:cursor-not-allowed disabled:opacity-60"
           :disabled="isPublishing"
           @click="isShutdownTasksExpanded = !isShutdownTasksExpanded"
         >
-          <div class="min-w-0 space-y-1">
-            <div class="text-sm font-bold">
-              {{ isShutdownTasksExpanded ? "▼" : "▶" }}
-              {{ SYSTEM_CONFIG_TEXT.SHUTDOWN_TASKS_TITLE }}
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span class="text-xs font-semibold text-info">
+                {{ SYSTEM_CONFIG_TEXT.SHUTDOWN_TASKS_NEXT_LABEL }}
+              </span>
+              <span class="text-sm font-bold">
+                {{ formatShutdownTaskTime(nextShutdownTask.timestamp) }}
+              </span>
             </div>
-            <p class="text-xs font-medium text-base-content/60">
-              {{ formatShutdownTaskTime(nextShutdownTask.timestamp) }}
+            <p class="mt-1 text-xs font-medium text-base-content/60">
+              {{
+                SYSTEM_CONFIG_TEXT.SHUTDOWN_TASKS_COUNT_PREFIX +
+                sortedShutdownTasks.length +
+                SYSTEM_CONFIG_TEXT.SHUTDOWN_TASKS_COUNT_SUFFIX
+              }}
             </p>
           </div>
-          <span class="shrink-0 text-xs font-medium text-base-content/50">
+          <span class="admin-shutdown-expand shrink-0 text-xs font-semibold text-base-content/60">
             {{
               isShutdownTasksExpanded
                 ? SYSTEM_CONFIG_TEXT.SHUTDOWN_TASKS_EXPAND_SUFFIX
@@ -102,25 +108,33 @@
           </span>
         </button>
 
-        <div v-if="isShutdownTasksExpanded" class="space-y-3 px-1 py-2">
+        <div v-if="isShutdownTasksExpanded" class="space-y-3">
           <div
-            v-for="(task, index) in draftConfig.shutdownTasks"
+            v-for="(task, index) in sortedShutdownTasks"
             :key="`${task.timestamp}-${index}`"
-            class="space-y-3"
+            class="admin-shutdown-task-card space-y-4 rounded-lg p-3 sm:p-4"
           >
-            <div class="flex justify-end">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-xs font-semibold text-base-content/45">
+                  {{ SYSTEM_CONFIG_TEXT.SHUTDOWN_TASKS_ITEM_PREFIX }}{{ index + 1 }}
+                </p>
+                <p class="mt-1 text-sm font-bold">
+                  {{ formatShutdownTaskTime(task.timestamp) }}
+                </p>
+              </div>
               <button
                 type="button"
                 class="btn btn-outline btn-error btn-sm"
                 :disabled="isPublishing"
-                @click="removeShutdownTask(index)"
+                @click="removeShutdownTask(task)"
               >
-                删除
+                {{ SYSTEM_CONFIG_TEXT.SHUTDOWN_TASKS_DELETE }}
               </button>
             </div>
 
-            <div class="admin-time-editor space-y-3 py-2">
-              <div class="grid grid-cols-1 gap-2 md:grid-cols-[minmax(17rem,20rem)_1fr] md:gap-4">
+            <div class="admin-time-editor p-1">
+              <div class="grid grid-cols-1 gap-4 md:grid-cols-[minmax(17rem,20rem)_1fr]">
                 <div class="admin-calendar space-y-3">
                   <div class="flex items-center justify-between gap-3">
                     <div>
@@ -153,7 +167,9 @@
                     </div>
                   </div>
 
-                  <div class="grid grid-cols-7 gap-1 text-center text-[0.68rem] font-medium text-base-content/45">
+                  <div
+                    class="grid grid-cols-7 gap-1 text-center text-[0.68rem] font-medium text-base-content/45"
+                  >
                     <span v-for="weekday in calendarWeekdays" :key="weekday">{{ weekday }}</span>
                   </div>
 
@@ -175,12 +191,17 @@
                   </div>
                 </div>
 
-                <div class="space-y-3">
-                  <div class="space-y-1">
+                <div class="admin-clock-panel p-1 md:p-3">
+                  <div class="space-y-2">
                     <span class="label-text text-xs font-medium text-base-content/70">
                       {{ SYSTEM_CONFIG_TEXT.SHUTDOWN_TASKS_CLOCK_LABEL }}
                     </span>
-                    <div class="flex flex-wrap items-center gap-2">
+                    <div
+                      class="admin-time-readout rounded-lg px-4 py-3 text-center text-2xl font-bold"
+                    >
+                      {{ formatShutdownTaskClock(task.timestamp) }}
+                    </div>
+                    <div class="grid grid-cols-4 gap-2">
                       <button
                         type="button"
                         class="admin-time-step btn btn-ghost btn-xs"
@@ -197,9 +218,6 @@
                       >
                         -15m
                       </button>
-                      <span class="admin-time-readout rounded-lg px-3 py-1.5 text-sm font-semibold">
-                        {{ formatShutdownTaskClock(task.timestamp) }}
-                      </span>
                       <button
                         type="button"
                         class="admin-time-step btn btn-ghost btn-xs"
@@ -219,10 +237,10 @@
                     </div>
                   </div>
 
-                  <div class="flex flex-wrap gap-2">
+                  <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
                     <button
                       type="button"
-                      class="admin-time-step btn btn-ghost btn-xs"
+                      class="admin-quick-time btn btn-ghost btn-sm"
                       :disabled="isPublishing"
                       @click="setShutdownTaskAfterHours(task, 1)"
                     >
@@ -230,7 +248,7 @@
                     </button>
                     <button
                       type="button"
-                      class="admin-time-step btn btn-ghost btn-xs"
+                      class="admin-quick-time btn btn-ghost btn-sm"
                       :disabled="isPublishing"
                       @click="setShutdownTaskTonight(task)"
                     >
@@ -238,7 +256,7 @@
                     </button>
                     <button
                       type="button"
-                      class="admin-time-step btn btn-ghost btn-xs"
+                      class="admin-quick-time btn btn-ghost btn-sm"
                       :disabled="isPublishing"
                       @click="setShutdownTaskTomorrowDawn(task)"
                     >
@@ -249,22 +267,18 @@
               </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div class="grid grid-cols-1 gap-3">
               <ToggleInfoCard
                 v-for="item in shutdownTaskSwitches"
                 :key="item.key"
                 v-model:active="task.config[item.key]"
+                class="admin-shutdown-toggle"
                 :title="item.title"
                 :description="`重启后${item.description}`"
                 clickable
                 :disabled="isPublishing"
               />
             </div>
-
-            <div
-              v-if="index < (draftConfig.shutdownTasks?.length ?? 0) - 1"
-              class="divider my-1"
-            />
           </div>
 
           <button
@@ -295,7 +309,11 @@
     </div>
 
     <div v-else class="py-10 text-center">
-      <button class="btn btn-outline btn-info btn-sm" :disabled="isLoadingConfig" @click="loadConfig">
+      <button
+        class="btn btn-outline btn-info btn-sm"
+        :disabled="isLoadingConfig"
+        @click="loadConfig"
+      >
         重新加载
       </button>
     </div>
@@ -317,10 +335,20 @@ import {
   saveApiSystemConfigEditable,
 } from "@/services/systemConfigAdmin";
 import { SYSTEM_CONFIG_MESSAGES, SYSTEM_CONFIG_TEXT } from "@/constants/systemAdmin";
+import { TIME_ZONES } from "@/constants/time";
 import { setMsg } from "@/utils/toast";
 import { Type } from "@/constants/ui";
 import { useSystemAdminStore } from "@/stores/useSystemAdminStore";
 import { useUserStore } from "@/stores/useUserStore";
+import {
+  formatTimestampInTimeZone,
+  getCurrentMinuteTimestamp,
+  getDaysInMonth,
+  getMondayFirstMonthStartOffset,
+  getTimestampFromTimeZoneDateParts,
+  getTimeZoneDateParts,
+  type TimeZoneDateParts,
+} from "@/utils/time";
 import CheckOptionCard from "@/shared/components/ui/CheckOptionCard.vue";
 import StatusListItem from "@/shared/components/ui/StatusListItem.vue";
 import ToggleInfoCard from "@/shared/components/ui/ToggleInfoCard.vue";
@@ -333,22 +361,12 @@ interface ServiceSwitch {
   description: string;
 }
 
-interface BeijingDateParts {
-  year: number;
-  month: number;
-  day: number;
-  hours: number;
-  minutes: number;
-}
-
 interface CalendarCell {
   key: string;
   day: number | null;
   isSelected: boolean;
   isToday: boolean;
 }
-
-const BEIJING_UTC_OFFSET_SECONDS = 8 * 60 * 60;
 
 const serviceSwitches: ServiceSwitch[] = [
   {
@@ -396,58 +414,31 @@ const cloneConfig = (config: ApiSystemConfigEditable): ApiSystemConfigEditable =
 });
 
 const sortedShutdownTasks = computed(() =>
-  [...(draftConfig.value?.shutdownTasks ?? [])].sort((left, right) => left.timestamp - right.timestamp)
+  [...(draftConfig.value?.shutdownTasks ?? [])].sort(
+    (left, right) => left.timestamp - right.timestamp
+  )
 );
 
 const nextShutdownTask = computed(() => sortedShutdownTasks.value[0]);
 
-const padDatePart = (value: number) => String(value).padStart(2, "0");
+const getBeijingDateParts = (timestamp: number) =>
+  getTimeZoneDateParts(timestamp, TIME_ZONES.BEIJING);
 
-const getCurrentMinuteTimestamp = () => Math.floor(Date.now() / 60000) * 60;
+const getTimestampFromBeijingDateParts = (parts: TimeZoneDateParts) =>
+  getTimestampFromTimeZoneDateParts(parts, TIME_ZONES.BEIJING);
 
-const getDaysInBeijingMonth = (year: number, month: number) =>
-  new Date(Date.UTC(year, month, 0)).getUTCDate();
+const formatShutdownTaskTime = (timestamp: number) =>
+  formatTimestampInTimeZone(timestamp, TIME_ZONES.BEIJING, "yyyy-MM-dd HH:mm '北京时间'");
 
-const getBeijingMonthStartOffset = (year: number, month: number) => {
-  const sundayFirstDay = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
-  return (sundayFirstDay + 6) % 7;
-};
-
-const getBeijingDateParts = (timestamp: number): BeijingDateParts => {
-  const date = new Date((timestamp + BEIJING_UTC_OFFSET_SECONDS) * 1000);
-  return {
-    year: date.getUTCFullYear(),
-    month: date.getUTCMonth() + 1,
-    day: date.getUTCDate(),
-    hours: date.getUTCHours(),
-    minutes: date.getUTCMinutes(),
-  };
-};
-
-const getTimestampFromBeijingDateParts = (parts: BeijingDateParts) =>
-  Math.floor(
-    Date.UTC(parts.year, parts.month - 1, parts.day, parts.hours, parts.minutes) / 1000 -
-      BEIJING_UTC_OFFSET_SECONDS
-  );
-
-const formatShutdownTaskTime = (timestamp: number) => {
-  const parts = getBeijingDateParts(timestamp);
-  return `${parts.year}-${padDatePart(parts.month)}-${padDatePart(parts.day)} ${padDatePart(
-    parts.hours
-  )}:${padDatePart(parts.minutes)} 北京时间`;
-};
-
-const formatShutdownTaskClock = (timestamp: number) => {
-  const parts = getBeijingDateParts(timestamp);
-  return `${padDatePart(parts.hours)}:${padDatePart(parts.minutes)}`;
-};
+const formatShutdownTaskClock = (timestamp: number) =>
+  formatTimestampInTimeZone(timestamp, TIME_ZONES.BEIJING, "HH:mm");
 
 const getCalendarViewForTask = (task: ApiSystemConfigShutdownTask) => {
   const parts = getBeijingDateParts(task.timestamp);
   return calendarView.value ?? { year: parts.year, month: parts.month };
 };
 
-const isSameBeijingDate = (left: BeijingDateParts, right: BeijingDateParts) =>
+const isSameBeijingDate = (left: TimeZoneDateParts, right: TimeZoneDateParts) =>
   left.year === right.year && left.month === right.month && left.day === right.day;
 
 const formatCalendarMonthTitle = (task: ApiSystemConfigShutdownTask) => {
@@ -459,8 +450,8 @@ const getCalendarCells = (task: ApiSystemConfigShutdownTask): CalendarCell[] => 
   const view = getCalendarViewForTask(task);
   const selectedParts = getBeijingDateParts(task.timestamp);
   const todayParts = getBeijingDateParts(Math.floor(Date.now() / 1000));
-  const leadingBlankCount = getBeijingMonthStartOffset(view.year, view.month);
-  const daysInMonth = getDaysInBeijingMonth(view.year, view.month);
+  const leadingBlankCount = getMondayFirstMonthStartOffset(view.year, view.month);
+  const daysInMonth = getDaysInMonth(view.year, view.month);
   const cells: CalendarCell[] = [];
 
   for (let index = 0; index < leadingBlankCount; index += 1) {
@@ -521,10 +512,10 @@ const addShutdownTask = () => {
   syncCalendarViewToTask(nextTasks[nextTasks.length - 1]);
 };
 
-const removeShutdownTask = (index: number) => {
+const removeShutdownTask = (taskToRemove: ApiSystemConfigShutdownTask) => {
   if (!draftConfig.value) return;
   draftConfig.value.shutdownTasks = (draftConfig.value.shutdownTasks ?? []).filter(
-    (_task, taskIndex) => taskIndex !== index
+    (task) => task !== taskToRemove
   );
 };
 
@@ -663,21 +654,23 @@ onMounted(loadConfig);
 
 <style scoped>
 .admin-announcement-field {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--color-base-100) 94%, var(--color-base-content) 6%),
-      color-mix(in oklab, var(--color-base-100) 82%, var(--color-base-200) 18%)
-    );
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-base-100) 94%, var(--color-base-content) 6%),
+    color-mix(in oklab, var(--color-base-100) 82%, var(--color-base-200) 18%)
+  );
+}
+
+.admin-announcement-notify :deep(span span:last-child) {
+  color: color-mix(in oklab, var(--color-base-content) 60%, transparent);
 }
 
 .admin-shutdown-summary {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--color-base-300) 52%, var(--color-base-100) 48%),
-      color-mix(in oklab, var(--color-base-300) 38%, var(--color-base-100) 62%)
-    );
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-base-300) 52%, var(--color-base-100) 48%),
+    color-mix(in oklab, var(--color-base-300) 38%, var(--color-base-100) 62%)
+  );
   box-shadow:
     inset 0 1px 0 color-mix(in oklab, var(--color-base-content) 7%, transparent),
     0 0 0 1px color-mix(in oklab, var(--color-base-content) 8%, transparent),
@@ -685,56 +678,100 @@ onMounted(loadConfig);
 }
 
 .admin-shutdown-summary:hover {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--color-base-300) 62%, var(--color-base-100) 38%),
-      color-mix(in oklab, var(--color-base-300) 46%, var(--color-base-100) 54%)
-    );
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-base-300) 62%, var(--color-base-100) 38%),
+    color-mix(in oklab, var(--color-base-300) 46%, var(--color-base-100) 54%)
+  );
   box-shadow:
     inset 0 1px 0 color-mix(in oklab, var(--color-base-content) 9%, transparent),
     0 0 0 1px color-mix(in oklab, var(--color-base-content) 11%, transparent),
     0 0.45rem 1rem color-mix(in oklab, black 18%, transparent);
 }
 
+.admin-shutdown-expand {
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  background: color-mix(in oklab, var(--color-base-300) 68%, transparent);
+}
+
+.admin-shutdown-task-card {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-base-100) 76%, var(--color-base-300) 24%),
+    color-mix(in oklab, var(--color-base-100) 64%, var(--color-base-200) 36%)
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-base-content) 6%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--color-base-content) 7%, transparent),
+    0 0.5rem 1.2rem color-mix(in oklab, black 14%, transparent);
+}
+
+.admin-time-editor {
+  background: transparent;
+}
+
+.admin-clock-panel {
+  background: transparent;
+  box-shadow: none;
+}
+
+.admin-shutdown-toggle.admin-shutdown-toggle {
+  min-height: auto;
+  background: transparent;
+  box-shadow: none;
+  padding: 0.5rem 0;
+}
+
+.admin-shutdown-toggle.admin-shutdown-toggle:hover,
+.admin-shutdown-toggle.admin-shutdown-toggle.toggle-info-card-active {
+  background: transparent;
+  box-shadow: none;
+}
+
 .admin-time-readout {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--color-base-300) 56%, var(--color-base-content) 4%),
-      color-mix(in oklab, var(--color-base-300) 44%, var(--color-base-200) 56%)
-    );
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-base-300) 56%, var(--color-base-content) 4%),
+    color-mix(in oklab, var(--color-base-300) 44%, var(--color-base-200) 56%)
+  );
   box-shadow:
     inset 0 1px 0 color-mix(in oklab, white 8%, transparent),
     0 0 0 1px color-mix(in oklab, var(--color-base-content) 10%, transparent);
 }
 
+.admin-quick-time,
 .admin-time-step {
   min-height: 1.75rem;
   border: 0;
   color: color-mix(in oklab, var(--color-base-content) 92%, transparent);
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--color-base-300) 62%, var(--color-base-content) 4%),
-      color-mix(in oklab, var(--color-base-300) 48%, var(--color-base-200) 52%)
-    );
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-base-300) 62%, var(--color-base-content) 4%),
+    color-mix(in oklab, var(--color-base-300) 48%, var(--color-base-200) 52%)
+  );
   box-shadow:
     inset 0 1px 0 color-mix(in oklab, white 8%, transparent),
     0 0 0 1px color-mix(in oklab, var(--color-base-content) 10%, transparent);
 }
 
+.admin-quick-time:hover,
 .admin-time-step:hover {
   color: var(--color-base-content);
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--color-base-300) 72%, var(--color-base-content) 6%),
-      color-mix(in oklab, var(--color-base-300) 58%, var(--color-base-200) 42%)
-    );
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-base-300) 72%, var(--color-base-content) 6%),
+    color-mix(in oklab, var(--color-base-300) 58%, var(--color-base-200) 42%)
+  );
   box-shadow:
     inset 0 1px 0 color-mix(in oklab, white 10%, transparent),
     0 0 0 1px color-mix(in oklab, var(--color-base-content) 14%, transparent);
+}
+
+.admin-quick-time {
+  min-height: 2.25rem;
+  width: 100%;
+  justify-content: center;
 }
 
 .admin-calendar {
@@ -761,12 +798,11 @@ onMounted(loadConfig);
 }
 
 .admin-calendar-day-selected {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--color-info) 52%, var(--color-base-200) 48%),
-      color-mix(in oklab, var(--color-info) 42%, var(--color-base-300) 58%)
-    );
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-info) 52%, var(--color-base-200) 48%),
+    color-mix(in oklab, var(--color-info) 42%, var(--color-base-300) 58%)
+  );
   color: color-mix(in oklab, var(--color-info-content) 86%, var(--color-base-content) 14%);
   box-shadow:
     inset 0 1px 0 color-mix(in oklab, white 10%, transparent),
@@ -774,16 +810,14 @@ onMounted(loadConfig);
 }
 
 .admin-calendar-day-selected:not(:disabled):hover {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--color-info) 58%, var(--color-base-200) 42%),
-      color-mix(in oklab, var(--color-info) 48%, var(--color-base-300) 52%)
-    );
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-info) 58%, var(--color-base-200) 42%),
+    color-mix(in oklab, var(--color-info) 48%, var(--color-base-300) 52%)
+  );
 }
 
 .admin-calendar-day-today {
   box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-base-content) 22%, transparent);
 }
-
 </style>
