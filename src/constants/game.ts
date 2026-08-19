@@ -20,6 +20,8 @@ export const GAME_PLATFORM_LABEL = {
   [GAME_PLATFORM_CODE.BILIBILI]: "B服",
 } as const;
 
+export const MAX_GAME_SLOTS = 3;
+
 export const ACCELERATE_SLOT_CN = [
   "顶层左",
   "顶层中",
@@ -71,13 +73,6 @@ export const GAME_STATUS_CODE = {
   LOGGING_IN: 1,
   RUNNING: 2,
   GAME_ERROR: 3,
-} as const;
-
-export const GAME_SLOT_RULE_FLAGS = {
-  ACCOUNT_FORMAT_IS_PHONE: "slot_account_format_is_phone",
-  ACCOUNT_SMS_VERIFIED: "slot_account_sms_verified",
-  USER_SMS_VERIFIED: "slot_user_sms_verified",
-  USER_QQ_VERIFIED: "slot_user_qq_verified",
 } as const;
 
 export const GAME_LOG_QUERYABLE_STATUS_CODES: readonly number[] = [

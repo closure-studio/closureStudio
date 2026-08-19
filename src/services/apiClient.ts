@@ -10,6 +10,7 @@ import type {
   ApiSystemConfig,
   ApiSystemHall,
   ApiSystemConfigUpdate,
+  GameAccountForm,
 } from "@/shared/types/api";
 
 export class APIClient extends AxiosServer {
@@ -18,7 +19,9 @@ export class APIClient extends AxiosServer {
   }
 
   saveLocalStorage() {
-    localStorage.setItem(STORAGE_KEYS.API_HOST, JSON.stringify(this.hostServer));
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.API_HOST, JSON.stringify(this.hostServer));
+    }
   }
   fetchGameLogs(account: string, id: number) {
     return this.get<ApiGameLogs>(`/game/log/${account}/${id}`);
@@ -52,8 +55,16 @@ export class APIClient extends AxiosServer {
     return this.captchaPost<void>(`/game/login/${account}`, token, null);
   }
 
-  fetchGameListBySSE() {
-    return this.sse<ApiGameGame[]>("/sse/game");
+  createGame(token: string, form: GameAccountForm) {
+    return this.captchaPost<void>("/game", token, form);
+  }
+
+  updateGamePassword(token: string, form: GameAccountForm) {
+    return this.createGame(token, form);
+  }
+
+  deleteGame(token: string, account: string) {
+    return this.captchaDelete<void>("/Game", token, { account });
   }
 
   doUpdateGameConf(account: string, game: ApiGameConfig) {
@@ -73,15 +84,19 @@ export class APIClient extends AxiosServer {
 
 let hostServer: IHostServer;
 
-const apiHost = localStorage.getItem(STORAGE_KEYS.API_HOST);
+const apiHost = typeof localStorage === "undefined" ? null : localStorage.getItem(STORAGE_KEYS.API_HOST);
 if (!apiHost) {
   hostServer = API_HOST_CLOUDFLARE;
-  localStorage.setItem(STORAGE_KEYS.API_HOST, JSON.stringify(hostServer));
+  if (typeof localStorage !== "undefined") {
+    localStorage.setItem(STORAGE_KEYS.API_HOST, JSON.stringify(hostServer));
+  }
 } else {
   const tempHost = JSON.parse(apiHost);
   if (!tempHost.baseURL) {
     hostServer = API_HOST_CLOUDFLARE;
-    localStorage.setItem(STORAGE_KEYS.API_HOST, JSON.stringify(hostServer));
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.API_HOST, JSON.stringify(hostServer));
+    }
   } else {
     hostServer = tempHost;
   }

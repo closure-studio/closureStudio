@@ -1,7 +1,6 @@
 import type { AxiosInstance } from "axios";
 import axios from "axios";
-import { REGISTRY_SERVER, type IHostServer } from "@/constants/api";
-import { API_RESPONSE_CODE } from "@/constants/api";
+import type { IHostServer } from "@/constants/api";
 import { STORAGE_KEYS } from "@/constants/app";
 import type { RequestResult } from "@/shared/types/service";
 
@@ -14,17 +13,6 @@ interface RequestParam {
   data?: unknown;
   token?: string;
   isSSE?: boolean;
-}
-
-interface RegistryResponseData {
-  err?: string | number;
-  code?: number;
-  available?: unknown;
-  results?: unknown;
-}
-
-interface RegistryResponse {
-  data: RegistryResponseData;
 }
 
 export class AxiosServer {
@@ -43,26 +31,7 @@ export class AxiosServer {
       this.service.defaults.headers.common["Authorization"] = "Bearer " + token;
     }
 
-    this.service.interceptors.response.use((response) => {
-      switch (this.hostServer.baseURL) {
-        case REGISTRY_SERVER.baseURL: {
-          const code = this.buildCodeFromRegisterResp(response);
-          const data: RequestResult<unknown> = {
-            message:
-              code === API_RESPONSE_CODE.FAILURE
-                ? response.data.err
-                  ? response.data.err
-                  : "大失败"
-                : "成功",
-            code,
-            data: response.data,
-          };
-          return data;
-        }
-        default:
-          return response.data;
-      }
-    });
+    this.service.interceptors.response.use((response) => response.data);
   }
 
   private getStoredToken(): string | null {
@@ -88,15 +57,6 @@ export class AxiosServer {
     this.service.defaults.baseURL = hostServer.baseURL;
   }
 
-  buildCodeFromRegisterResp(resp: RegistryResponse): number {
-    if (!resp.data.err && !resp.data.code) return API_RESPONSE_CODE.SUCCESS;
-    return resp.data.err || resp.data.code !== API_RESPONSE_CODE.SUCCESS
-      ? API_RESPONSE_CODE.FAILURE
-      : resp.data.available && resp.data.results !== undefined && resp.data.results !== null
-        ? API_RESPONSE_CODE.SUCCESS
-        : (resp.data.code ?? API_RESPONSE_CODE.FAILURE);
-  }
-
   async asyncRequest<T>(param: RequestParam): Promise<RequestResult<T>> {
     const { url } = param;
 
@@ -115,8 +75,10 @@ export class AxiosServer {
     const method = param.method || "get";
 
     let res: unknown;
-    if (method === "get" || method === "delete") {
-      res = await this.service[method](url);
+    if (method === "get") {
+      res = await this.service.get(url);
+    } else if (method === "delete") {
+      res = await this.service.delete(url, { data: param.data });
     } else {
       res = await this.service[method](url, param.data);
     }
@@ -136,11 +98,6 @@ export class AxiosServer {
   get<T>(url: string) {
     return this.asyncRequest<T>({ url, method: "get" });
   }
-  async del<T>(url: string, params: unknown): Promise<RequestResult<T>> {
-    const response = await this.service.delete(url, { data: params });
-    return response as unknown as RequestResult<T>;
-  }
-
   async load<T>(fileName: string): Promise<T> {
     const url = `/data/${fileName}.json?v=${version}`;
     const response = await axios.get(url);
@@ -153,7 +110,7 @@ export class AxiosServer {
   captchaPost<T>(url: string, token: string, data?: unknown) {
     return this.asyncRequest<T>({ url, method: "post", token, data });
   }
-  sse<T>(url: string) {
-    return this.asyncRequest<T>({ url, method: "get", isSSE: true });
+  captchaDelete<T>(url: string, token: string, data?: unknown) {
+    return this.asyncRequest<T>({ url, method: "delete", token, data });
   }
 }

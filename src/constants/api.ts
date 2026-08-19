@@ -27,12 +27,6 @@ export const AUTH_SERVER: IHostServer = {
   baseURL: "https://passport.ltsc.vip/api/v1",
 };
 
-export const REGISTRY_SERVER: IHostServer = {
-  label: "授权系统",
-  description: "Registry Server",
-  baseURL: "https://arkquota-tunnel.arknights.app",
-};
-
 export const QQBOT_SERVER: IHostServer = {
   label: "QQ机器人",
   description: "QQ Bot Server",
@@ -85,5 +79,4 @@ export const API_HEALTH_RECORDS: HealthRecord = {
     "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm2alu1bv00dr7x57sl8933m5/badge.svg",
   QQ机器人:
     "https://status.ltsc.vip/monitor/clnzoxcy10001vy2ohi4obbi0/cm50sb1hg01oe38mwpfhg4sza/badge.svg",
-  授权服务: GAME_MANAGEMENT_HEALTH_BADGE_URL,
 };

@@ -34,11 +34,6 @@ export const THEME_ATTRIBUTE = "data-theme";
 export const DEFAULT_SWIPE_THRESHOLD = 40;
 export const DEFAULT_MOBILE_MEDIA_QUERY = "(max-width: 767px)";
 
-export const NOTIFY = {
-  NOT_ALLOW_DELETE_GAME: "你不能删除这个账号",
-  ALREADY_BIND_QQ: "QQ绑定已完成",
-} as const;
-
 export const YOU_MAY_KNOW_MESSAGES = [
   "可露希尔可是支持全自动搓玉的哦~",
   "周日快过期的理智药，可露希尔都会帮你用掉的呢！",

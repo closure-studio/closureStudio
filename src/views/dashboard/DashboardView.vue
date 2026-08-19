@@ -5,11 +5,9 @@
     >
       <div class="bg-base-300 shadow-lg rounded-lg px-4 py-1 blog relative">
         <div class="text-2xl md:text-4xl font-bold text-info mt-3">📢 今日特价</div>
-        <p v-for="k in config.announcement?.split('\n') || ['可露希尔逃跑了']">
+        <p v-for="k in config.announcement?.split('\n') || ['可露希尔逃跑了']" :key="k">
           {{ k }}
         </p>
-        <div class="divider mt-0">个人信息</div>
-        <StatusMessage />
       </div>
       <transition name="collapse" @before-enter="beforeEnter" @enter="enter" @leave="leave">
         <div
@@ -22,8 +20,7 @@
       </transition>
       <IndexStatus />
       <div class="text-2xl font-bold">
-        我的托管（{{ userQuota?.slots.filter((slot) => slot.gameAccount !== null)?.length }} 已用 /
-        {{ userQuota?.slots?.length }} 可用）
+        我的托管（{{ userGameList.length }} 已用 / {{ MAX_GAME_SLOTS }} 槽位）
       </div>
       <div v-if="isGameListIniting" class="h-72 flex justify-center w-full">
         <span class="loading loading-ring loading-lg"></span>
@@ -32,95 +29,68 @@
       </div>
       <GameList
         :user-game-list="userGameList"
-        :user-quota="userQuota"
+        :can-create-game="canCreateGame"
         :is-loading="isLoading"
-        :find-game="findGame"
-        :get-slot="getSlot"
         :is-suspend-status="isSuspendStatus"
         :is-update-status="isUpdateStatus"
         @open-game-conf="openGameConf"
         @suspend="handleGameSuspendBtnOnClick"
-        @update-passwd="handleUpdatePasswdBtnOnClick"
+        @update-password="handleUpdatePasswdBtnOnClick"
         @login="handleGameLoginBtnOnClick"
         @delete="handleDeleteBtnOnClick"
         @create="handleCreateGame"
-        @repair="handleRepairBtnOnClick"
       />
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import type { ApiSystemConfig, RegistrySlot, RegistryAddGameForm } from "@/shared/types/api";
+import type { ApiSystemConfig, GameAccountForm } from "@/shared/types/api";
+import { MAX_GAME_SLOTS } from "@/constants/game";
 import IndexStatus from "@/components/dashboard/VersionStatus.vue";
-import StatusMessage from "@/components/dashboard/StatusMessage.vue";
 import GameList from "@/components/dashboard/GameList.vue";
 import YouMayKnow from "@/components/dashboard/dialogs/YouMayKnow.vue";
 import { useLoading } from "@/shared/composables/useLoading";
 import { useCaptcha } from "@/services/captchaActions";
 import { useGamesStore } from "@/stores/useGamesStore";
-import { useUserStore } from "@/stores/useUserStore";
 import { useGameActions } from "@/components/dashboard/composables/useGameActions";
 import { useGameTransitions } from "@/components/dashboard/composables/useGameTransitions";
 import showDialog from "@/shared/components/dialog/dialog";
 import APIStatusBoard from "@/components/system/api-status/APIStatusBoard.vue";
-import authClient from "@/services/authClient";
 import apiClient from "@/services/apiClient";
 import { ROUTES } from "@/constants/app";
 
 const router = useRouter();
-const user = useUserStore();
 const gamesStore = useGamesStore();
-const selectedSlotUUID = ref("");
 const config = ref({} as ApiSystemConfig);
-const selectedRegisterForm = ref({} as RegistryAddGameForm); // for update password
+const selectedRegisterForm = ref({} as GameAccountForm);
 const { isLoading } = useLoading();
 const captcha = useCaptcha();
 const isAPIStatusBoardShow = ref(true);
 
-const userGameList = computed(() => {
-  return gamesStore.gameList;
-});
-const userQuota = computed(() => {
-  return gamesStore.userQuota;
-});
-const firstGame = computed(() => gamesStore.firstGame);
+const userGameList = computed(() => gamesStore.gameList);
+const canCreateGame = computed(() => gamesStore.canCreateGame);
 const isGameListIniting = computed(() => gamesStore.isGameListIniting);
 
 const {
   findGame,
-  getSlot,
   createGameButtonOnClick,
   isUpdateStatus,
   isSuspendStatus,
   handleDeleteBtnOnClick,
-  handleRepairBtnOnClick,
   handleUpdatePasswdBtnOnClick,
   gameLogin,
   gameSuspend,
 } = useGameActions({
-  user,
   gamesStore,
   captcha,
   isLoading,
-  selectedSlotUUID,
   selectedRegisterForm,
 });
 
 const { beforeEnter, enter, leave } = useGameTransitions();
-
-watch(firstGame, (value) => {
-  if (user.isVerify) return;
-  if (!value) return;
-  if (value.status.created_at > 0) {
-    let phone = value.status.account;
-    if (isNaN(parseInt(phone[0]))) {
-      phone = phone.slice(1);
-    }
-    authClient.sendSms({ phone });
-  }
-});
 
 onMounted(async () => {
   gamesStore.initializeGameListServerConnection();
@@ -136,24 +106,25 @@ const handleAPIStatusBoardOnClick = () => {
 const handleGameSuspendBtnOnClick = async (gameAccount: string) => {
   await gameSuspend(gameAccount);
 };
+
 const handleGameLoginBtnOnClick = async (gameAccount: string) => {
   await gameLogin(gameAccount);
 };
 
-const handleCreateGame = (slot: RegistrySlot, slotUUID: string) => {
-  createGameButtonOnClick(slot, slotUUID, gameLogin);
+const handleCreateGame = () => {
+  createGameButtonOnClick(gameLogin);
 };
 
 const openGameConf = (account: string) => {
   const game = findGame(account);
   if (!game) return;
-  // 跳转到游戏详情页
   router.push({
     name: ROUTES.GAME_DETAIL.name,
     params: { account },
   });
 };
 </script>
+
 <style>
 div,
 img {
@@ -164,6 +135,5 @@ img {
 .collapse-enter-active,
 .collapse-leave-active {
   overflow: hidden;
-  /* 防止高度动画过程中内容溢出 */
 }
 </style>

@@ -77,11 +77,6 @@ export const router = createRouter({
               component: () => import("../views/profile/account/AccountView.vue"),
             },
             {
-              path: ROUTES.PROFILE_SMS_VERIFY.path,
-              name: ROUTES.PROFILE_SMS_VERIFY.name,
-              component: () => import("../views/profile/sms-verify/SmsVerifyView.vue"),
-            },
-            {
               path: ROUTES.PROFILE_ACKNOWLEDGEMENTS.path,
               name: ROUTES.PROFILE_ACKNOWLEDGEMENTS.name,
               component: () => import("../views/profile/acknowledgements/AcknowledgementsView.vue"),

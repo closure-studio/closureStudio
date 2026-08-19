@@ -8,7 +8,6 @@ export const ROUTES = {
   PROFILE: { name: "网站设置", path: PROFILE_NETWORK_PATH },
   PROFILE_NETWORK: { name: "网络设置", path: PROFILE_NETWORK_PATH },
   PROFILE_ACCOUNT: { name: "账号安全", path: "/profile/account" },
-  PROFILE_SMS_VERIFY: { name: "账号认证", path: "/profile/smsVerify" },
   PROFILE_ACKNOWLEDGEMENTS: { name: "鸣谢名单", path: "/profile/acknowledgements" },
   TERMS_POLICIES: { name: "用户条款及隐私政策", path: "/blog/Terms&Policies" },
   FAQ: { name: "常见问题", path: "/blog/FAQ" },

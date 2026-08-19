@@ -5,30 +5,7 @@
   >
     <div class="text-center flex justify-center flex-col">
       <div class="text-4xl font-bold">+</div>
-      <div class="text-xl text-info font-bold">{{ message }}</div>
+      <div class="text-xl text-info font-bold">添加游戏托管</div>
     </div>
   </label>
 </template>
-<script setup lang="ts">
-import { computed, ref } from "vue";
-import type { RegistrySlot, RegistryUserInfo } from "@/shared/types/api";
-import { useUserStore } from "@/stores/useUserStore";
-import { allowGameCreate } from "@/services/gameQuota";
-interface Props {
-  slot: RegistrySlot | undefined;
-  userQuota: RegistryUserInfo | undefined;
-}
-const props = withDefaults(defineProps<Props>(), {
-  slot: undefined,
-  userQuota: undefined,
-});
-const user = useUserStore();
-const isLocked = ref(false);
-
-const message = computed(() => {
-  if (props.slot === undefined || props.userQuota === undefined) return "请稍后";
-  const response = allowGameCreate(props.slot, props.userQuota, user.isVerify);
-  isLocked.value = response.isLocked;
-  return response.message;
-});
-</script>

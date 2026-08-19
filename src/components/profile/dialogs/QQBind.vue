@@ -32,7 +32,6 @@
             <Icon icon="basil:qq-outline" width="48" height="48" />
           </a>
         </div>
-        <!-- <button @click="copyQQCode" class="btn btn-outline btn-info mb-3">{{ qqCode }}</button> -->
       </div>
     </div>
     <button
@@ -46,37 +45,33 @@
     </button>
   </div>
 </template>
+
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, computed } from "vue";
-import { NOTIFY } from "@/constants/ui";
+import { ref, onMounted, onUnmounted } from "vue";
 import { API_RESPONSE_CODE } from "@/constants/api";
 import { setMsg } from "@/utils/toast";
 import { sleep } from "@/utils/misc";
 import { Type } from "@/constants/ui";
 import { Icon } from "@iconify/vue";
-import { useGamesStore } from "@/stores/useGamesStore";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
 import authClient from "@/services/authClient";
 
+const ALREADY_BOUND_MESSAGE = "QQ绑定已完成";
 const props = defineProps<DialogComponentProps>();
 const { dialogClose } = props;
 const qqCode = ref("");
 const isLoading = ref(true);
 let intervalId: number | null = null;
-const gamesStore = useGamesStore();
-
-const userQuota = computed(() => {
-  return gamesStore.userQuota;
-});
 
 onMounted(() => {
-  authClient.fetchQQBindCode();
+  void getQQBindCode();
   intervalId = window.setInterval(getQQBindCode, 5000);
 });
 
 onUnmounted(() => {
   if (intervalId) clearInterval(intervalId);
 });
+
 const copyQQCodeAndOpenLink = async (event: MouseEvent) => {
   event.preventDefault();
   const target = event.currentTarget as HTMLAnchorElement;
@@ -84,6 +79,7 @@ const copyQQCodeAndOpenLink = async (event: MouseEvent) => {
   await sleep(2000);
   window.open(target.href, "_blank");
 };
+
 const selectAll = (event: Event) => {
   const target = event.target as HTMLInputElement;
   target.select();
@@ -101,18 +97,14 @@ const copyQQCode = async () => {
 };
 
 const getQQBindCode = async () => {
-  if (userQuota?.value?.idServerQQ) {
-    qqCode.value = userQuota.value.idServerQQ;
-    return;
-  }
   try {
     const res = await authClient.fetchQQBindCode();
     if (res.code === API_RESPONSE_CODE.SUCCESS) {
-      qqCode.value = ("verifyCode:" + res.data) as string;
+      qqCode.value = "verifyCode:" + res.data;
       return;
     }
     if (res.code === API_RESPONSE_CODE.ALREADY_BOUND) {
-      qqCode.value = NOTIFY.ALREADY_BIND_QQ;
+      qqCode.value = ALREADY_BOUND_MESSAGE;
       if (intervalId) {
         clearInterval(intervalId);
         intervalId = null;

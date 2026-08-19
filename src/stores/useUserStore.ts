@@ -3,21 +3,18 @@ import { defineStore } from "pinia";
 import type { ApiUserInfo } from "@/shared/types/api";
 import apiClient from "@/services/apiClient";
 import authClient from "@/services/authClient";
-import registryClient from "@/services/registryClient";
 import { Permission } from "@/constants/auth";
 import { hasPermission } from "@/utils/permission";
 import { decodeJwtPayload } from "@/utils/jwt";
 
 interface UserState {
   isLogin: boolean;
-  max_slot: number;
   Token: string;
   Info: ApiUserInfo;
 }
 
 const initialUserState = (): UserState => ({
   isLogin: false,
-  max_slot: 0,
   Token: "",
   Info: {
     createdAt: 0,
@@ -38,7 +35,6 @@ export const useUserStore = defineStore("user", () => {
   const token = computed(() => user.value.Token);
   const info = computed(() => user.value.Info);
   const isAdmin = computed(() => hasPermission(user.value.Info.permission, Permission.SuperAdmin));
-  const isVerify = computed(() => user.value.Info.status === 1 || user.value.Info.status === 2);
 
   function login(tokenValue: string) {
     user.value.isLogin = true;
@@ -47,7 +43,6 @@ export const useUserStore = defineStore("user", () => {
 
     apiClient.setJWT(tokenValue);
     authClient.setJWT(tokenValue);
-    registryClient.setJWT(tokenValue);
   }
 
   function logout() {
@@ -60,7 +55,6 @@ export const useUserStore = defineStore("user", () => {
     token,
     info,
     isAdmin,
-    isVerify,
     login,
     logout,
   };

@@ -94,7 +94,6 @@ export interface ApiQQBotSpecialNotifyResponse {
 
 export interface ApiUserAuth {
   token: string;
-  available_slot?: number;
 }
 
 export interface ApiUserInfo {
@@ -274,38 +273,12 @@ export interface ApiGameLogEvent extends MessageEvent {
   content: string;
 }
 
-// --- Registry ---
+// --- Game account ---
 
-export interface RegistryAddGameForm {
+export interface GameAccountForm {
   account: string;
   password: string;
   platform: number;
-}
-
-export interface RegistryAccountFound {
-  account: string;
-}
-
-export interface RegistryUserInfo {
-  createdAt: number;
-  idServerPermission: number;
-  idServerPhone: string;
-  idServerQQ: string;
-  idServerStatus: number;
-  ruleFlags: [];
-  rules: [];
-  slots: RegistrySlot[];
-  updatedAt: number;
-  uuid: string;
-}
-
-export interface RegistrySlot {
-  createdAt: number;
-  gameAccount: string | null;
-  ruleFlags: string[];
-  updatedAt: number;
-  useFlagDefaults: boolean;
-  uuid: string;
 }
 
 // --- HealthMonitor ---
