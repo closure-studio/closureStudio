@@ -102,10 +102,10 @@ Current mutation ownership is split:
 | Start game | Arkhost | game account |
 | Suspend game | Arkhost | game account |
 | Update config | Arkhost | game account |
-| Create game | ArkQuota | slot UUID |
-| Delete game | ArkQuota | slot UUID |
-| Update password | ArkQuota | slot UUID |
-| Repair missing Arkhost game | ArkQuota | slot UUID |
+| Create game | Arkhost | game account |
+| Delete game | Arkhost | game account |
+| Update password | Arkhost delete + create flow | game account |
+| Repair missing Arkhost game | Arkhost delete + create flow | game account |
 | Find idserver account by game | ArkQuota | game account |
 
 The refactor removes the split. All game mutations use the Arkhost adapter and identify a game by account.
@@ -174,12 +174,12 @@ Use the following contract unless live integration proves that the current backe
 | Operation | Method and path | Payload | Captcha |
 | --- | --- | --- | --- |
 | Create | `POST /game` | `{ account, password, platform }` | required |
-| Update password/upsert | `POST /game` | `{ account, password, platform }` | required |
-| Repair/upsert | `POST /game` | `{ account, password, platform }` | required |
-| Delete | `DELETE /Game` | `{ account }` in request body | required |
+| Update password | `DELETE /game/:account`, then `POST /game` | delete: none; create: `{ account, password, platform }` | create only |
+| Repair/reset | `DELETE /game/:account`, then `POST /game` | delete: none; create: `{ account, password, platform }` | create only |
+| Delete | `DELETE /game/:account` | none | optional |
 | List | `GET /game` | none | JWT |
 
-The path casing above intentionally follows the historical code: creation evolved to lowercase `/game`, while deletion is only recorded as uppercase `/Game`. Do not silently invent a different endpoint during implementation.
+Game routes are lowercase and the account is part of the delete path. Keep the frontend contract aligned with the current Arkhost route registration.
 
 The captcha request must preserve the existing request convention:
 
@@ -301,11 +301,10 @@ It is also acceptable for `GameList.vue` to render `ApiGameGame[]` directly and 
 
 ```ts
 createGame(captchaToken: string, form: GameAccountForm): Promise<RequestResult<void>>
-updateGamePassword(captchaToken: string, form: GameAccountForm): Promise<RequestResult<void>>
 deleteGame(captchaToken: string, account: string): Promise<RequestResult<void>>
 ```
 
-`updateGamePassword` may delegate internally to `createGame` because both use the Arkhost upsert endpoint. Callers should still use an intention-revealing method name.
+`captcha.updateGamePassword(form)` is an orchestration action: it deletes the full Arkhost game account first, then runs the captcha-backed create flow. Keep this orchestration out of `APIClient` so captcha fallback cannot repeat a destructive delete.
 
 ### 7.5 HTTP Transport Interface
 
@@ -370,9 +369,9 @@ Do not remove:
 
 ### Phase 2: Add Arkhost Mutation Methods
 
-1. Add `createGame`, `updateGamePassword`, and `deleteGame` to `APIClient`.
+1. Keep `createGame` and `deleteGame` as the low-level mutation methods in `APIClient`.
 2. Add request-body-capable captcha DELETE support to `AxiosServer`.
-3. Update `captchaActions.ts` so every game mutation calls `apiClient`.
+3. Update `captchaActions.ts` so password update deletes by account and then invokes the captcha-backed create action.
 4. Remove the account-recovery captcha action.
 5. Keep all Arkhost URLs inside `APIClient`; dashboard modules must only pass typed data and accounts.
 
@@ -499,7 +498,7 @@ Delete flow:
 click delete(account)
     -> acquire loading guard
     -> run captcha
-    -> DELETE /Game with { account }
+    -> DELETE /game/:account
     -> if success, refresh GET /game
     -> show success
     -> if business failure, show backend message
@@ -539,7 +538,8 @@ The capacity check must run both when rendering the card and immediately before 
 
 - Remove `slotUUID`.
 - Receive a `GameAccountForm` or enough game data to construct it.
-- Call `captcha.updateGamePassword(form)`.
+- Call `captcha.updateGamePassword(form)`; this deletes the existing account and recreates it with the new password.
+- Refresh the Arkhost game list after both success and business failure so the UI cannot retain a deleted game.
 - Refresh only Arkhost games.
 
 Repair behavior:
@@ -760,8 +760,8 @@ Add tests that mock the Axios instance and verify:
 Verify exact contracts:
 
 1. `createGame(token, form)` calls `POST /game` with the unchanged form.
-2. `updateGamePassword(token, form)` calls the Arkhost upsert path.
-3. `deleteGame(token, account)` calls `DELETE /Game` with `{ account }`.
+2. `captcha.updateGamePassword(form)` calls `DELETE /game/:account` first and then runs the captcha-backed `POST /game` create request.
+3. `deleteGame(token, account)` calls `DELETE /game/:account` with the account in the path.
 4. Game list remains `GET /game`.
 
 ### 12.3 Store Tests
@@ -834,8 +834,8 @@ The refactor is complete only when all of the following are true:
 - [ ] SSE remains the preferred live update mechanism.
 - [ ] Polling remains the fallback mechanism.
 - [ ] Create uses Arkhost `POST /game`.
-- [ ] Delete uses Arkhost `DELETE /Game` with the account body.
-- [ ] Password update and repair/upsert no longer use ArkQuota.
+- [ ] Delete uses Arkhost `DELETE /game/:account` with the account in the path.
+- [ ] Password update uses Arkhost `DELETE /game/:account` followed by `POST /game`.
 - [ ] All Arkhost-returned games are displayed, including counts above 3.
 - [ ] Creation is offered only below 3 games.
 - [ ] Slot `ruleFlags` and quota sorting are removed.
@@ -888,8 +888,8 @@ Do not ask for clarification about code locations; they are discoverable from th
 
 Request backend documentation from the user only if one of these specific conditions occurs:
 
-1. Arkhost rejects `POST /game` for create/upsert even though authentication and captcha are valid.
-2. Arkhost rejects `DELETE /Game` or requires a payload other than `{ account }`.
+1. Arkhost rejects `POST /game` for create/recreate even though authentication and captcha are valid.
+2. Arkhost rejects `DELETE /game/:account` or requires a different delete contract.
 3. Arkhost uses a different captcha header contract for DELETE.
 4. The successful Arkhost response envelope is incompatible with `RequestResult<T>`.
 
