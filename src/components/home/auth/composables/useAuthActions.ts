@@ -7,9 +7,7 @@ import { Type } from "@/constants/ui";
 import { AuthModelType } from "@/constants/auth";
 import { API_RESPONSE_CODE } from "@/constants/api";
 import { EMAIL_USERNAME_MAX_LENGTH, EMAIL_USERNAME_MIN_LENGTH } from "@/constants/auth";
-import { buildGameAccount } from "@/utils/account";
 import { checkIsEmail, getEmailUsernameLength } from "@/utils/regex";
-import { useCaptcha } from "@/services/captchaActions";
 import { useUserStore } from "@/stores/useUserStore";
 import {
   type FindAccountParams,
@@ -34,14 +32,12 @@ export function useAuthActions(options: AuthActionOptions) {
     loginParams,
     forgetParams,
     regParams,
-    findAccountParams,
     agreeTerms,
     findAccountRespData,
   } = options;
 
   const user = useUserStore();
   const router = useRouter();
-  const captcha = useCaptcha();
 
   const isLoading = ref(false);
   const isSendCodingIsLoading = ref(false);
@@ -164,31 +160,9 @@ export function useAuthActions(options: AuthActionOptions) {
     }
   };
 
-  const handleFindAccountBtnOnClick = async () => {
-    if (isFindAccountLoading.value) return;
-    if (!findAccountParams.value.gameAccount) {
-      setMsg("请填写账号", Type.Warning);
-      return;
-    }
-
-    try {
-      isFindAccountLoading.value = true;
-      const account = buildGameAccount(
-        findAccountParams.value.gameAccount,
-        findAccountParams.value.platform
-      );
-      const resp = await captcha.findAccount(account);
-      if (resp.code === API_RESPONSE_CODE.FAILURE) {
-        setMsg(resp.message || "查询失败", Type.Warning);
-      }
-      if (resp.code === API_RESPONSE_CODE.SUCCESS && resp.data) {
-        findAccountRespData.value = resp.data.account;
-      }
-    } catch {
-      setMsg("请刷新页面重试", Type.Warning);
-    } finally {
-      isFindAccountLoading.value = false;
-    }
+  const handleFindAccountBtnOnClick = () => {
+    findAccountRespData.value = "";
+    setMsg("找回账号功能暂未开放", Type.Info);
   };
 
   return {

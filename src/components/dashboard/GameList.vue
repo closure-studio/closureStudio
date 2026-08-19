@@ -21,7 +21,7 @@
             type="button"
             class="btn btn-outline btn-sm btn-block btn-primary"
             v-else-if="isUpdateStatus(game.status.account)"
-            @click.stop="$emit('update-passwd', getSlot(game.status.account))"
+            @click.stop="$emit('update-password', game.status.account)"
             :disabled="isLoading"
           >
             更新密码
@@ -41,9 +41,7 @@
             type="button"
             :disabled="isLoading"
             class="btn btn-outline btn-sm btn-block btn-error"
-            @click.stop="
-              $emit('delete', getSlot(game.status.account)?.uuid || '', game.status.account)
-            "
+            @click.stop="$emit('delete', game.status.account)"
           >
             删除
           </button>
@@ -51,43 +49,24 @@
       </GameAccount>
     </div>
 
-    <template v-for="slot in userQuota?.slots" :key="slot.uuid">
-      <GameAddCard
-        v-if="!slot.gameAccount"
-        :slot="slot"
-        :userQuota="userQuota"
-        :class="{ 'pointer-events-none opacity-60': isLoading }"
-        @click="isLoading ? undefined : $emit('create', slot, slot.uuid)"
-      />
-      <GameAccount v-else-if="!findGame(slot.gameAccount)" :gameAccount="slot.gameAccount">
-        <div class="divider mt-2 mb-3 text-info font-arknights text-xl">START</div>
-        <div>
-          <button
-            type="button"
-            :disabled="isLoading"
-            class="btn btn-outline btn-sm btn-block btn-error mt-2"
-            @click.stop="$emit('repair', slot.uuid, slot.gameAccount)"
-          >
-            点击进行修复
-          </button>
-        </div>
-      </GameAccount>
-    </template>
+    <GameAddCard
+      v-if="canCreateGame"
+      :class="{ 'pointer-events-none opacity-60': isLoading }"
+      @click="isLoading ? undefined : $emit('create')"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import type { ApiGameGame, RegistrySlot, RegistryUserInfo } from "@/shared/types/api";
+import type { ApiGameGame } from "@/shared/types/api";
 import { GAME_STATUS_CODE } from "@/constants/game";
 import GameAccount from "@/components/dashboard/GameAccount.vue";
 import GameAddCard from "@/components/dashboard/GameAddCard.vue";
 
 defineProps<{
   userGameList: ApiGameGame[];
-  userQuota: RegistryUserInfo;
+  canCreateGame: boolean;
   isLoading: boolean;
-  findGame: (gameAccount: string) => ApiGameGame | undefined;
-  getSlot: (account: string) => RegistrySlot | undefined;
   isSuspendStatus: (gameAccount: string) => boolean;
   isUpdateStatus: (gameAccount: string) => boolean;
 }>();
@@ -95,10 +74,9 @@ defineProps<{
 defineEmits<{
   (event: "open-game-conf", account: string): void;
   (event: "suspend", account: string): void;
-  (event: "update-passwd", slot: RegistrySlot | undefined): void;
+  (event: "update-password", account: string): void;
   (event: "login", account: string): void;
-  (event: "delete", slotUUID: string, gameAccount: string): void;
-  (event: "create", slot: RegistrySlot, slotUUID: string): void;
-  (event: "repair", slotUUID: string, gameAccount: string): void;
+  (event: "delete", account: string): void;
+  (event: "create"): void;
 }>();
 </script>

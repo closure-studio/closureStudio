@@ -1,12 +1,10 @@
 import type { Ref } from "vue";
-import type { RegistryAddGameForm, RegistrySlot } from "@/shared/types/api";
+import type { GameAccountForm } from "@/shared/types/api";
 import { Type } from "@/constants/ui";
 import { GAME_STATUS_CODE } from "@/constants/game";
 import { API_RESPONSE_CODE } from "@/constants/api";
-import { getRealGameAccount, processGameAccount } from "@/utils/account";
+import { getRealGameAccount } from "@/utils/account";
 import { setMsg } from "@/utils/toast";
-import { NOTIFY } from "@/constants/ui";
-import { allowGameCreate, canDeleteGame } from "@/services/gameQuota";
 import type { useGamesStore } from "@/stores/useGamesStore";
 import showDialog from "@/shared/components/dialog/dialog";
 import CreateGame from "@/components/dashboard/dialogs/CreateGame.vue";
@@ -19,26 +17,21 @@ interface ActionResult {
 }
 
 interface GameActionsCaptcha {
-  deleteGame: (slotUUID: string) => Promise<ActionResult>;
-  createGame: (slotUUID: string, form: RegistryAddGameForm) => Promise<ActionResult>;
+  deleteGame: (account: string) => Promise<ActionResult>;
+  createGame: (form: GameAccountForm) => Promise<ActionResult>;
+  updateGamePassword: (form: GameAccountForm) => Promise<ActionResult>;
   loginGame: (account: string) => Promise<ActionResult>;
 }
 
-interface GameActionsUser {
-  isVerify: boolean;
-}
-
 interface UseGameActionsOptions {
-  user: GameActionsUser;
   gamesStore: ReturnType<typeof useGamesStore>;
   captcha: GameActionsCaptcha;
   isLoading: Ref<boolean>;
-  selectedSlotUUID: Ref<string>;
-  selectedRegisterForm: Ref<RegistryAddGameForm>;
+  selectedRegisterForm: Ref<GameAccountForm>;
 }
 
 export function useGameActions(options: UseGameActionsOptions) {
-  const { user, gamesStore, captcha, isLoading, selectedSlotUUID, selectedRegisterForm } = options;
+  const { gamesStore, captcha, isLoading, selectedRegisterForm } = options;
 
   const runGameAction = async <T>(action: () => Promise<T>) => {
     if (isLoading.value) return undefined;
@@ -66,34 +59,13 @@ export function useGameActions(options: UseGameActionsOptions) {
     );
   };
 
-  const getSlot = (account: string) => {
-    const normalized = normalizeAccount(account);
-    return gamesStore.userQuota?.slots.find((slot: RegistrySlot) => {
-      if (!slot.gameAccount) return false;
-      return slot.gameAccount === account || normalizeAccount(slot.gameAccount) === normalized;
-    });
-  };
-
-  const createGameButtonOnClick = (
-    slot: RegistrySlot,
-    slotUUID: string,
-    loginFunc: (account: string) => Promise<void>
-  ) => {
+  const createGameButtonOnClick = (loginFunc: (account: string) => Promise<void>) => {
     if (isLoading.value) return;
-    if (!gamesStore.userQuota) {
-      setMsg("游戏托管槽位数据异常，无法提交", Type.Warning);
+    if (!gamesStore.canCreateGame) {
+      setMsg("托管数量已达上限", Type.Warning);
       return;
     }
-    const response = allowGameCreate(slot, gamesStore.userQuota, user.isVerify);
-    if (response.isLocked) {
-      setMsg(response.message, Type.Warning);
-      return;
-    }
-    showDialog(CreateGame, {
-      slotUUID,
-      isFirst: !user.isVerify,
-      loginFunc,
-    } as Record<string, unknown>);
+    showDialog(CreateGame, { loginFunc } as Record<string, unknown>);
   };
 
   const isUpdateStatus = (gameAccount: string) => {
@@ -115,20 +87,12 @@ export function useGameActions(options: UseGameActionsOptions) {
     return game.status.code === GAME_STATUS_CODE.RUNNING;
   };
 
-  const handleDeleteBtnOnClick = async (slotUUID: string, gameAccount: string) => {
+  const handleDeleteBtnOnClick = async (gameAccount: string) => {
     await runGameAction(async () => {
-      if (gamesStore.userQuota === undefined) {
-        setMsg("游戏托管槽位数据异常，无法提交", Type.Warning);
-        return;
-      }
-      if (!canDeleteGame(gamesStore.userQuota, gameAccount)) {
-        setMsg(NOTIFY.NOT_ALLOW_DELETE_GAME, Type.Warning);
-        return;
-      }
       try {
-        const deleteResp = await captcha.deleteGame(slotUUID);
-        await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
+        const deleteResp = await captcha.deleteGame(gameAccount);
         if (deleteResp.code === API_RESPONSE_CODE.SUCCESS) {
+          await gamesStore.queryGameList();
           setMsg("删除成功", Type.Success);
         } else {
           setMsg(deleteResp.message, Type.Warning);
@@ -139,59 +103,21 @@ export function useGameActions(options: UseGameActionsOptions) {
     });
   };
 
-  const handleRepairBtnOnClick = async (slotUUID: string, gameAccount: string) => {
-    await runGameAction(async () => {
-      if (gamesStore.userQuota === undefined) {
-        setMsg("游戏托管槽位数据异常，无法提交", Type.Warning);
-        return;
-      }
-      if (!canDeleteGame(gamesStore.userQuota, gameAccount)) {
-        setMsg(NOTIFY.NOT_ALLOW_DELETE_GAME, Type.Warning);
-        return;
-      }
-      try {
-        const accountInfo = processGameAccount(gameAccount);
-        if (!accountInfo) {
-          setMsg("账号格式不正确", Type.Warning);
-          return;
-        }
-        const form: RegistryAddGameForm = {
-          account: accountInfo.remaining,
-          password: "123456",
-          platform: accountInfo.code,
-        };
-        const createGameResp = await captcha.createGame(slotUUID, form);
-        await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
-        if (createGameResp.code === API_RESPONSE_CODE.SUCCESS) {
-          setMsg("修复成功", Type.Success);
-        } else {
-          setMsg(createGameResp.message, Type.Warning);
-        }
-      } catch {
-        setMsg("修复失败", Type.Warning);
-      }
-    });
-  };
-
-  const handleUpdatePasswdBtnOnClick = async (slot: RegistrySlot | undefined) => {
+  const handleUpdatePasswdBtnOnClick = async (gameAccount: string) => {
     if (isLoading.value) return;
-    if (!slot || !slot.gameAccount) {
-      setMsg("未找到托管槽位，请刷新后重试", Type.Warning);
-      return;
-    }
-    const game = findGameByAccount(slot.gameAccount);
+    const game = findGameByAccount(gameAccount);
     if (!game) {
       setMsg("未找到游戏信息，请刷新后重试", Type.Warning);
       return;
     }
 
-    selectedSlotUUID.value = slot.uuid;
-    selectedRegisterForm.value.account = getRealGameAccount(game.status.account);
-    selectedRegisterForm.value.platform = game.status.platform;
-    selectedRegisterForm.value.password = "";
+    selectedRegisterForm.value = {
+      account: getRealGameAccount(game.status.account),
+      platform: game.status.platform,
+      password: "",
+    };
 
     showDialog(UpdateGamePasswd, {
-      slotUUID: slot.uuid,
       form: selectedRegisterForm.value,
     } as Record<string, unknown>);
   };
@@ -200,8 +126,8 @@ export function useGameActions(options: UseGameActionsOptions) {
     await runGameAction(async () => {
       try {
         const loginResp = await captcha.loginGame(account);
-        await Promise.all([gamesStore.queryGameList(), gamesStore.queryUserQuota()]);
         if (loginResp.code === API_RESPONSE_CODE.SUCCESS) {
+          await gamesStore.queryGameList();
           setMsg("启动成功", Type.Success);
           showDialog(GeeTestNotify);
         } else {
@@ -217,8 +143,8 @@ export function useGameActions(options: UseGameActionsOptions) {
     await runGameAction(async () => {
       try {
         const resp = await gamesStore.gameSuspend(account);
-        await gamesStore.queryGameList();
         if (resp.code === API_RESPONSE_CODE.SUCCESS) {
+          await gamesStore.queryGameList();
           setMsg("暂停成功", Type.Success);
         } else {
           setMsg(resp.message, Type.Warning);
@@ -231,12 +157,10 @@ export function useGameActions(options: UseGameActionsOptions) {
 
   return {
     findGame,
-    getSlot,
     createGameButtonOnClick,
     isUpdateStatus,
     isSuspendStatus,
     handleDeleteBtnOnClick,
-    handleRepairBtnOnClick,
     handleUpdatePasswdBtnOnClick,
     gameLogin,
     gameSuspend,

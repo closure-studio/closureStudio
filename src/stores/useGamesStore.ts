@@ -8,19 +8,17 @@ import type {
   ApiGameLogEvent,
   ApiGameSSR,
   ApiSystemConfig,
-  RegistryUserInfo,
 } from "@/shared/types/api";
 import apiClient from "@/services/apiClient";
-import registryClient from "@/services/registryClient";
 import { arknightsGameCaptcha } from "@/services/captcha";
 import { setMsg } from "@/utils/toast";
 import { API_RESPONSE_CODE } from "@/constants/api";
+import { MAX_GAME_SLOTS } from "@/constants/game";
 import { Type } from "@/constants/ui";
 import { STORAGE_KEYS } from "@/constants/app";
 import showDialog from "@/shared/components/dialog/dialog";
 import NewSSRNotice from "@/components/dashboard/dialogs/NewSSRNotice.vue";
 import { useUserStore } from "@/stores/useUserStore";
-import { quotaSlotsSort } from "@/services/gameQuota";
 
 const intervalTime = 5000;
 
@@ -34,22 +32,8 @@ const initialConfig = (): ApiSystemConfig => ({
   allowGameDelete: true,
 });
 
-const initialUserQuota = (): RegistryUserInfo => ({
-  createdAt: 0,
-  idServerPermission: 0,
-  idServerPhone: "",
-  idServerQQ: "",
-  idServerStatus: 0,
-  ruleFlags: [],
-  rules: [],
-  slots: [],
-  updatedAt: 0,
-  uuid: "",
-});
-
 export const useGamesStore = defineStore("games", () => {
   const config = ref<ApiSystemConfig>(initialConfig());
-  const userQuota = ref<RegistryUserInfo>(initialUserQuota());
   const gameList = ref<ApiGameGame[]>([]);
   const globalSSR = ref<ApiGameSSR[]>([]);
   const captchaCache = ref<Record<string, ApiGameCaptchaInfo>>({});
@@ -67,6 +51,9 @@ export const useGamesStore = defineStore("games", () => {
     }
     return gameList.value[0];
   });
+
+  const occupiedSlotCount = computed(() => gameList.value.length);
+  const canCreateGame = computed(() => occupiedSlotCount.value < MAX_GAME_SLOTS);
 
   const findGame = (gameAccount: string) => {
     return gameList.value.find((game) => game.status.account === gameAccount);
@@ -150,21 +137,6 @@ export const useGamesStore = defineStore("games", () => {
     sseConnection.value = null;
   };
 
-  const queryUserQuota = async () => {
-    try {
-      const resp = await registryClient.fetchUserSlots();
-      if (resp.code === API_RESPONSE_CODE.SUCCESS && resp.data) {
-        resp.data.slots = quotaSlotsSort(resp.data.slots);
-        userQuota.value = resp.data;
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Error during queryMe:", error);
-      return false;
-    }
-  };
-
   const startSSE = async () => {
     const user = useUserStore();
     if (!user || !user.token) {
@@ -241,8 +213,8 @@ export const useGamesStore = defineStore("games", () => {
       return;
     }
     isGameListIniting.value = true;
-    const [quotaResult, gameListResult] = await Promise.all([queryUserQuota(), queryGameList()]);
-    if (!quotaResult || !gameListResult) {
+    const gameListResult = await queryGameList();
+    if (!gameListResult) {
       setMsg("初始化失败, 请刷新网页或稍后再尝试", Type.Warning);
       isGameListIniting.value = false;
       return;
@@ -290,7 +262,6 @@ export const useGamesStore = defineStore("games", () => {
 
   const $reset = () => {
     config.value = initialConfig();
-    userQuota.value = initialUserQuota();
     gameList.value = [];
     globalSSR.value = [];
     captchaCache.value = {};
@@ -305,7 +276,6 @@ export const useGamesStore = defineStore("games", () => {
 
   return {
     config,
-    userQuota,
     gameList,
     globalSSR,
     captchaCache,
@@ -314,13 +284,14 @@ export const useGamesStore = defineStore("games", () => {
     isLoadingGameList,
     isLoadingChars,
     firstGame,
+    occupiedSlotCount,
+    canCreateGame,
     findGame,
     updateGameList,
     updateCaptcha,
     queryGameList,
     startGameListPolling,
     stopGameListPolling,
-    queryUserQuota,
     startSSE,
     initializeGameListServerConnection,
     gameSuspend,

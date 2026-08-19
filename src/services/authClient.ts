@@ -23,10 +23,6 @@ class AuthClient extends AxiosServer {
     return this.post<ApiUserAuth>(`/forget`, params);
   }
 
-  sendSms(params: { phone: string }) {
-    return this.post<ApiUserAuth>(`/sms`, params);
-  }
-
   updatePasswd(params: { email: string; currentPasswd: string; newPasswd: string }) {
     return this.put<void>(`/password`, params);
   }
@@ -54,9 +50,6 @@ class AuthClient extends AxiosServer {
   }
   refresh() {
     return this.get<ApiUserAuth>(`/refreshToken`);
-  }
-  verify(code: string) {
-    return this.post<void>(`/phone`, { code });
   }
   fetchQQBindCode() {
     return this.get(`/qq`);
