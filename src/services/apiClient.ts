@@ -59,12 +59,8 @@ export class APIClient extends AxiosServer {
     return this.captchaPost<void>("/game", token, form);
   }
 
-  updateGamePassword(token: string, form: GameAccountForm) {
-    return this.createGame(token, form);
-  }
-
   deleteGame(token: string, account: string) {
-    return this.captchaDelete<void>("/Game", token, { account });
+    return this.captchaDelete<void>(`/game/${account}`, token);
   }
 
   doUpdateGameConf(account: string, game: ApiGameConfig) {

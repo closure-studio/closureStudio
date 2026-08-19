@@ -66,14 +66,15 @@ const handleUpdateGamePasswdOnBtnClick = async () => {
   try {
     isLoading.value = true;
     const resp = await captcha.updateGamePassword(myForm.value);
+    await gamesStore.queryGameList();
     if (resp.code === API_RESPONSE_CODE.SUCCESS) {
-      await gamesStore.queryGameList();
       setMsg("更新密码成功", Type.Success);
       dialogClose();
     } else {
       setMsg(resp.message || "更新密码失败", Type.Warning);
     }
   } catch (error) {
+    await gamesStore.queryGameList().catch(() => undefined);
     setMsg(error, Type.Error);
   } finally {
     isLoading.value = false;

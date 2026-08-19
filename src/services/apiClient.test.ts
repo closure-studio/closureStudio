@@ -38,25 +38,13 @@ describe("APIClient Arkhost game mutations", () => {
     expect(mockCaptchaPost).toHaveBeenCalledWith("/game", "captcha-token", form);
   });
 
-  test("updateGamePassword 复用 Arkhost POST /game upsert 契约", async () => {
-    mockCaptchaPost.mockResolvedValue({ code: 1, data: undefined, message: "ok" });
-    const client = new APIClient(hostServer);
-    const form = { account: "123456", password: "new-secret", platform: 1 };
-
-    await client.updateGamePassword("captcha-token", form);
-
-    expect(mockCaptchaPost).toHaveBeenCalledWith("/game", "captcha-token", form);
-  });
-
-  test("deleteGame 使用 DELETE /Game 并把账号放入请求体", async () => {
+  test("deleteGame 使用 DELETE /game/:account", async () => {
     const response = { code: 1, data: undefined, message: "ok" };
     mockCaptchaDelete.mockResolvedValue(response);
     const client = new APIClient(hostServer);
 
     await expect(client.deleteGame("captcha-token", "G123456")).resolves.toEqual(response);
 
-    expect(mockCaptchaDelete).toHaveBeenCalledWith("/Game", "captcha-token", {
-      account: "G123456",
-    });
+    expect(mockCaptchaDelete).toHaveBeenCalledWith("/game/G123456", "captcha-token");
   });
 });
