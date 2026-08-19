@@ -47,18 +47,20 @@ jobs:
 
       - name: Send Notification
         if: steps.ssh_deploy.outcome == 'success'
+        env:
+          NOTIFY_API_URL: ${{ secrets.NOTIFY_API_URL }}
+          NOTIFY_TOKEN: ${{ secrets.NOTIFY_TOKEN }}
+          NOTIFY_UID: ${{ secrets.NOTIFY_UID }}
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
-          # 使用 GitHub Actions 提供的环境变量
-          hash=${GITHUB_SHA:0:7}  # 获取前7位的commit hash
-          commit_message="${{ github.event.pull_request.body }}"
-          # 自定义消息
-          msg="#$hash - closureStudio 构建成功 \\n「${commit_message}」"
-          msg=$(echo "$msg" | sed ':a;N;$!ba;s/\n/\\n/g')
+          hash="${GITHUB_SHA:0:7}"
+          msg="#${hash} - closureStudio 构建成功"$'\n'"「${PR_BODY}」"
+          payload=$(jq -n \
+            --arg token "$NOTIFY_TOKEN" \
+            --arg uid "$NOTIFY_UID" \
+            --arg msg "$msg" \
+            '{token: $token, uid: $uid, msg: $msg}')
 
-          curl -X POST "${{ secrets.NOTIFY_API_URL }}" \
-              -H "Content-Type: application/json" \
-              -d '{
-                    "token": "'"${{ secrets.NOTIFY_TOKEN }}"'",
-                    "uid": "'"${{ secrets.NOTIFY_UID }}"'",
-                    "msg": "'"$msg"'"
-                  }'
+          curl --fail-with-body --silent --show-error --request POST "$NOTIFY_API_URL" \
+            --header "Content-Type: application/json" \
+            --data "$payload"
