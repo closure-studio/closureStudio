@@ -37,17 +37,6 @@ const originalConfig: ApiSystemConfigEditable = {
   allowGameCreate: true,
   allowGameUpdate: true,
   allowGameDelete: true,
-  shutdownTasks: [
-    {
-      timestamp: 1800000000,
-      config: {
-        allowGameLogin: false,
-        allowGameCreate: false,
-        allowGameUpdate: false,
-        allowGameDelete: false,
-      },
-    },
-  ],
 };
 
 describe("systemConfigAdmin", () => {
@@ -320,64 +309,6 @@ describe("systemConfigAdmin", () => {
     ).rejects.toThrow("保存失败");
 
     expect(mockedQQBotClient.specialNotify).not.toHaveBeenCalled();
-  });
-
-  test("loadApiSystemConfigEditable 在 shutdownTasks 缺失时归一化为空数组", async () => {
-    mockedSystemConfigApi.fetchSystemConfig.mockResolvedValue({
-      code: 1,
-      data: {
-        announcement: "旧公告",
-        allowGameLogin: true,
-        allowGameCreate: true,
-        allowGameUpdate: true,
-        allowGameDelete: true,
-        isUnderMaintenance: false,
-        isDebugMode: false,
-      },
-      message: "大成功!",
-    });
-
-    await expect(loadApiSystemConfigEditable()).resolves.toEqual({
-      announcement: "旧公告",
-      allowGameLogin: true,
-      allowGameCreate: true,
-      allowGameUpdate: true,
-      allowGameDelete: true,
-      shutdownTasks: [],
-    });
-  });
-
-  test("buildApiSystemConfigUpdate 在 shutdownTasks 未变化时不提交", () => {
-    expect(
-      buildApiSystemConfigUpdate(originalConfig, {
-        ...originalConfig,
-        shutdownTasks: originalConfig.shutdownTasks?.map((task) => ({
-          timestamp: task.timestamp,
-          config: { ...task.config },
-        })),
-      })
-    ).toEqual({});
-  });
-
-  test("buildApiSystemConfigUpdate 在 shutdownTasks 变化时整体提交数组", () => {
-    const draftConfig: ApiSystemConfigEditable = {
-      ...originalConfig,
-      shutdownTasks: [
-        {
-          timestamp: 1800003600,
-          config: {
-            allowGameLogin: false,
-            allowGameCreate: true,
-            allowGameUpdate: false,
-            allowGameDelete: true,
-          },
-        },
-      ],
-    };
-
-    expect(buildApiSystemConfigUpdate(originalConfig, draftConfig)).toEqual({
-      shutdownTasks: draftConfig.shutdownTasks,
-    });
   });
 
   test("getAnnouncementNotifyGroups 合并默认群、自定义群并去重", () => {
