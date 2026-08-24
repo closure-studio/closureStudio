@@ -50,18 +50,21 @@ describe("APIClient Arkhost game mutations", () => {
     expect(mockCaptchaDelete).toHaveBeenCalledWith("/game/G123456", "captcha-token");
   });
 
-  test("doUpdateGameConf 使用顶层配置 patch", async () => {
+  test("doUpdateGameConf 使用 config 包裹配置 patch", async () => {
     const response = { code: 1, data: null, message: "ok" };
     mockPost.mockResolvedValue(response);
     const client = new APIClient(hostServer);
     const config = {
-      battle_tasks: [{ stage_id: "main_01-07", mode: "LOOP" as const }],
-      keeping_ap: 120,
-      is_auto_battle: true,
+      battle_tasks: [],
+      keeping_ap: 0,
+      recruit_reserve: 0,
+      recruit_ignore_robot: false,
+      enable_building_arrange: false,
+      is_auto_battle: false,
     };
 
     await expect(client.doUpdateGameConf("G123456", config)).resolves.toEqual(response);
 
-    expect(mockPost).toHaveBeenCalledWith("/game/config/G123456", config);
+    expect(mockPost).toHaveBeenCalledWith("/game/config/G123456", { config });
   });
 });
