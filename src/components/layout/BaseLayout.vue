@@ -55,7 +55,7 @@ interface NavItem {
 }
 
 const navItems = computed(() => {
-  const items: NavItem[] = [ROUTES.HOME, ROUTES.DASHBOARD, ROUTES.REPLAY_HUB, ROUTES.PROFILE];
+  const items: NavItem[] = [ROUTES.HOME, ROUTES.DASHBOARD, ROUTES.PROFILE];
   if (canAccessSystemAdmin(user.info.permission)) {
     items.push(ROUTES.ADMIN);
   }

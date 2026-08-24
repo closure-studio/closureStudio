@@ -3,7 +3,7 @@
 // declare namespace → export interface/type
 // ============================================================
 
-import type { BattleReplayAction } from "@/shared/types/replay";
+import type { BattleTask } from "@/shared/types/battle";
 
 // --- ApiSystem ---
 
@@ -113,19 +113,15 @@ export interface ApiUserUser {
 // --- ApiGame ---
 
 export interface ApiGameConfig {
-  accelerate_slot?: string;
   accelerate_slot_cn?: string;
-  account?: string;
-  allow_login_assist?: boolean;
-  battle_replay_actions?: BattleReplayAction[];
-  battle_maps?: string[] | string;
+  battle_tasks?: BattleTask[];
   enable_building_arrange?: boolean;
   is_auto_battle?: boolean;
   is_stopped?: boolean;
   keeping_ap?: number;
-  map_id?: string;
   recruit_ignore_robot?: boolean;
   recruit_reserve?: number;
+  specialization_tasks?: unknown[];
 }
 
 export interface ApiGameScreenshot {
@@ -161,13 +157,38 @@ export interface ApiGameStatus {
 }
 
 export interface ApiGameDetail {
-  config: ApiGameConfig;
+  config: ApiGameGameConfig;
+  building: ApiGameBuilding;
   consumable?: unknown;
   inventory?: unknown;
   lastFreshTs: number;
   screenshot: ApiGameScreenshot[];
   status: ApiGameStatus;
   troop?: unknown;
+}
+
+export interface ApiGameTrainingRoom {
+  trainee: {
+    charId: string;
+    skillId: string;
+  } | null;
+  completeWorkTime: string;
+}
+
+export interface ApiGameManufactureRoom {
+  formulaId: string;
+}
+
+export interface ApiGameTradingRoom {
+  strategy: string;
+}
+
+export interface ApiGameBuilding {
+  rooms: {
+    TRAINING: Record<string, ApiGameTrainingRoom>;
+    MANUFACTURE: Record<string, ApiGameManufactureRoom>;
+    TRADING: Record<string, ApiGameTradingRoom>;
+  };
 }
 
 export interface ApiGameLogs {
@@ -217,16 +238,16 @@ export interface ApiGameGameConfig {
   account: string;
   accelerate_slot: string;
   accelerate_slot_cn: string;
-  battle_replay_actions?: BattleReplayAction[];
-  battle_maps: string[];
+  battle_tasks: BattleTask[];
+  current_map: string;
   enable_building_arrange: boolean;
   is_auto_battle: boolean;
   is_stopped: boolean;
   keeping_ap: number;
   recruit_ignore_robot: boolean;
   recruit_reserve: number;
-  map_id: string;
   allow_login_assist: boolean;
+  specialization_tasks?: unknown[];
 }
 
 export interface ApiGameGame {

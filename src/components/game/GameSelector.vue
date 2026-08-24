@@ -29,7 +29,7 @@ const {
   /**
    * 切换账号的行为：
    * - "route"：默认，触发 router.replace 到 GAME_DETAIL（向后兼容 GameDetail.vue）。
-   * - "emit"：仅通过 update:account 抛出，由父组件控制（适合 Replay 等无路由切换的场景）。
+   * - "emit"：仅通过 update:account 抛出，由父组件控制（适合无路由切换的场景）。
    */
   mode?: "route" | "emit";
 }>();

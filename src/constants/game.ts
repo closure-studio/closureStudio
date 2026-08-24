@@ -38,14 +38,14 @@ export const DEFAULT_GAME_CONFIG: ApiGameGameConfig = {
   account: "",
   accelerate_slot: "",
   accelerate_slot_cn: "",
-  battle_maps: [],
+  battle_tasks: [],
+  current_map: "",
   enable_building_arrange: false,
   is_auto_battle: false,
   is_stopped: false,
   keeping_ap: 0,
   recruit_ignore_robot: false,
   recruit_reserve: 0,
-  map_id: "",
   allow_login_assist: false,
 };
 
@@ -80,14 +80,3 @@ export const GAME_LOG_QUERYABLE_STATUS_CODES: readonly number[] = [
   GAME_STATUS_CODE.RUNNING,
   GAME_STATUS_CODE.GAME_ERROR,
 ];
-
-export const REPLAY_PAGE_LIMIT = 20;
-
-export const FALLBACK_HOT_STAGE_IDS: readonly string[] = Object.freeze([
-  "main_01-07",
-  "wk_kc_5",
-  "wk_armor_5",
-  "wk_fly_5",
-  "wk_melee_5",
-  "wk_toxic_5",
-]);

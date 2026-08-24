@@ -69,7 +69,7 @@
     <div class="flex flex-wrap">
       <template v-for="(stage, key) in assets.filteredStages(stageKeyWord)" :key="key">
         <button
-          v-if="!config.battle_maps.includes(String(key))"
+          v-if="!loopStageIds.has(String(key))"
           class="btn btn-outline btn-warning btn-xs m-1 border-dashed opacity-60"
           @click="addStageToConfig(String(key))"
         >
@@ -77,12 +77,12 @@
         </button>
       </template>
       <button
-        @click="removeBattleMap(battleMap)"
-        v-for="battleMap in config.battle_maps"
-        :key="battleMap"
+        @click="removeBattleMap(task.stage_id)"
+        v-for="task in loopBattleTasks"
+        :key="task.stage_id"
         class="btn btn-outline btn-warning btn-xs m-1"
       >
-        {{ assets.getStageName(battleMap) }}
+        {{ assets.getStageName(task.stage_id) }}
       </button>
     </div>
     <button class="btn btn-info btn-block mt-4" @click="onSubmit">
@@ -93,9 +93,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { DEFAULT_GAME_CONFIG } from "@/constants/game";
-import type { ApiGameGameConfig } from "@/shared/types/api";
+import type { ApiGameConfig, ApiGameGameConfig } from "@/shared/types/api";
 import { assets } from "@/services/assets";
 import apiClient from "@/services/apiClient";
 import { setMsg } from "@/utils/toast";
@@ -103,6 +103,12 @@ import { useLoading } from "@/shared/composables/useLoading";
 import { useGamesStore } from "@/stores/useGamesStore";
 import BaseDesign from "@/components/dashboard/game/config/BaseDesign.vue";
 import { Type } from "@/constants/ui";
+import {
+  addLoopBattleTask,
+  getLoopBattleTasks,
+  prepareBattleTasksForSubmit,
+  removeLoopBattleTask,
+} from "@/utils/battleTasks";
 
 interface Props {
   account: string;
@@ -113,21 +119,25 @@ const props = defineProps<Props>();
 const { account } = props;
 const gamesStore = useGamesStore();
 const game = gamesStore.findGame(account);
-const config = ref<ApiGameGameConfig>(
-  game?.game_config || { ...DEFAULT_GAME_CONFIG, battle_maps: [...DEFAULT_GAME_CONFIG.battle_maps] }
-);
+const sourceConfig = game?.game_config ?? DEFAULT_GAME_CONFIG;
+const config = ref<ApiGameGameConfig>({
+  ...sourceConfig,
+  battle_tasks: sourceConfig.battle_tasks.map((task) => ({ ...task })),
+});
 
 const { isLoading } = useLoading();
 const stageKeyWord = ref("");
+const loopBattleTasks = computed(() => getLoopBattleTasks(config.value.battle_tasks));
+const loopStageIds = computed(
+  () => new Set(loopBattleTasks.value.map((task) => task.stage_id))
+);
 
 const addStageToConfig = (stageCode: string) => {
-  if (!config.value.battle_maps.includes(stageCode)) {
-    config.value.battle_maps.unshift(stageCode);
-  }
+  config.value.battle_tasks = addLoopBattleTask(config.value.battle_tasks, stageCode);
 };
 
 const removeBattleMap = (battleMap: string) => {
-  config.value.battle_maps = config.value.battle_maps.filter((item: string) => item !== battleMap);
+  config.value.battle_tasks = removeLoopBattleTask(config.value.battle_tasks, battleMap);
 };
 
 const onSubmit = async () => {
@@ -139,15 +149,18 @@ const onSubmit = async () => {
     setMsg("招募卷保留不能小于0", Type.Warning);
     return;
   }
-  const copyConfig = JSON.parse(JSON.stringify(config.value));
-  delete copyConfig.is_stopped;
-  delete copyConfig.map_id;
-  delete copyConfig.accelerate_slot;
-  delete copyConfig.account;
-  delete copyConfig.battle_replay_actions;
+  const payload: ApiGameConfig = {
+    battle_tasks: prepareBattleTasksForSubmit(config.value.battle_tasks),
+    keeping_ap: config.value.keeping_ap,
+    recruit_reserve: config.value.recruit_reserve,
+    recruit_ignore_robot: config.value.recruit_ignore_robot,
+    enable_building_arrange: config.value.enable_building_arrange,
+    is_auto_battle: config.value.is_auto_battle,
+    accelerate_slot_cn: config.value.accelerate_slot_cn,
+  };
   isLoading.value = true;
   try {
-    const result = await apiClient.doUpdateGameConf(account, copyConfig);
+    const result = await apiClient.doUpdateGameConf(account, payload);
     setMsg(result.message, Type.Info);
   } catch (error) {
     setMsg(String(error), Type.Error);

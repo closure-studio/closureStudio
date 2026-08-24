@@ -115,18 +115,6 @@ export const router = createRouter({
           },
         },
         {
-          path: ROUTES.REPLAY_HUB.path,
-          name: ROUTES.REPLAY_HUB.name,
-          component: () => import("../views/replay/ReplayHubView.vue"),
-          beforeEnter: (to, from, next) => {
-            if (checkAuth()) {
-              next();
-            } else {
-              next({ name: ROUTES.HOME.name });
-            }
-          },
-        },
-        {
           path: ROUTES.ADMIN.path,
           name: ROUTES.ADMIN.name,
           component: () => import("../views/admin/AdminView.vue"),

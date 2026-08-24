@@ -64,9 +64,7 @@ export class APIClient extends AxiosServer {
   }
 
   doUpdateGameConf(account: string, game: ApiGameConfig) {
-    return this.post(`/game/config/${account}`, {
-      config: game,
-    });
+    return this.post<void>(`/game/config/${account}`, game);
   }
   doUpdateCaptcha(account: string, captcha: Record<string, unknown>) {
     return this.post(`/game/config/${account}`, {
