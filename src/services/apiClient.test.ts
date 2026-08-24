@@ -1,5 +1,6 @@
 const mockCaptchaPost = jest.fn();
 const mockCaptchaDelete = jest.fn();
+const mockPost = jest.fn();
 
 jest.mock("./server", () => ({
   __esModule: true,
@@ -7,6 +8,7 @@ jest.mock("./server", () => ({
     hostServer: unknown;
     captchaPost = mockCaptchaPost;
     captchaDelete = mockCaptchaDelete;
+    post = mockPost;
 
     constructor(hostServer: unknown) {
       this.hostServer = hostServer;
@@ -46,5 +48,20 @@ describe("APIClient Arkhost game mutations", () => {
     await expect(client.deleteGame("captcha-token", "G123456")).resolves.toEqual(response);
 
     expect(mockCaptchaDelete).toHaveBeenCalledWith("/game/G123456", "captcha-token");
+  });
+
+  test("doUpdateGameConf 使用顶层配置 patch", async () => {
+    const response = { code: 1, data: null, message: "ok" };
+    mockPost.mockResolvedValue(response);
+    const client = new APIClient(hostServer);
+    const config = {
+      battle_tasks: [{ stage_id: "main_01-07", mode: "LOOP" as const }],
+      keeping_ap: 120,
+      is_auto_battle: true,
+    };
+
+    await expect(client.doUpdateGameConf("G123456", config)).resolves.toEqual(response);
+
+    expect(mockPost).toHaveBeenCalledWith("/game/config/G123456", config);
   });
 });
