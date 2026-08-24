@@ -69,7 +69,7 @@
     <div class="flex flex-wrap">
       <template v-for="(stage, key) in assets.filteredStages(stageKeyWord)" :key="key">
         <button
-          v-if="!loopStageIds.has(String(key))"
+          v-if="!battleMaps.includes(String(key))"
           class="btn btn-outline btn-warning btn-xs m-1 border-dashed opacity-60"
           @click="addStageToConfig(String(key))"
         >
@@ -77,12 +77,12 @@
         </button>
       </template>
       <button
-        @click="removeBattleMap(task.stage_id)"
-        v-for="task in loopBattleTasks"
-        :key="task.stage_id"
+        @click="removeBattleMap(battleMap)"
+        v-for="battleMap in battleMaps"
+        :key="battleMap"
         class="btn btn-outline btn-warning btn-xs m-1"
       >
-        {{ assets.getStageName(task.stage_id) }}
+        {{ assets.getStageName(battleMap) }}
       </button>
     </div>
     <button class="btn btn-info btn-block mt-4" @click="onSubmit">
@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { DEFAULT_GAME_CONFIG } from "@/constants/game";
 import type { ApiGameConfig, ApiGameGameConfig } from "@/shared/types/api";
 import { assets } from "@/services/assets";
@@ -105,6 +105,7 @@ import BaseDesign from "@/components/dashboard/game/config/BaseDesign.vue";
 import { Type } from "@/constants/ui";
 import {
   addLoopBattleTask,
+  cloneBattleTasks,
   getLoopBattleTasks,
   prepareBattleTasksForSubmit,
   removeLoopBattleTask,
@@ -112,24 +113,36 @@ import {
 
 interface Props {
   account: string;
+  gameConfig?: ApiGameGameConfig | null;
 }
 
 const props = defineProps<Props>();
 
-const { account } = props;
 const gamesStore = useGamesStore();
-const game = gamesStore.findGame(account);
-const sourceConfig = game?.game_config ?? DEFAULT_GAME_CONFIG;
-const config = ref<ApiGameGameConfig>({
-  ...sourceConfig,
-  battle_tasks: sourceConfig.battle_tasks.map((task) => ({ ...task })),
+
+const cloneConfig = (
+  source: Partial<ApiGameGameConfig> | null | undefined
+): ApiGameGameConfig => ({
+  ...DEFAULT_GAME_CONFIG,
+  ...source,
+  battle_tasks: cloneBattleTasks(source?.battle_tasks),
 });
+
+const config = ref<ApiGameGameConfig>(
+  cloneConfig(props.gameConfig ?? gamesStore.findGame(props.account)?.game_config)
+);
 
 const { isLoading } = useLoading();
 const stageKeyWord = ref("");
-const loopBattleTasks = computed(() => getLoopBattleTasks(config.value.battle_tasks));
-const loopStageIds = computed(
-  () => new Set(loopBattleTasks.value.map((task) => task.stage_id))
+const battleMaps = computed(() =>
+  getLoopBattleTasks(config.value.battle_tasks).map((task) => task.stage_id)
+);
+
+watch(
+  () => props.gameConfig,
+  (gameConfig) => {
+    if (gameConfig) config.value = cloneConfig(gameConfig);
+  }
 );
 
 const addStageToConfig = (stageCode: string) => {
@@ -160,7 +173,7 @@ const onSubmit = async () => {
   };
   isLoading.value = true;
   try {
-    const result = await apiClient.doUpdateGameConf(account, payload);
+    const result = await apiClient.doUpdateGameConf(props.account, payload);
     setMsg(result.message, Type.Info);
   } catch (error) {
     setMsg(String(error), Type.Error);
