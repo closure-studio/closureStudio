@@ -1,5 +1,8 @@
 import { BATTLE_TASK_MODE, type BattleTask } from "@/shared/types/battle";
 
+export const cloneBattleTasks = (tasks?: BattleTask[] | null): BattleTask[] =>
+  (tasks ?? []).map((task) => ({ ...task }));
+
 export const getLoopBattleTasks = (tasks: BattleTask[]) =>
   tasks.filter((task) => task.mode === BATTLE_TASK_MODE.LOOP);
 

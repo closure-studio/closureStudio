@@ -1,6 +1,7 @@
 import { BATTLE_TASK_MODE, type BattleTask } from "@/shared/types/battle";
 import {
   addLoopBattleTask,
+  cloneBattleTasks,
   getLoopBattleTasks,
   prepareBattleTasksForSubmit,
   removeLoopBattleTask,
@@ -25,6 +26,20 @@ const existingTasks = (): BattleTask[] => [
 ];
 
 describe("battle task helpers", () => {
+  test("缺少 battle_tasks 时回退为空队列", () => {
+    expect(cloneBattleTasks(undefined)).toEqual([]);
+    expect(cloneBattleTasks(null)).toEqual([]);
+  });
+
+  test("复制任务列表时不复用服务端对象", () => {
+    const tasks = existingTasks();
+    const cloned = cloneBattleTasks(tasks);
+
+    expect(cloned).toEqual(tasks);
+    expect(cloned).not.toBe(tasks);
+    expect(cloned[0]).not.toBe(tasks[0]);
+  });
+
   test("只返回 LOOP 任务供地图 UI 展示", () => {
     expect(getLoopBattleTasks(existingTasks())).toEqual([
       {
