@@ -1,13 +1,19 @@
 <template>
-  <div class="bg-base-100 w-96 mx-4 px-6 py-4 shadow-lg max-w-md rounded-lg blog">
+  <div
+    class="bg-base-100 w-96 mx-4 px-6 py-4 shadow-lg max-w-md rounded-lg blog"
+  >
     <h2>QQ 绑定</h2>
     <div class="divider divider-warning"></div>
-    <div class="flex justify-center">
+    <div v-if="status === 'loading'" class="flex justify-center py-6">
       <span v-if="isLoading" class="loading loading-bars" />
     </div>
-    <div v-if="!isLoading">
-      <div role="alert" class="rounded border-s-4 border-warning bg-warning/10 p-4 space-y-2 my-4">
-        请点击下方QQ进行复制(包括verifyCode), 并发送到QQ官方群组 1345795, 450555868 中。
+    <div v-else-if="status === 'unbound'">
+      <div
+        role="alert"
+        class="rounded border-s-4 border-warning bg-warning/10 p-4 space-y-2 my-4"
+      >
+        请点击下方QQ进行复制(包括verifyCode), 并发送到QQ官方群组 1345795,
+        450555868 中。
       </div>
       <input
         v-model="qqCode"
@@ -34,11 +40,27 @@
         </div>
       </div>
     </div>
+    <div
+      v-else-if="status === 'bound'"
+      role="alert"
+      class="alert alert-success my-4"
+    >
+      QQ 绑定已完成
+    </div>
+    <div v-else role="alert" class="alert alert-warning my-4">
+      <span>暂时无法获取 QQ 绑定状态</span>
+      <button
+        type="button"
+        class="btn btn-sm"
+        :disabled="isLoading"
+        @click="getQQBindCode"
+      >
+        重试
+      </button>
+    </div>
     <button
-      @click="
-        dialogClose();
-        $emit('close');
-      "
+      type="button"
+      @click="dialogClose"
       class="btn btn-info btn-block mb-3 btn-sm"
     >
       关闭
@@ -48,36 +70,53 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from "vue";
-import { API_RESPONSE_CODE } from "@/constants/api";
 import { setMsg } from "@/utils/toast";
 import { sleep } from "@/utils/misc";
 import { Type } from "@/constants/ui";
 import { Icon } from "@iconify/vue";
 import type { DialogComponentProps } from "@/shared/components/dialog/dialog";
-import authClient from "@/services/authClient";
+import { fetchQQBindingState, QQ_BINDING_STATUS } from "@/services/qqBinding";
 
-const ALREADY_BOUND_MESSAGE = "QQ绑定已完成";
-const props = defineProps<DialogComponentProps>();
-const { dialogClose } = props;
-const qqCode = ref("");
-const isLoading = ref(true);
+interface Props extends DialogComponentProps {
+  initialVerificationCode?: string;
+  onBound?: () => void;
+}
+
+const props = defineProps<Props>();
+const qqCode = ref(props.initialVerificationCode ?? "");
+const status = ref<"loading" | "unbound" | "bound" | "error">(
+  props.initialVerificationCode ? "unbound" : "loading",
+);
+const isLoading = ref(!props.initialVerificationCode);
 let intervalId: number | null = null;
+let isRequestInFlight = false;
+let hasNotifiedBound = false;
+
+const stopPolling = () => {
+  if (intervalId !== null) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
+};
 
 onMounted(() => {
-  void getQQBindCode();
+  if (!props.initialVerificationCode) {
+    void getQQBindCode();
+  }
   intervalId = window.setInterval(getQQBindCode, 5000);
 });
 
 onUnmounted(() => {
-  if (intervalId) clearInterval(intervalId);
+  stopPolling();
 });
 
 const copyQQCodeAndOpenLink = async (event: MouseEvent) => {
   event.preventDefault();
   const target = event.currentTarget as HTMLAnchorElement;
-  await copyQQCode();
+  const didCopy = await copyQQCode();
+  if (!didCopy) return;
   await sleep(2000);
-  window.open(target.href, "_blank");
+  window.open(target.href, "_blank", "noopener,noreferrer");
 };
 
 const selectAll = (event: Event) => {
@@ -86,32 +125,42 @@ const selectAll = (event: Event) => {
 };
 
 const copyQQCode = async () => {
+  if (!qqCode.value) return false;
   try {
     await navigator.clipboard.writeText(qqCode.value);
     setMsg("绑定代码已复制到剪贴板", Type.Success);
     await sleep(500);
     setMsg("准备打开QQ群组", Type.Success);
+    return true;
   } catch {
     setMsg("复制失败", Type.Warning);
+    return false;
   }
 };
 
 const getQQBindCode = async () => {
+  if (isRequestInFlight) return;
+  isRequestInFlight = true;
+  isLoading.value = true;
   try {
-    const res = await authClient.fetchQQBindCode();
-    if (res.code === API_RESPONSE_CODE.SUCCESS) {
-      qqCode.value = "verifyCode:" + res.data;
+    const state = await fetchQQBindingState();
+    if (state.status === QQ_BINDING_STATUS.UNBOUND) {
+      qqCode.value = state.verificationCode;
+      status.value = "unbound";
       return;
     }
-    if (res.code === API_RESPONSE_CODE.ALREADY_BOUND) {
-      qqCode.value = ALREADY_BOUND_MESSAGE;
-      if (intervalId) {
-        clearInterval(intervalId);
-        intervalId = null;
-      }
+
+    status.value = "bound";
+    stopPolling();
+    if (!hasNotifiedBound) {
+      hasNotifiedBound = true;
+      props.onBound?.();
     }
+  } catch {
+    status.value = "error";
   } finally {
     isLoading.value = false;
+    isRequestInFlight = false;
   }
 };
 </script>

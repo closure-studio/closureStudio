@@ -15,7 +15,13 @@ class AuthClient extends AxiosServer {
     return this.post<ApiUserAuth>(`${LOGIN_PATH}`, params);
   }
 
-  register(params: { email: string; password: string; code: string; noise: string; sign: string }) {
+  register(params: {
+    email: string;
+    password: string;
+    code: string;
+    noise: string;
+    sign: string;
+  }) {
     return this.post<ApiUserAuth>(`/register`, params);
   }
 
@@ -23,19 +29,25 @@ class AuthClient extends AxiosServer {
     return this.post<ApiUserAuth>(`/forget`, params);
   }
 
-  updatePasswd(params: { email: string; currentPasswd: string; newPasswd: string }) {
+  updatePasswd(params: {
+    email: string;
+    currentPasswd: string;
+    newPasswd: string;
+  }) {
     return this.put<void>(`/password`, params);
   }
 
   queryUser(value: string) {
-    return this.get<ApiUserUser[]>(`/admin/users/query?value=${encodeURIComponent(value)}`);
+    return this.get<ApiUserUser[]>(
+      `/admin/users/query?value=${encodeURIComponent(value)}`,
+    );
   }
   sendSmsAdmin(params: { uuid: string; phone: string }) {
     return this.post<string>(`/admin/users/sms`, params);
   }
   updateUserPermission(uuid: string, permission: number) {
     return this.post(
-      `/admin/permission?uuid=${encodeURIComponent(uuid)}&permission=${encodeURIComponent(permission)}`
+      `/admin/permission?uuid=${encodeURIComponent(uuid)}&permission=${encodeURIComponent(permission)}`,
     );
   }
   sendCodeOnRegister(params: { email: string }) {
@@ -52,7 +64,7 @@ class AuthClient extends AxiosServer {
     return this.get<ApiUserAuth>(`/refreshToken`);
   }
   fetchQQBindCode() {
-    return this.get(`/qq`);
+    return this.get<string>(`/qq`);
   }
   loginWithLinuxDo(params: { code: string; redirect_uri: string }) {
     return this.post<ApiUserAuth>(`/oauth/linuxdo/callback`, params);

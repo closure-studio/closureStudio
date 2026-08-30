@@ -4,20 +4,18 @@
       class="w-full flex-col max-w-4xl 2xl:max-w-6xl xl:mr-auto s-margin md:!flex lg:ml-[calc((100vw-56rem)/2)] 2xl:ml-[calc((100vw-72rem)/2)]"
     >
       <div class="bg-base-300 shadow-lg rounded-lg px-4 py-1 blog relative">
-        <div class="text-2xl md:text-4xl font-bold text-info mt-3">📢 今日特价</div>
-        <p v-for="k in config.announcement?.split('\n') || ['可露希尔逃跑了']" :key="k">
+        <div class="text-2xl md:text-4xl font-bold text-info mt-3">
+          📢 今日特价
+        </div>
+        <p
+          v-for="k in config.announcement?.split('\n') || ['可露希尔逃跑了']"
+          :key="k"
+        >
           {{ k }}
         </p>
+        <div class="divider mt-0">个人信息</div>
+        <QQBindingStatus />
       </div>
-      <transition name="collapse" @before-enter="beforeEnter" @enter="enter" @leave="leave">
-        <div
-          @click="handleAPIStatusBoardOnClick"
-          v-if="isAPIStatusBoardShow"
-          class="bg-base-300 shadow-lg rounded-lg blog relative mt-5 py-5"
-        >
-          <APIStatusBoard />
-        </div>
-      </transition>
       <IndexStatus />
       <div class="text-2xl font-bold">
         我的托管（{{ userGameList.length }} 已用 / {{ MAX_GAME_SLOTS }} 槽位）
@@ -51,14 +49,13 @@ import type { ApiSystemConfig, GameAccountForm } from "@/shared/types/api";
 import { MAX_GAME_SLOTS } from "@/constants/game";
 import IndexStatus from "@/components/dashboard/VersionStatus.vue";
 import GameList from "@/components/dashboard/GameList.vue";
+import QQBindingStatus from "@/components/dashboard/QQBindingStatus.vue";
 import YouMayKnow from "@/components/dashboard/dialogs/YouMayKnow.vue";
 import { useLoading } from "@/shared/composables/useLoading";
 import { useCaptcha } from "@/services/captchaActions";
 import { useGamesStore } from "@/stores/useGamesStore";
 import { useGameActions } from "@/components/dashboard/composables/useGameActions";
-import { useGameTransitions } from "@/components/dashboard/composables/useGameTransitions";
 import showDialog from "@/shared/components/dialog/dialog";
-import APIStatusBoard from "@/components/system/api-status/APIStatusBoard.vue";
 import apiClient from "@/services/apiClient";
 import { ROUTES } from "@/constants/app";
 
@@ -68,7 +65,6 @@ const config = ref({} as ApiSystemConfig);
 const selectedRegisterForm = ref({} as GameAccountForm);
 const { isLoading } = useLoading();
 const captcha = useCaptcha();
-const isAPIStatusBoardShow = ref(true);
 
 const userGameList = computed(() => gamesStore.gameList);
 const canCreateGame = computed(() => gamesStore.canCreateGame);
@@ -90,18 +86,12 @@ const {
   selectedRegisterForm,
 });
 
-const { beforeEnter, enter, leave } = useGameTransitions();
-
 onMounted(async () => {
   gamesStore.initializeGameListServerConnection();
   const response = await apiClient.fetchSystemConfig();
   config.value = response.data;
   showDialog(YouMayKnow);
 });
-
-const handleAPIStatusBoardOnClick = () => {
-  isAPIStatusBoardShow.value = false;
-};
 
 const handleGameSuspendBtnOnClick = async (gameAccount: string) => {
   await gameSuspend(gameAccount);
@@ -130,10 +120,5 @@ div,
 img {
   user-select: none;
   -webkit-user-drag: none;
-}
-
-.collapse-enter-active,
-.collapse-leave-active {
-  overflow: hidden;
 }
 </style>
