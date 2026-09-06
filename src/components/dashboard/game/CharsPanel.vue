@@ -35,17 +35,47 @@
     aria-label="六星干员"
   >
     <li v-for="char in chars" :key="char.charId" class="min-w-0">
-      <CharCard :char="char" />
+      <CharCard :char="char" @select="openCharDetail" />
     </li>
   </ul>
+
+  <AdaptiveDialog
+    v-model:open="isDetailOpen"
+    :title="selectedCharName"
+    surface-background="#212121"
+  >
+    <CharDetail v-if="selectedChar" :account="account" :char="selectedChar" />
+  </AdaptiveDialog>
 </template>
 
 <script setup lang="ts">
+import { computed, ref, watch } from "vue";
+import { assets } from "@/services/assets";
+import AdaptiveDialog from "@/shared/components/overlay/AdaptiveDialog.vue";
 import CharCard from "./CharCard.vue";
+import CharDetail from "./CharDetail.vue";
 import type { ApiGameChar } from "@/shared/types/api";
 
 defineProps<{
+  account: string;
   chars: ApiGameChar[];
   isLoading: boolean;
 }>();
+
+const selectedChar = ref<ApiGameChar | null>(null);
+const isDetailOpen = ref(false);
+const selectedCharName = computed(() =>
+  selectedChar.value
+    ? assets.value.getCharName(selectedChar.value.charId)
+    : "干员详情",
+);
+
+const openCharDetail = (char: ApiGameChar) => {
+  selectedChar.value = char;
+  isDetailOpen.value = true;
+};
+
+watch(isDetailOpen, (isOpen) => {
+  if (!isOpen) selectedChar.value = null;
+});
 </script>
