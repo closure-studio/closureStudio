@@ -29,6 +29,7 @@
       <!-- 2. 游戏日志卡片 -->
       <details
         :key="`logs-${account}`"
+        :open="isDesktopViewport"
         class="collapse collapse-arrow s-card min-w-0 p-0! lg:order-2"
       >
         <summary class="collapse-title min-h-0 py-4! pr-12! pl-3! md:py-5! md:pl-5!">
@@ -114,6 +115,7 @@ import { useRoute, useRouter } from "vue-router";
 const route = useRoute();
 const router = useRouter();
 const gamesStore = useGamesStore();
+const isDesktopViewport = typeof window !== "undefined" && window.innerWidth >= 768;
 
 const gameDisplayName = (game: ApiGameGame) =>
   game.status.nick_name ? `Dr. ${game.status.nick_name}` : game.status.account;

@@ -1,12 +1,12 @@
 <template>
   <form
-    class="flex min-h-0 flex-col border-t border-[#ffffff12] bg-[#212121] text-[13px] tracking-normal text-[#eeeeef] md:text-sm"
+    class="flex min-h-0 flex-col border-t border-base-content/10 bg-base-100 text-[13px] tracking-normal text-base-content md:text-sm"
     :aria-busy="isLoading || isSaving"
     @submit.prevent="submit"
   >
     <div
       v-if="isLoading"
-      class="flex min-h-60 flex-col items-center justify-center gap-4 p-6 text-center text-[#bbb]"
+      class="flex min-h-60 flex-col items-center justify-center gap-4 p-6 text-center text-base-content/70"
       role="status"
     >
       <span class="loading loading-spinner loading-md" aria-hidden="true" />
@@ -14,12 +14,12 @@
     </div>
     <div
       v-else-if="!isReady"
-      class="flex min-h-60 flex-col items-center justify-center gap-4 p-6 text-center text-[#bbb]"
+      class="flex min-h-60 flex-col items-center justify-center gap-4 p-6 text-center text-base-content/70"
     >
       <p role="alert">{{ error }}</p>
       <button
         type="button"
-        class="btn btn-sm btn-outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[#a7b3ff]"
+        class="btn btn-sm btn-outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-info"
         @click="load"
       >
         <Icon icon="mdi:refresh" aria-hidden="true" />重试
@@ -42,40 +42,40 @@
           >
             <legend class="sr-only">基础培养目标</legend>
             <div
-              class="grid min-h-[76px] grid-cols-[104px_36px_minmax(0,1fr)] items-center justify-stretch gap-1.5 border-b border-[#ffffff12] md:min-h-[86px] md:grid-cols-[188px_96px_minmax(0,270px)] md:justify-between md:gap-4"
+              class="grid min-h-[76px] grid-cols-[104px_36px_minmax(0,1fr)] items-center justify-stretch gap-1.5 border-b border-base-content/10 md:min-h-[86px] md:grid-cols-[188px_96px_minmax(0,270px)] md:justify-between md:gap-4"
             >
               <div
-                class="relative flex min-w-0 flex-col justify-center gap-1.5 pl-[9px] before:absolute before:inset-y-0.5 before:left-0 before:w-0.5 before:rounded-[2px] before:bg-[#ffffff2b] before:content-[''] md:gap-[7px] md:pl-[13px]"
+                class="relative flex min-w-0 flex-col justify-center gap-1.5 pl-[9px] before:absolute before:inset-y-0.5 before:left-0 before:w-0.5 before:rounded-[2px] before:bg-base-content/20 before:content-[''] md:gap-[7px] md:pl-[13px]"
               >
                 <span
-                  class="flex items-center gap-[5px] whitespace-nowrap text-[9px]/none font-semibold text-[#85858a] md:text-[11px] [&_strong]:font-semibold [&_strong]:text-[#b8b8bc]"
+                  class="flex items-center gap-[5px] whitespace-nowrap text-[9px]/none font-semibold text-base-content/50 md:text-[11px] [&_strong]:font-semibold [&_strong]:text-base-content/70"
                 >
                   <strong>当前</strong><span aria-hidden="true">·</span>精英阶段
                 </span>
                 <span
-                  class="whitespace-nowrap text-[13px]/[1.15] font-semibold text-[#f1f1f2] tabular-nums md:text-lg"
+                  class="whitespace-nowrap text-[13px]/[1.15] font-semibold text-base-content tabular-nums md:text-lg"
                   >{{ phaseName(currentChar.evolvePhase) }}</span
                 >
               </div>
               <span
-                class="mt-4 flex h-6 w-9 min-w-0 items-center justify-self-center overflow-hidden text-[#7f91f0] before:h-0.5 before:flex-1 before:animate-[operator-development-comparison-flow_650ms_linear_infinite] before:bg-[repeating-linear-gradient(to_right,currentColor_0_7px,transparent_7px_13px)] before:bg-[length:13px_2px] before:opacity-70 before:content-[''] motion-reduce:before:animate-none md:w-24 [&_svg]:ml-[-2px] [&_svg]:size-[18px] [&_svg]:shrink-0 [&_svg]:animate-[operator-development-comparison-arrow-pulse_900ms_ease-in-out_infinite] motion-reduce:[&_svg]:animate-none md:[&_svg]:size-5"
+                class="mt-4 flex h-6 w-9 min-w-0 items-center justify-self-center overflow-hidden text-info before:h-0.5 before:flex-1 before:animate-[operator-development-comparison-flow_650ms_linear_infinite] before:bg-[repeating-linear-gradient(to_right,currentColor_0_7px,transparent_7px_13px)] before:bg-[length:13px_2px] before:opacity-70 before:content-[''] motion-reduce:before:animate-none md:w-24 [&_svg]:ml-[-2px] [&_svg]:size-[18px] [&_svg]:shrink-0 [&_svg]:animate-[operator-development-comparison-arrow-pulse_900ms_ease-in-out_infinite] motion-reduce:[&_svg]:animate-none md:[&_svg]:size-5"
                 aria-hidden="true"
                 ><Icon icon="mdi:chevron-double-right"
               /></span>
               <div class="flex min-w-0 flex-col gap-1.5">
                 <span
-                  class="text-[9px]/none font-semibold text-[#a5d6c7] md:text-[10px]"
+                  class="text-[9px]/none font-semibold text-success md:text-[10px]"
                   >目标</span
                 >
                 <div
-                  class="flex h-9 min-w-0 overflow-hidden rounded border border-[#ffffff20] md:h-10"
+                  class="flex h-9 min-w-0 overflow-hidden rounded border border-base-content/20 md:h-10"
                   role="group"
                   aria-label="目标精英阶段"
                 >
                   <button
                     v-for="phase in phases"
                     :key="phase"
-                    class="min-w-0 flex-1 cursor-pointer whitespace-nowrap border-0 border-r border-[#ffffff16] bg-transparent px-[3px] text-[11px] text-[#dedee0] last:border-r-0 aria-pressed:bg-[#5e72e4] aria-pressed:text-white disabled:cursor-default [&:disabled:not([aria-pressed=true])]:text-[#737375] focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[#a7b3ff] md:px-[5px] md:text-[13px]"
+                    class="min-w-0 flex-1 cursor-pointer whitespace-nowrap border-0 border-r border-base-content/10 bg-transparent px-[3px] text-[11px] text-base-content/90 last:border-r-0 aria-pressed:bg-info aria-pressed:text-info-content disabled:cursor-default [&:disabled:not([aria-pressed=true])]:text-base-content/40 focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-info md:px-[5px] md:text-[13px]"
                     type="button"
                     :aria-pressed="target.evolve_phase === phase"
                     :disabled="phase < currentChar.evolvePhase"
@@ -89,19 +89,19 @@
             <div
               v-for="row in numericRows"
               :key="row.key"
-              class="grid min-h-[86px] grid-cols-[104px_36px_minmax(0,1fr)] items-center justify-stretch gap-1.5 border-b border-[#ffffff12] md:min-h-[100px] md:grid-cols-[188px_96px_minmax(0,270px)] md:justify-between md:gap-4"
+              class="grid min-h-[86px] grid-cols-[104px_36px_minmax(0,1fr)] items-center justify-stretch gap-1.5 border-b border-base-content/10 md:min-h-[100px] md:grid-cols-[188px_96px_minmax(0,270px)] md:justify-between md:gap-4"
             >
               <div
-                class="relative flex min-w-0 flex-col justify-center gap-1.5 pl-[9px] before:absolute before:inset-y-0.5 before:left-0 before:w-0.5 before:rounded-[2px] before:bg-[#ffffff2b] before:content-[''] md:gap-[7px] md:pl-[13px]"
+                class="relative flex min-w-0 flex-col justify-center gap-1.5 pl-[9px] before:absolute before:inset-y-0.5 before:left-0 before:w-0.5 before:rounded-[2px] before:bg-base-content/20 before:content-[''] md:gap-[7px] md:pl-[13px]"
               >
                 <span
-                  class="flex items-center gap-[5px] whitespace-nowrap text-[9px]/none font-semibold text-[#85858a] md:text-[11px] [&_strong]:font-semibold [&_strong]:text-[#b8b8bc]"
+                  class="flex items-center gap-[5px] whitespace-nowrap text-[9px]/none font-semibold text-base-content/50 md:text-[11px] [&_strong]:font-semibold [&_strong]:text-base-content/70"
                 >
                   <strong>当前</strong><span aria-hidden="true">·</span
                   >{{ row.label }}
                 </span>
                 <span
-                  class="whitespace-nowrap text-[13px]/[1.15] font-semibold text-[#f1f1f2] tabular-nums"
+                  class="whitespace-nowrap text-[13px]/[1.15] font-semibold text-base-content tabular-nums"
                   :class="
                     row.key === 'skill_level' ? 'md:text-base' : 'md:text-lg'
                   "
@@ -112,20 +112,20 @@
                 </span>
               </div>
               <span
-                class="mt-4 flex h-6 w-9 min-w-0 items-center justify-self-center overflow-hidden text-[#7f91f0] before:h-0.5 before:flex-1 before:animate-[operator-development-comparison-flow_650ms_linear_infinite] before:bg-[repeating-linear-gradient(to_right,currentColor_0_7px,transparent_7px_13px)] before:bg-[length:13px_2px] before:opacity-70 before:content-[''] motion-reduce:before:animate-none md:w-24 [&_svg]:ml-[-2px] [&_svg]:size-[18px] [&_svg]:shrink-0 [&_svg]:animate-[operator-development-comparison-arrow-pulse_900ms_ease-in-out_infinite] motion-reduce:[&_svg]:animate-none md:[&_svg]:size-5"
+                class="mt-4 flex h-6 w-9 min-w-0 items-center justify-self-center overflow-hidden text-info before:h-0.5 before:flex-1 before:animate-[operator-development-comparison-flow_650ms_linear_infinite] before:bg-[repeating-linear-gradient(to_right,currentColor_0_7px,transparent_7px_13px)] before:bg-[length:13px_2px] before:opacity-70 before:content-[''] motion-reduce:before:animate-none md:w-24 [&_svg]:ml-[-2px] [&_svg]:size-[18px] [&_svg]:shrink-0 [&_svg]:animate-[operator-development-comparison-arrow-pulse_900ms_ease-in-out_infinite] motion-reduce:[&_svg]:animate-none md:[&_svg]:size-5"
                 aria-hidden="true"
                 ><Icon icon="mdi:chevron-double-right"
               /></span>
               <div class="flex min-w-0 flex-col gap-1.5">
                 <span
-                  class="text-[9px]/none font-semibold text-[#a5d6c7] md:text-[10px]"
+                  class="text-[9px]/none font-semibold text-success md:text-[10px]"
                   >目标</span
                 >
                 <div
                   class="grid grid-cols-[32px_minmax(0,1fr)_32px] items-center gap-[3px] md:grid-cols-[38px_minmax(0,1fr)_38px] md:gap-2"
                 >
                   <button
-                    class="grid h-[34px] w-8 cursor-pointer touch-manipulation select-none place-items-center rounded border border-[#ffffff24] bg-transparent p-0 text-[#dedee0] [-webkit-touch-callout:none] disabled:cursor-default disabled:text-[#737375] focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[#a7b3ff] md:h-[38px] md:w-[38px]"
+                    class="grid h-[34px] w-8 cursor-pointer touch-manipulation select-none place-items-center rounded border border-base-content/20 bg-transparent p-0 text-base-content/90 [-webkit-touch-callout:none] disabled:cursor-default disabled:text-base-content/40 focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-info md:h-[38px] md:w-[38px]"
                     type="button"
                     :aria-label="`降低${row.label}`"
                     :title="`降低${row.label}`"
@@ -153,14 +153,14 @@
                       >Lv.</span
                     >
                     <output
-                      class="inline-block min-w-[2.2ch] text-center text-[25px]/[1.4] text-[#a5d6c7] tabular-nums md:text-[30px]"
+                      class="inline-block min-w-[2.2ch] text-center text-[25px]/[1.4] text-success tabular-nums md:text-[30px]"
                       :aria-label="`目标${row.label} ${target[row.key]}`"
                     >
                       {{ target[row.key] }}
                     </output>
                   </div>
                   <button
-                    class="grid h-[34px] w-8 cursor-pointer touch-manipulation select-none place-items-center rounded border border-[#ffffff24] bg-transparent p-0 text-[#dedee0] [-webkit-touch-callout:none] disabled:cursor-default disabled:text-[#737375] focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[#a7b3ff] md:h-[38px] md:w-[38px]"
+                    class="grid h-[34px] w-8 cursor-pointer touch-manipulation select-none place-items-center rounded border border-base-content/20 bg-transparent p-0 text-base-content/90 [-webkit-touch-callout:none] disabled:cursor-default disabled:text-base-content/40 focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-info md:h-[38px] md:w-[38px]"
                     type="button"
                     :aria-label="`提高${row.label}`"
                     :title="`提高${row.label}`"
@@ -194,7 +194,9 @@
           >
             技能专精
           </h3>
-          <p v-if="!skills.length" class="py-5 text-[#aaa]">暂无技能数据</p>
+          <p v-if="!skills.length" class="py-5 text-base-content/60">
+            暂无技能数据
+          </p>
           <fieldset
             class="m-0 min-w-0 border-0 p-0"
             :disabled="isAdded || isSaving"
@@ -206,7 +208,7 @@
               class="grid grid-cols-[42px_minmax(0,1fr)] items-center gap-2.5 py-4 md:grid-cols-[48px_minmax(0,270px)] md:gap-3 md:py-5"
             >
               <div
-                class="grid size-[42px] place-items-center overflow-hidden rounded border border-[#ffffff24] bg-[#2a2a2a] md:size-12"
+                class="grid size-[42px] place-items-center overflow-hidden rounded border border-base-content/20 bg-base-300 md:size-12"
               >
                 <img
                   v-if="!failedImages.has(skill.skillId)"
@@ -219,20 +221,20 @@
                 />
                 <Icon
                   v-else
-                  class="size-6 text-[#aaa]"
+                  class="size-6 text-base-content/60"
                   icon="mdi:star-four-points-outline"
                   aria-hidden="true"
                 />
               </div>
               <div
-                class="col-start-2 flex h-9 min-w-0 overflow-hidden rounded border border-[#ffffff20] md:h-10"
+                class="col-start-2 flex h-9 min-w-0 overflow-hidden rounded border border-base-content/20 md:h-10"
                 role="group"
                 :aria-label="`${skillName(index)}目标专精`"
               >
                 <button
                   v-for="level in masteryLevels"
                   :key="level"
-                  class="min-w-0 flex-1 cursor-pointer whitespace-nowrap border-0 border-r border-[#ffffff16] bg-transparent px-[3px] text-[11px] text-[#dedee0] last:border-r-0 aria-pressed:bg-[#5e72e4] aria-pressed:text-white disabled:cursor-default [&:disabled:not([aria-pressed=true])]:text-[#737375] focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[#a7b3ff] md:px-[5px] md:text-[13px]"
+                  class="min-w-0 flex-1 cursor-pointer whitespace-nowrap border-0 border-r border-base-content/10 bg-transparent px-[3px] text-[11px] text-base-content/90 last:border-r-0 aria-pressed:bg-info aria-pressed:text-info-content disabled:cursor-default [&:disabled:not([aria-pressed=true])]:text-base-content/40 focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-info md:px-[5px] md:text-[13px]"
                   type="button"
                   :aria-label="`${skillName(index)}${level ? masteryName(level) : '不专精'}`"
                   :aria-pressed="masteryTarget(skill.skillId) === level"
@@ -257,28 +259,28 @@
       </div>
 
       <footer
-        class="shrink-0 border-t border-[#ffffff12] bg-[#242424] p-3 md:px-[18px] md:py-3.5"
+        class="shrink-0 border-t border-base-content/10 bg-base-200 p-3 md:px-[18px] md:py-3.5"
       >
         <p
           v-if="error || validationError"
-          class="mb-2.5 text-[13px]/[1.5] text-[#f2a3a0] [overflow-wrap:anywhere]"
+          class="mb-2.5 text-[13px]/[1.5] text-error [overflow-wrap:anywhere]"
           role="alert"
         >
           {{ error || validationError }}
         </p>
         <p
           v-else-if="notice"
-          class="mb-2.5 text-[13px]/[1.5] text-[#a5d6c7] [overflow-wrap:anywhere]"
+          class="mb-2.5 text-[13px]/[1.5] text-success [overflow-wrap:anywhere]"
           role="status"
         >
           {{ notice }}
         </p>
         <button
-          class="flex min-h-[46px] w-full cursor-pointer items-center justify-center gap-2.5 rounded border px-4 py-2.5 text-base font-medium transition-colors duration-[120ms] disabled:cursor-default disabled:opacity-[0.55] motion-reduce:transition-none md:min-h-12 md:text-[17px] [&>svg]:size-6 focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[#a7b3ff]"
+          class="flex min-h-[46px] w-full cursor-pointer items-center justify-center gap-2.5 rounded border px-4 py-2.5 text-base font-medium transition-colors duration-[120ms] disabled:cursor-default disabled:opacity-[0.55] motion-reduce:transition-none md:min-h-12 md:text-[17px] [&>svg]:size-6 focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-info"
           :class="
             isAdded
-              ? 'border-[#df8b89] bg-transparent text-[#efa29e] enabled:hover:bg-[#df8b8912]'
-              : 'border-[#5e72e4] bg-[#5e72e4] text-white enabled:hover:bg-[#5064d3]'
+              ? 'border-error bg-transparent text-error enabled:hover:bg-error/10'
+              : 'border-info bg-info text-info-content enabled:hover:bg-info/80'
           "
           type="submit"
           :disabled="isSaving || (!isAdded && !!validationError)"

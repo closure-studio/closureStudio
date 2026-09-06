@@ -42,7 +42,7 @@
   <AdaptiveDialog
     v-model:open="isDetailOpen"
     :title="selectedCharName"
-    surface-background="#212121"
+    surface-background="var(--color-base-100)"
   >
     <CharDetail v-if="selectedChar" :account="account" :char="selectedChar" />
   </AdaptiveDialog>
