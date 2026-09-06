@@ -38,25 +38,43 @@
       </div>
 
       <!-- 3. 干员卡片 -->
-      <div class="s-card lg:order-3">
-        <h2 class="text-xl font-bold mb-4">干员一览</h2>
-        <CharsPanel :chars="sixStarChars" :is-loading="isLoadingChars" />
-      </div>
+      <details
+        :key="`chars-${account}`"
+        class="collapse collapse-arrow s-card min-w-0 p-0! lg:order-3"
+      >
+        <summary class="collapse-title min-h-0 py-4! pr-12! pl-2! md:py-5! md:pl-5!">
+          <h2
+            class="text-xl font-bold tracking-normal after:mt-2.5 after:block after:h-0.5 after:w-5 after:bg-info after:content-['']"
+          >
+            干员一览
+          </h2>
+        </summary>
+        <div class="collapse-content px-2! pb-4! md:px-5! md:pb-5!">
+          <CharsPanel :key="account" :chars="sixStarChars" :is-loading="isLoadingChars" />
+        </div>
+      </details>
 
       <!-- 4. 道具卡片 -->
-      <div class="s-card lg:order-4 min-w-0 max-md:px-3!">
-        <h2
-          class="mb-5 text-xl font-bold tracking-normal after:mt-2.5 after:block after:h-0.5 after:w-5 after:bg-info after:content-['']"
-        >
-          道具一览
-        </h2>
-        <ItemsPanel
-          :key="account"
-          :inventory="details?.inventory"
-          :is-loading="isLoadingGameDetails || gamesStore.isGameListIniting"
-          :error="gameDetailsError"
-        />
-      </div>
+      <details
+        :key="`items-${account}`"
+        class="collapse collapse-arrow s-card min-w-0 p-0! lg:order-4"
+      >
+        <summary class="collapse-title min-h-0 py-4! pr-12! pl-3! md:py-5! md:pl-5!">
+          <h2
+            class="text-xl font-bold tracking-normal after:mt-2.5 after:block after:h-0.5 after:w-5 after:bg-info after:content-['']"
+          >
+            道具一览
+          </h2>
+        </summary>
+        <div class="collapse-content px-3! pb-4! md:px-5! md:pb-5!">
+          <ItemsPanel
+            :key="account"
+            :inventory="details?.inventory"
+            :is-loading="isLoadingGameDetails || gamesStore.isGameListIniting"
+            :error="gameDetailsError"
+          />
+        </div>
+      </details>
     </div>
   </div>
 </template>

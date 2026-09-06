@@ -1,20 +1,43 @@
 <template>
-  <!-- 加载骨架屏 -->
-  <div v-if="isLoading" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    <div v-for="i in 12" :key="i" class="char-card-skeleton">
-      <div class="skeleton aspect-square w-full rounded-md"></div>
+  <div
+    v-if="isLoading"
+    class="grid grid-cols-[repeat(auto-fill,minmax(113px,1fr))] gap-x-1 gap-y-2 md:grid-cols-[repeat(auto-fill,minmax(144px,1fr))] md:gap-x-3 md:gap-y-3.5"
+    aria-busy="true"
+    aria-label="干员加载中"
+  >
+    <div
+      v-for="i in 12"
+      :key="i"
+      class="flex min-w-0 items-center gap-0.5 rounded p-0.5 md:gap-2"
+      aria-hidden="true"
+    >
+      <div class="skeleton size-16 shrink-0 rounded" />
+      <div class="flex h-16 min-w-0 flex-1 flex-col justify-between">
+        <div
+          v-for="row in 3"
+          :key="row"
+          class="flex items-center justify-between gap-0.5"
+        >
+          <div class="skeleton h-2.5 w-[1.375rem] md:h-3" />
+          <div class="skeleton h-2.5 w-4 md:h-3" />
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- 空状态 -->
-  <div v-else-if="!chars.length" class="text-center py-20">
+  <div v-else-if="!chars.length" class="text-center py-20" role="status">
     <p class="text-base-content/60">暂无干员数据</p>
   </div>
 
-  <!-- 干员网格 -->
-  <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    <CharCard v-for="char in chars" :key="char.charId" :char="char" />
-  </div>
+  <ul
+    v-else
+    class="grid grid-cols-[repeat(auto-fill,minmax(113px,1fr))] gap-x-1 gap-y-2 md:grid-cols-[repeat(auto-fill,minmax(144px,1fr))] md:gap-x-3 md:gap-y-3.5"
+    aria-label="六星干员"
+  >
+    <li v-for="char in chars" :key="char.charId" class="min-w-0">
+      <CharCard :char="char" />
+    </li>
+  </ul>
 </template>
 
 <script setup lang="ts">

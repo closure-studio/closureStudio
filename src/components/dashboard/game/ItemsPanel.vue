@@ -29,7 +29,11 @@
     class="grid grid-cols-[repeat(auto-fill,minmax(72px,1fr))] gap-x-1 gap-y-2 py-1 tracking-normal"
     aria-label="道具库存"
   >
-    <li v-for="item in items" :key="item.id" class="flex min-w-0 flex-col items-center text-center">
+    <li
+      v-for="item in items"
+      :key="item.id"
+      class="relative z-0 flex min-w-0 flex-col items-center rounded text-center transition duration-200 ease-out hover:z-10 hover:shadow-xl motion-safe:hover:-translate-y-1 motion-safe:hover:scale-105"
+    >
       <div class="mb-1 flex size-16 shrink-0 items-center justify-center">
         <img
           v-if="item.icon && !failedImages.has(item.icon)"
