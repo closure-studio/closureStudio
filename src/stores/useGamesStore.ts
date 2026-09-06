@@ -3,7 +3,6 @@ import { defineStore } from "pinia";
 import type {
   ApiGameCaptchaInfo,
   ApiGameChars,
-  ApiGameConfig,
   ApiGameGame,
   ApiGameLogEvent,
   ApiGameSSR,
@@ -230,10 +229,7 @@ export const useGamesStore = defineStore("games", () => {
   };
 
   const gameSuspend = async (account: string) => {
-    const payload: ApiGameConfig = {
-      is_stopped: true,
-    };
-    return apiClient.doUpdateGameConf(account, payload);
+    return apiClient.doGamePause(account);
   };
 
   const fetchChars = async (account: string) => {

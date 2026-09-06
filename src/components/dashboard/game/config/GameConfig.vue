@@ -56,8 +56,8 @@
     </div>
     <div class="divider h-2 mt-2">无人机加速</div>
     <BaseDesign
-      :slot="config.accelerate_slot_cn"
-      @updateSlot="config.accelerate_slot_cn = $event"
+      :slot="config.accelerate_slot"
+      @updateSlot="config.accelerate_slot = $event"
     />
     <div class="divider h-2 my-2">作战地图</div>
     <input
@@ -85,7 +85,7 @@
         {{ assets.getStageName(battleMap) }}
       </button>
     </div>
-    <button class="btn btn-info btn-block mt-4" @click="onSubmit">
+    <button class="btn btn-info btn-block mt-4" :disabled="isLoading" @click="onSubmit">
       <span v-if="isLoading" class="loading loading-bars loading-md"></span>
       递交
     </button>
@@ -103,6 +103,7 @@ import { useLoading } from "@/shared/composables/useLoading";
 import { useGamesStore } from "@/stores/useGamesStore";
 import BaseDesign from "@/components/dashboard/game/config/BaseDesign.vue";
 import { Type } from "@/constants/ui";
+import { API_RESPONSE_CODE } from "@/constants/api";
 import {
   addLoopBattleTask,
   cloneBattleTasks,
@@ -154,6 +155,7 @@ const removeBattleMap = (battleMap: string) => {
 };
 
 const onSubmit = async () => {
+  if (isLoading.value) return;
   if (config.value.keeping_ap < 0) {
     setMsg("理智保留不能小于0", Type.Warning);
     return;
@@ -169,12 +171,12 @@ const onSubmit = async () => {
     recruit_ignore_robot: config.value.recruit_ignore_robot,
     enable_building_arrange: config.value.enable_building_arrange,
     is_auto_battle: config.value.is_auto_battle,
-    accelerate_slot_cn: config.value.accelerate_slot_cn,
+    accelerate_slot: config.value.accelerate_slot,
   };
   isLoading.value = true;
   try {
     const result = await apiClient.doUpdateGameConf(props.account, payload);
-    setMsg(result.message, Type.Info);
+    setMsg(result.message, result.code === API_RESPONSE_CODE.SUCCESS ? Type.Success : Type.Error);
   } catch (error) {
     setMsg(String(error), Type.Error);
   } finally {

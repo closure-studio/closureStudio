@@ -1,29 +1,34 @@
 <template>
   <div class="container mx-auto flex justify-center">
     <div class="grid grid-cols-3 gap-2">
-      <div
-        v-for="(item, index) in ACCELERATE_SLOT_CN"
-        :key="index"
-        :class="getClass(item, index)"
-        @click="setSelectSlot(item)"
-      ></div>
+      <button
+        v-for="(item, index) in ACCELERATE_SLOTS"
+        :key="item.id"
+        type="button"
+        :title="item.label"
+        :aria-label="item.label"
+        :aria-pressed="props.slot === item.id"
+        :class="getClass(item.id, index)"
+        @click="setSelectSlot(item.id)"
+      ></button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ACCELERATE_SLOT_CN } from "@/constants/game";
+import { ACCELERATE_SLOTS } from "@/constants/game";
+import type { AccelerateSlot } from "@/shared/types/api";
 
 interface Props {
-  slot: string;
+  slot: AccelerateSlot;
 }
 const props = withDefaults(defineProps<Props>(), {
-  slot: "中层左",
+  slot: "slot_14",
 });
 
-const emit = defineEmits(["updateSlot"]);
+const emit = defineEmits<{ updateSlot: [slot: AccelerateSlot] }>();
 
-const setSelectSlot = (slot: string) => {
+const setSelectSlot = (slot: AccelerateSlot) => {
   emit("updateSlot", slot);
 };
 

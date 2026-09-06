@@ -2,6 +2,7 @@ import type { ApiGameCaptchaInfo } from "@/shared/types/api";
 import { Type } from "@/constants/ui";
 import apiClient from "@/services/apiClient";
 import { setMsg } from "@/utils/toast";
+import { API_RESPONSE_CODE } from "@/constants/api";
 
 interface GeetestV4Validate {
   pass_token?: string;
@@ -82,10 +83,8 @@ export function handleGT4Captcha(
             }
 
             console.log("[Captcha GT4] Validation successful, submitting...");
-            console.log("[Captcha GT4] Validate result (未确认格式):", validate);
-            setMsg("提交成功，正在登录...", Type.Success);
             // 需要根据后端 API 要求调整
-            await apiClient.doUpdateCaptcha(account, {
+            const response = await apiClient.doUpdateCaptcha(account, {
               challenge: data.challenge || "",
               pass_token: validate.pass_token || "",
               gen_time: validate.gen_time || "",
@@ -93,6 +92,10 @@ export function handleGT4Captcha(
               captcha_id: validate.captcha_id || "",
               lot_number: validate.lot_number || "",
             });
+            if (response.code !== API_RESPONSE_CODE.SUCCESS) {
+              throw new Error(response.message);
+            }
+            setMsg("提交成功，正在登录...", Type.Success);
 
             captchaObj.destroy();
             console.log("[Captcha GT4] Captcha completed successfully");
