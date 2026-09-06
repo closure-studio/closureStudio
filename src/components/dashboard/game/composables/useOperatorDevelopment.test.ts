@@ -216,5 +216,5 @@ test("late POST responses cannot overwrite a different account", async () => {
   post.resolve({ code: 1, message: "ok", data: undefined });
   await saving;
   expect(state.isAdded.value).toBe(false);
-  expect(state.notice.value).toBe("");
+  expect(state.error.value).toBe("");
 });
