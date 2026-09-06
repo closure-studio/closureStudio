@@ -62,7 +62,14 @@
           </h2>
         </summary>
         <div class="collapse-content px-2! pb-4! md:px-5! md:pb-5!">
-          <CharsPanel :key="account" :account="account" :chars="sixStarChars" :is-loading="isLoadingChars" />
+          <CharsPanel
+            :key="account"
+            :account="account"
+            :chars="sixStarChars"
+            :is-loading="isLoadingChars"
+            :development-tasks="operatorDevelopmentTasks"
+            @development-change="refreshGameDetails"
+          />
         </div>
       </details>
 
@@ -165,6 +172,13 @@ const sixStarChars = computed(() =>
   chars.value.filter((c) => assets.value.getCharRarity(c.charId) === 5)
 );
 
+const operatorDevelopmentTasks = computed(
+  () =>
+    details.value?.config.operator_development_tasks ??
+    selectedGame.value?.game_config.operator_development_tasks ??
+    [],
+);
+
 const navigateBySwipe = (direction: "left" | "right") => {
   const nextIndex = direction === "left" ? currentGameIndex.value + 1 : currentGameIndex.value - 1;
   const nextGame = gamesStore.gameList[nextIndex];
@@ -182,10 +196,10 @@ useSwipeNavigation({
 });
 
 // 获取游戏详情
-const getGameDetails = async () => {
+const getGameDetails = async (preserveCurrent = false) => {
   const requestId = ++detailsRequestId;
   const requestAccount = account.value;
-  details.value = null;
+  if (!preserveCurrent) details.value = null;
   gameDetailsError.value = false;
   isLoadingGameDetails.value = false;
   if (!canQueryDetails.value) return;
@@ -209,6 +223,10 @@ const getGameDetails = async () => {
       isLoadingGameDetails.value = false;
     }
   }
+};
+
+const refreshGameDetails = async () => {
+  await getGameDetails(true);
 };
 
 // 获取游戏日志
@@ -235,7 +253,7 @@ const getLogs = async () => {
 };
 
 // 监听账号变化
-watch([account, canQueryDetails], getGameDetails, { immediate: true });
+watch([account, canQueryDetails], () => getGameDetails(), { immediate: true });
 
 watch(
   account,

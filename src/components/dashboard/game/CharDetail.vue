@@ -2,7 +2,7 @@
   <form
     class="flex min-h-0 flex-col border-t border-base-content/10 bg-base-100 text-[13px] tracking-normal text-base-content md:text-sm"
     :aria-busy="isLoading || isSaving"
-    @submit.prevent="submit"
+    @submit.prevent="handleSubmit"
   >
     <div
       v-if="isLoading"
@@ -198,14 +198,19 @@
             暂无技能数据
           </p>
           <fieldset
-            class="m-0 min-w-0 border-0 p-0"
+            class="m-0 grid min-w-0 grid-cols-1 border-0 p-0 md:gap-x-4"
+            :class="{
+              'md:grid-cols-1': skills.length === 1,
+              'md:grid-cols-2': skills.length === 2,
+              'md:grid-cols-3': skills.length >= 3,
+            }"
             :disabled="isAdded || isSaving"
           >
             <legend class="sr-only">技能专精目标</legend>
             <div
               v-for="(skill, index) in skills"
               :key="skill.skillId"
-              class="grid grid-cols-[42px_minmax(0,1fr)] items-center gap-2.5 py-4 md:grid-cols-[48px_minmax(0,270px)] md:gap-3 md:py-5"
+              class="grid min-w-0 grid-cols-[42px_minmax(0,1fr)] items-center gap-2.5 py-4 md:grid-cols-[48px_minmax(0,1fr)] md:gap-3 md:py-5"
             >
               <div
                 class="grid size-[42px] place-items-center overflow-hidden rounded border border-base-content/20 bg-base-300 md:size-12"
@@ -234,7 +239,7 @@
                 <button
                   v-for="level in masteryLevels"
                   :key="level"
-                  class="min-w-0 flex-1 cursor-pointer whitespace-nowrap border-0 border-r border-base-content/10 bg-transparent px-[3px] text-[11px] text-base-content/90 last:border-r-0 aria-pressed:bg-info aria-pressed:text-info-content disabled:cursor-default [&:disabled:not([aria-pressed=true])]:text-base-content/40 focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-info md:px-[5px] md:text-[13px]"
+                  class="min-w-0 flex-1 cursor-pointer whitespace-nowrap border-0 border-r border-base-content/10 bg-transparent px-[3px] text-[11px] text-base-content/90 first:flex-[1.5] last:border-r-0 aria-pressed:bg-info aria-pressed:text-info-content disabled:cursor-default [&:disabled:not([aria-pressed=true])]:text-base-content/40 focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-info md:px-[5px] md:text-[13px]"
                   type="button"
                   :aria-label="`${skillName(index)}${level ? masteryName(level) : '不专精'}`"
                   :aria-pressed="masteryTarget(skill.skillId) === level"
@@ -259,7 +264,7 @@
       </div>
 
       <footer
-        class="shrink-0 border-t border-base-content/10 bg-base-200 p-3 md:px-[18px] md:py-3.5"
+        class="shrink-0 border-t border-base-content/10 bg-base-100 p-3 md:px-[18px] md:py-3.5"
       >
         <p
           v-if="error || validationError"
@@ -267,13 +272,6 @@
           role="alert"
         >
           {{ error || validationError }}
-        </p>
-        <p
-          v-else-if="notice"
-          class="mb-2.5 text-[13px]/[1.5] text-success [overflow-wrap:anywhere]"
-          role="status"
-        >
-          {{ notice }}
         </p>
         <button
           class="flex min-h-[46px] w-full cursor-pointer items-center justify-center gap-2.5 rounded border px-4 py-2.5 text-base font-medium transition-colors duration-[120ms] disabled:cursor-default disabled:opacity-[0.55] motion-reduce:transition-none md:min-h-12 md:text-[17px] [&>svg]:size-6 focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-info"
@@ -319,6 +317,9 @@ import {
 import { useOperatorDevelopment } from "./composables/useOperatorDevelopment";
 
 const props = defineProps<{ account: string; char: ApiGameChar }>();
+const emit = defineEmits<{
+  "development-change": [payload: { charId: string; isAdded: boolean }];
+}>();
 const {
   currentChar,
   draft,
@@ -328,7 +329,6 @@ const {
   isReady,
   isSaving,
   error,
-  notice,
   load,
   submit,
 } = useOperatorDevelopment(
@@ -380,8 +380,17 @@ const validationError = computed(() =>
 );
 const clearMessages = () => {
   error.value = "";
-  notice.value = "";
 };
+
+async function handleSubmit() {
+  const wasAdded = isAdded.value;
+  await submit();
+  if (isAdded.value === wasAdded) return;
+  emit("development-change", {
+    charId: props.char.charId,
+    isAdded: isAdded.value,
+  });
+}
 
 function clearNumberRepeatTimers() {
   if (repeatDelayTimer !== null) clearTimeout(repeatDelayTimer);

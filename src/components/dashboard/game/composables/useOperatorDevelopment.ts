@@ -22,7 +22,6 @@ export function useOperatorDevelopment(
   const isLoading = ref(false);
   const isReady = ref(false);
   const error = ref("");
-  const notice = ref("");
   const isSaving = computed(() => submittingAccounts.has(account()));
   const isAdded = computed(() => savedTask.value !== null);
   const target = computed(() => savedTask.value?.target ?? draft.value);
@@ -53,7 +52,6 @@ export function useOperatorDevelopment(
     isReady.value = false;
     isLoading.value = true;
     error.value = "";
-    notice.value = "";
     try {
       const { char, tasks } = await readDetails(requestAccount, charId);
       if (requestId !== generation) return;
@@ -80,7 +78,6 @@ export function useOperatorDevelopment(
     const removing = isAdded.value;
     const submittedTarget = cloneDevelopmentTarget(target.value);
     error.value = "";
-    notice.value = "";
     submittingAccounts.add(requestAccount);
     try {
       const { char, tasks } = await readDetails(requestAccount, charId);
@@ -90,7 +87,6 @@ export function useOperatorDevelopment(
       if (!removing && existing) {
         savedTask.value = existing;
         draft.value = cloneDevelopmentTarget(existing.target);
-        notice.value = "该干员已加入培养计划，已刷新目标";
         return;
       }
       if (!removing) {
@@ -112,7 +108,6 @@ export function useOperatorDevelopment(
         ? null
         : { char_id: charId, target: cloneDevelopmentTarget(submittedTarget) };
       draft.value = cloneDevelopmentTarget(submittedTarget);
-      notice.value = removing ? "已移出培养计划" : "已加入培养计划";
     } catch (cause) {
       if (requestId === generation)
         error.value =
@@ -139,7 +134,6 @@ export function useOperatorDevelopment(
     isReady,
     isSaving,
     error,
-    notice,
     load,
     submit,
   };

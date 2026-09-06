@@ -35,7 +35,11 @@
     aria-label="六星干员"
   >
     <li v-for="char in chars" :key="char.charId" class="min-w-0">
-      <CharCard :char="char" @select="openCharDetail" />
+      <CharCard
+        :char="char"
+        :in-development-plan="developmentTaskIds.has(char.charId)"
+        @select="openCharDetail"
+      />
     </li>
   </ul>
 
@@ -44,7 +48,12 @@
     :title="selectedCharName"
     surface-background="var(--color-base-100)"
   >
-    <CharDetail v-if="selectedChar" :account="account" :char="selectedChar" />
+    <CharDetail
+      v-if="selectedChar"
+      :account="account"
+      :char="selectedChar"
+      @development-change="handleDevelopmentChange"
+    />
   </AdaptiveDialog>
 </template>
 
@@ -54,16 +63,25 @@ import { assets } from "@/services/assets";
 import AdaptiveDialog from "@/shared/components/overlay/AdaptiveDialog.vue";
 import CharCard from "./CharCard.vue";
 import CharDetail from "./CharDetail.vue";
-import type { ApiGameChar } from "@/shared/types/api";
+import type {
+  ApiGameChar,
+  OperatorDevelopmentTask,
+} from "@/shared/types/api";
 
-defineProps<{
-  account: string;
-  chars: ApiGameChar[];
-  isLoading: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    account: string;
+    chars: ApiGameChar[];
+    isLoading: boolean;
+    developmentTasks?: OperatorDevelopmentTask[];
+  }>(),
+  { developmentTasks: () => [] },
+);
+const emit = defineEmits<{ "development-change": [] }>();
 
 const selectedChar = ref<ApiGameChar | null>(null);
 const isDetailOpen = ref(false);
+const developmentTaskIds = ref(new Set<string>());
 const selectedCharName = computed(() =>
   selectedChar.value
     ? assets.value.getCharName(selectedChar.value.charId)
@@ -74,6 +92,28 @@ const openCharDetail = (char: ApiGameChar) => {
   selectedChar.value = char;
   isDetailOpen.value = true;
 };
+
+const handleDevelopmentChange = ({
+  charId,
+  isAdded,
+}: {
+  charId: string;
+  isAdded: boolean;
+}) => {
+  const nextIds = new Set(developmentTaskIds.value);
+  if (isAdded) nextIds.add(charId);
+  else nextIds.delete(charId);
+  developmentTaskIds.value = nextIds;
+  emit("development-change");
+};
+
+watch(
+  () => props.developmentTasks,
+  (tasks) => {
+    developmentTaskIds.value = new Set(tasks.map((task) => task.char_id));
+  },
+  { immediate: true, deep: true },
+);
 
 watch(isDetailOpen, (isOpen) => {
   if (!isOpen) selectedChar.value = null;
