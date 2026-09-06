@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col gap-1 lg:gap-6 p-1 lg:p-6 game-detail-swipe-area">
+  <div class="min-h-screen flex flex-col gap-1 lg:gap-6 p-1 lg:p-6 touch-pan-y">
     <!-- 游戏选择器：桌面端保留按钮设计，移动端改为滑动切换 -->
     <div class="hidden md:block">
       <GameSelector :account="account" :game-list="gamesStore.gameList" />
@@ -44,19 +44,22 @@
       </div>
 
       <!-- 4. 道具卡片 -->
-      <div class="s-card lg:order-4">
-        <h2 class="text-xl font-bold mb-4">道具一览</h2>
-        <ItemsPanel />
+      <div class="s-card lg:order-4 min-w-0 max-md:px-3!">
+        <h2
+          class="mb-5 text-xl font-bold tracking-normal after:mt-2.5 after:block after:h-0.5 after:w-5 after:bg-info after:content-['']"
+        >
+          道具一览
+        </h2>
+        <ItemsPanel
+          :key="account"
+          :inventory="details?.inventory"
+          :is-loading="isLoadingGameDetails || gamesStore.isGameListIniting"
+          :error="gameDetailsError"
+        />
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.game-detail-swipe-area {
-  touch-action: pan-y;
-}
-</style>
 
 <script setup lang="ts">
 import CharsPanel from "@/components/dashboard/game/CharsPanel.vue";
@@ -109,6 +112,12 @@ const activeGameTitle = computed(() =>
 
 // 游戏详情
 const details = ref<ApiGameDetail | null>(null);
+const isLoadingGameDetails = ref(false);
+const gameDetailsError = ref(false);
+let detailsRequestId = 0;
+const canQueryDetails = computed(() =>
+  !!selectedGame.value && GAME_LOG_QUERYABLE_STATUS_CODES.includes(selectedGame.value.status.code)
+);
 
 // 游戏日志
 const gameLogs = ref<ApiGameLogs>({
@@ -143,18 +152,31 @@ useSwipeNavigation({
 
 // 获取游戏详情
 const getGameDetails = async () => {
-  const game = selectedGame.value;
-  if (!game || !GAME_LOG_QUERYABLE_STATUS_CODES.includes(game.status.code)) return;
+  const requestId = ++detailsRequestId;
+  const requestAccount = account.value;
+  details.value = null;
+  gameDetailsError.value = false;
+  isLoadingGameDetails.value = false;
+  if (!canQueryDetails.value) return;
+  isLoadingGameDetails.value = true;
 
   try {
-    const res = await apiClient.fetchGameDetails(account.value);
+    const res = await apiClient.fetchGameDetails(requestAccount);
+    if (requestId !== detailsRequestId || requestAccount !== account.value) return;
     if (res.data) {
       details.value = res.data;
     } else {
+      gameDetailsError.value = true;
       setMsg(res.message, Type.Warning);
     }
   } catch (error) {
+    if (requestId !== detailsRequestId || requestAccount !== account.value) return;
+    gameDetailsError.value = true;
     console.error("Failed to fetch game details:", error);
+  } finally {
+    if (requestId === detailsRequestId && requestAccount === account.value) {
+      isLoadingGameDetails.value = false;
+    }
   }
 };
 
@@ -182,16 +204,16 @@ const getLogs = async () => {
 };
 
 // 监听账号变化
+watch([account, canQueryDetails], getGameDetails, { immediate: true });
+
 watch(
   account,
   (newAccount) => {
     if (newAccount) {
       // 重置状态
-      details.value = null;
       gameLogs.value = { logs: [], hasMore: false };
 
       // 加载数据
-      getGameDetails();
       getLogs();
     }
   },
