@@ -80,9 +80,8 @@ const getGameLevel = () => {
 
 const getGamePlatformStr = () => {
   if (!game.value) return "未知";
-  return game.value.status?.platform === GAME_PLATFORM_CODE.OFFICIAL
-    ? GAME_PLATFORM_LABEL[GAME_PLATFORM_CODE.OFFICIAL]
-    : GAME_PLATFORM_LABEL[GAME_PLATFORM_CODE.BILIBILI];
+  const platform = game.value.status.platform as typeof GAME_PLATFORM_CODE[keyof typeof GAME_PLATFORM_CODE];
+  return GAME_PLATFORM_LABEL[platform] ?? "未知";
 };
 
 const getGameNickName = () => {

@@ -1,6 +1,7 @@
-import type { ApiGameGameConfig } from "@/shared/types/api";
+import type { AccelerateSlot, ApiGameGameConfig } from "@/shared/types/api";
 
 export const GAME_PLATFORM_CODE = {
+  IOS: 0,
   OFFICIAL: 1,
   BILIBILI: 2,
 } as const;
@@ -12,32 +13,33 @@ export const GAME_ACCOUNT_PREFIX = {
 
 export const GAME_PLATFORM_OPTIONS = [
   { value: GAME_PLATFORM_CODE.BILIBILI, label: "BiliBili服" },
-  { value: GAME_PLATFORM_CODE.OFFICIAL, label: "官服(安卓 / IOS)" },
+  { value: GAME_PLATFORM_CODE.OFFICIAL, label: "官服(安卓)" },
+  { value: GAME_PLATFORM_CODE.IOS, label: "官服(iOS)" },
 ] as const;
 
 export const GAME_PLATFORM_LABEL = {
-  [GAME_PLATFORM_CODE.OFFICIAL]: "官服",
+  [GAME_PLATFORM_CODE.IOS]: "iOS",
+  [GAME_PLATFORM_CODE.OFFICIAL]: "安卓",
   [GAME_PLATFORM_CODE.BILIBILI]: "B服",
 } as const;
 
 export const MAX_GAME_SLOTS = 3;
 
-export const ACCELERATE_SLOT_CN = [
-  "顶层左",
-  "顶层中",
-  "顶层右",
-  "中层左",
-  "中层中",
-  "中层右",
-  "底层左",
-  "底层中",
-  "底层右",
-];
+export const ACCELERATE_SLOTS = [
+  { id: "slot_5", label: "顶层左" },
+  { id: "slot_6", label: "顶层中" },
+  { id: "slot_7", label: "顶层右" },
+  { id: "slot_14", label: "中层左" },
+  { id: "slot_15", label: "中层中" },
+  { id: "slot_16", label: "中层右" },
+  { id: "slot_24", label: "底层左" },
+  { id: "slot_25", label: "底层中" },
+  { id: "slot_26", label: "底层右" },
+] as const satisfies readonly { id: AccelerateSlot; label: string }[];
 
 export const DEFAULT_GAME_CONFIG: ApiGameGameConfig = {
   account: "",
-  accelerate_slot: "",
-  accelerate_slot_cn: "",
+  accelerate_slot: "slot_14",
   battle_tasks: [],
   current_map: "",
   enable_building_arrange: false,

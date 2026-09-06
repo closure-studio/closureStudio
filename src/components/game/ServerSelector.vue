@@ -9,7 +9,7 @@
           ? 'bg-blue-500/10 shadow-md'
           : 'bg-base-100 hover:bg-base-300 hover:shadow-sm'
       ]">
-        <span class="text-xl font-medium">{{ server.label }}</span>
+        <span class="text-base font-medium">{{ server.label }}</span>
         <div v-if="modelValue === server.value"
           class="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
@@ -32,7 +32,7 @@ import { GAME_PLATFORM_OPTIONS } from "@/constants/game";
  * 使用方法:
  * <ServerSelector v-model="form.platform" />
  *
- * @param modelValue - 当前选中的平台 (1=官服, 2=B站服)
+ * @param modelValue - 当前选中的平台 (0=iOS, 1=安卓, 2=B站服)
  * @emits update:modelValue - 平台选择变更事件
  */
 

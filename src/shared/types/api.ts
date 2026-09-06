@@ -113,15 +113,35 @@ export interface ApiUserUser {
 // --- ApiGame ---
 
 export interface ApiGameConfig {
-  accelerate_slot_cn?: string;
+  accelerate_slot?: AccelerateSlot;
   battle_tasks?: BattleTask[];
   enable_building_arrange?: boolean;
   is_auto_battle?: boolean;
-  is_stopped?: boolean;
   keeping_ap?: number;
   recruit_ignore_robot?: boolean;
   recruit_reserve?: number;
-  specialization_tasks?: unknown[];
+  operator_development_tasks?: OperatorDevelopmentTask[];
+}
+
+export type AccelerateSlot =
+  | "slot_5"
+  | "slot_6"
+  | "slot_7"
+  | "slot_14"
+  | "slot_15"
+  | "slot_16"
+  | "slot_24"
+  | "slot_25"
+  | "slot_26";
+
+export interface OperatorDevelopmentTask {
+  char_id: string;
+  target: {
+    evolve_phase: 0 | 1 | 2;
+    level: number;
+    skill_level: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+    masteries: { skill_id: string; target_level: 1 | 2 | 3 }[];
+  };
 }
 
 export interface ApiGameScreenshot {
@@ -164,7 +184,7 @@ export interface ApiGameDetail {
   lastFreshTs: number;
   screenshot: ApiGameScreenshot[];
   status: ApiGameStatus;
-  troop?: unknown;
+  troop?: { chars: Record<string, ApiGameChar> };
 }
 
 export interface ApiGameTrainingRoom {
@@ -236,8 +256,7 @@ export interface ApiGameCaptchaInfo {
 
 export interface ApiGameGameConfig {
   account: string;
-  accelerate_slot: string;
-  accelerate_slot_cn: string;
+  accelerate_slot: AccelerateSlot;
   battle_tasks: BattleTask[];
   current_map: string;
   enable_building_arrange: boolean;
@@ -247,7 +266,7 @@ export interface ApiGameGameConfig {
   recruit_ignore_robot: boolean;
   recruit_reserve: number;
   allow_login_assist: boolean;
-  specialization_tasks?: unknown[];
+  operator_development_tasks?: OperatorDevelopmentTask[];
 }
 
 export interface ApiGameGame {
@@ -266,10 +285,16 @@ export interface ApiGameSSR {
 }
 
 export interface ApiGameChar {
-  charId: string;        // 干员ID，如 "char_003_kalts"
-  level: number;         // 等级
-  evolvePhase: number;   // 精英化阶段 (0/1/2)
+  charId: string; // 干员ID，如 "char_003_kalts"
+  level: number; // 等级
+  evolvePhase: number; // 精英化阶段 (0/1/2)
   potentialRank: number; // 潜能等级 (0-5)
+  currentTmpl?: string;
+  skills: {
+    skillId: string;
+    unlock: boolean;
+    specializeLevel: number;
+  }[];
 }
 
 export interface ApiGameChars {

@@ -20,7 +20,10 @@ export class APIClient extends AxiosServer {
 
   saveLocalStorage() {
     if (typeof localStorage !== "undefined") {
-      localStorage.setItem(STORAGE_KEYS.API_HOST, JSON.stringify(this.hostServer));
+      localStorage.setItem(
+        STORAGE_KEYS.API_HOST,
+        JSON.stringify(this.hostServer),
+      );
     }
   }
   fetchGameLogs(account: string, id: number) {
@@ -33,11 +36,16 @@ export class APIClient extends AxiosServer {
     return this.get<ApiGameGame[]>(`/game`);
   }
   fetchGameDetails(account: string) {
-    return this.get<ApiGameDetail>(`/game/${account}`);
+    return this.get<ApiGameDetail>(`/game/${encodeURIComponent(account)}`);
   }
 
-  fetchGameChars(account: string) {
-    return this.get<ApiGameChars>(`/game/chars/${account}`);
+  async fetchGameChars(account: string) {
+    const response = await this.fetchGameDetails(account);
+    const chars = Object.values(response.data?.troop?.chars ?? {});
+    return {
+      ...response,
+      data: { chars, total: chars.length } satisfies ApiGameChars,
+    };
   }
 
   fetchSystemConfig() {
@@ -52,24 +60,37 @@ export class APIClient extends AxiosServer {
     return this.get<ApiSystemHall[]>("/system/apCostList");
   }
   doGameLogin(token: string, account: string) {
-    return this.captchaPost<void>(`/game/login/${account}`, token, null);
+    return this.captchaPost<void>(
+      `/game/login/${encodeURIComponent(account)}`,
+      token,
+    );
+  }
+
+  doGamePause(account: string) {
+    return this.post<void>(`/game/pause/${encodeURIComponent(account)}`);
   }
 
   createGame(token: string, form: GameAccountForm) {
-    return this.captchaPost<void>("/game", token, form);
+    return this.captchaPost<void>("/game/", token, form);
   }
 
   deleteGame(token: string, account: string) {
-    return this.captchaDelete<void>(`/game/${account}`, token);
+    return this.captchaDelete<void>(
+      `/game/${encodeURIComponent(account)}`,
+      token,
+    );
   }
 
   doUpdateGameConf(account: string, game: ApiGameConfig) {
-    return this.post<void>(`/game/config/${account}`, {
+    return this.post<void>(`/game/config/${encodeURIComponent(account)}`, {
       config: game,
     });
   }
   doUpdateCaptcha(account: string, captcha: Record<string, unknown>) {
-    return this.post(`/game/config/${account}`, {
+    if (typeof captcha.challenge !== "string" || !captcha.challenge.trim()) {
+      return Promise.reject(new Error("验证码 challenge 不能为空"));
+    }
+    return this.post(`/game/config/${encodeURIComponent(account)}`, {
       captcha_info: captcha,
     });
   }
@@ -80,7 +101,10 @@ export class APIClient extends AxiosServer {
 
 let hostServer: IHostServer;
 
-const apiHost = typeof localStorage === "undefined" ? null : localStorage.getItem(STORAGE_KEYS.API_HOST);
+const apiHost =
+  typeof localStorage === "undefined"
+    ? null
+    : localStorage.getItem(STORAGE_KEYS.API_HOST);
 if (!apiHost) {
   hostServer = API_HOST_CLOUDFLARE;
   if (typeof localStorage !== "undefined") {

@@ -2,6 +2,7 @@ import type { ApiGameCaptchaInfo } from "@/shared/types/api";
 import { Type } from "@/constants/ui";
 import apiClient from "@/services/apiClient";
 import { setMsg } from "@/utils/toast";
+import { API_RESPONSE_CODE } from "@/constants/api";
 
 interface GeetestV3Obj {
   onReady: (callback: () => void) => void;
@@ -70,14 +71,16 @@ export function handleGT3Captcha(
             }
 
             console.log("[Captcha GT3] Validation successful, submitting...");
-            setMsg("提交成功，正在登录...", Type.Success);
-
-            await apiClient.doUpdateCaptcha(account, {
+            const response = await apiClient.doUpdateCaptcha(account, {
               challenge: data.challenge!,
               geetest_challenge: validate.geetest_challenge,
               geetest_seccode: validate.geetest_seccode,
               geetest_validate: validate.geetest_validate,
             });
+            if (response.code !== API_RESPONSE_CODE.SUCCESS) {
+              throw new Error(response.message);
+            }
+            setMsg("提交成功，正在登录...", Type.Success);
 
             captchaObj.destroy();
             console.log("[Captcha GT3] Captcha completed successfully");

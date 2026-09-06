@@ -45,7 +45,7 @@ export function getRealGameAccount(gameAccount: string | undefined): string {
  * ("12345", 2) → "B12345"
  */
 export function buildGameAccount(account: string, platform: number): string {
-  if (platform === GAME_PLATFORM_CODE.OFFICIAL) {
+  if (platform === GAME_PLATFORM_CODE.OFFICIAL || platform === GAME_PLATFORM_CODE.IOS) {
     return GAME_ACCOUNT_PREFIX.OFFICIAL + account;
   }
   if (platform === GAME_PLATFORM_CODE.BILIBILI) {
