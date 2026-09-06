@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col gap-1 lg:gap-6 p-1 lg:p-6 game-detail-swipe-area">
+  <div class="min-h-screen flex flex-col gap-1 lg:gap-6 p-1 lg:p-6 touch-pan-y">
     <!-- 游戏选择器：桌面端保留按钮设计，移动端改为滑动切换 -->
     <div class="hidden md:block">
       <GameSelector :account="account" :game-list="gamesStore.gameList" />
@@ -27,36 +27,76 @@
       </div>
 
       <!-- 2. 游戏日志卡片 -->
-      <div class="s-card lg:order-2">
-        <h2 class="text-xl font-bold mb-4">游戏日志</h2>
-        <LogsPanel
-          :logs="gameLogs.logs"
-          :has-more="gameLogs.hasMore"
-          :is-loading="isLoadingGameLogs"
-          @load-more="getLogs"
-        />
-      </div>
+      <details
+        :key="`logs-${account}`"
+        :open="isDesktopViewport"
+        class="collapse collapse-arrow s-card min-w-0 p-0! lg:order-2"
+      >
+        <summary class="collapse-title min-h-0 py-4! pr-12! pl-3! md:py-5! md:pl-5!">
+          <h2
+            class="text-xl font-bold tracking-normal after:mt-2.5 after:block after:h-0.5 after:w-5 after:bg-info after:content-['']"
+          >
+            游戏日志
+          </h2>
+        </summary>
+        <div class="collapse-content px-3! pb-4! md:px-5! md:pb-5!">
+          <LogsPanel
+            :logs="gameLogs.logs"
+            :has-more="gameLogs.hasMore"
+            :is-loading="isLoadingGameLogs"
+            @load-more="getLogs"
+          />
+        </div>
+      </details>
 
       <!-- 3. 干员卡片 -->
-      <div class="s-card lg:order-3">
-        <h2 class="text-xl font-bold mb-4">干员一览</h2>
-        <CharsPanel :chars="sixStarChars" :is-loading="isLoadingChars" />
-      </div>
+      <details
+        :key="`chars-${account}`"
+        class="collapse collapse-arrow s-card min-w-0 p-0! lg:order-3"
+      >
+        <summary class="collapse-title min-h-0 py-4! pr-12! pl-2! md:py-5! md:pl-5!">
+          <h2
+            class="text-xl font-bold tracking-normal after:mt-2.5 after:block after:h-0.5 after:w-5 after:bg-info after:content-['']"
+          >
+            干员一览
+          </h2>
+        </summary>
+        <div class="collapse-content px-2! pb-4! md:px-5! md:pb-5!">
+          <CharsPanel
+            :key="account"
+            :account="account"
+            :chars="sixStarChars"
+            :is-loading="isLoadingChars"
+            :development-tasks="operatorDevelopmentTasks"
+            @development-change="refreshGameDetails"
+          />
+        </div>
+      </details>
 
       <!-- 4. 道具卡片 -->
-      <div class="s-card lg:order-4">
-        <h2 class="text-xl font-bold mb-4">道具一览</h2>
-        <ItemsPanel />
-      </div>
+      <details
+        :key="`items-${account}`"
+        class="collapse collapse-arrow s-card min-w-0 p-0! lg:order-4"
+      >
+        <summary class="collapse-title min-h-0 py-4! pr-12! pl-3! md:py-5! md:pl-5!">
+          <h2
+            class="text-xl font-bold tracking-normal after:mt-2.5 after:block after:h-0.5 after:w-5 after:bg-info after:content-['']"
+          >
+            道具一览
+          </h2>
+        </summary>
+        <div class="collapse-content px-3! pb-4! md:px-5! md:pb-5!">
+          <ItemsPanel
+            :key="account"
+            :inventory="details?.inventory"
+            :is-loading="isLoadingGameDetails || gamesStore.isGameListIniting"
+            :error="gameDetailsError"
+          />
+        </div>
+      </details>
     </div>
   </div>
 </template>
-
-<style scoped>
-.game-detail-swipe-area {
-  touch-action: pan-y;
-}
-</style>
 
 <script setup lang="ts">
 import CharsPanel from "@/components/dashboard/game/CharsPanel.vue";
@@ -82,6 +122,7 @@ import { useRoute, useRouter } from "vue-router";
 const route = useRoute();
 const router = useRouter();
 const gamesStore = useGamesStore();
+const isDesktopViewport = typeof window !== "undefined" && window.innerWidth >= 768;
 
 const gameDisplayName = (game: ApiGameGame) =>
   game.status.nick_name ? `Dr. ${game.status.nick_name}` : game.status.account;
@@ -109,6 +150,12 @@ const activeGameTitle = computed(() =>
 
 // 游戏详情
 const details = ref<ApiGameDetail | null>(null);
+const isLoadingGameDetails = ref(false);
+const gameDetailsError = ref(false);
+let detailsRequestId = 0;
+const canQueryDetails = computed(() =>
+  !!selectedGame.value && GAME_LOG_QUERYABLE_STATUS_CODES.includes(selectedGame.value.status.code)
+);
 
 // 游戏日志
 const gameLogs = ref<ApiGameLogs>({
@@ -123,6 +170,13 @@ const { chars, isLoading: isLoadingChars } = useGameChars(account);
 // 仅展示 6 星（rarity === 5）干员
 const sixStarChars = computed(() =>
   chars.value.filter((c) => assets.value.getCharRarity(c.charId) === 5)
+);
+
+const operatorDevelopmentTasks = computed(
+  () =>
+    details.value?.config.operator_development_tasks ??
+    selectedGame.value?.game_config.operator_development_tasks ??
+    [],
 );
 
 const navigateBySwipe = (direction: "left" | "right") => {
@@ -142,20 +196,37 @@ useSwipeNavigation({
 });
 
 // 获取游戏详情
-const getGameDetails = async () => {
-  const game = selectedGame.value;
-  if (!game || !GAME_LOG_QUERYABLE_STATUS_CODES.includes(game.status.code)) return;
+const getGameDetails = async (preserveCurrent = false) => {
+  const requestId = ++detailsRequestId;
+  const requestAccount = account.value;
+  if (!preserveCurrent) details.value = null;
+  gameDetailsError.value = false;
+  isLoadingGameDetails.value = false;
+  if (!canQueryDetails.value) return;
+  isLoadingGameDetails.value = true;
 
   try {
-    const res = await apiClient.fetchGameDetails(account.value);
+    const res = await apiClient.fetchGameDetails(requestAccount);
+    if (requestId !== detailsRequestId || requestAccount !== account.value) return;
     if (res.data) {
       details.value = res.data;
     } else {
+      gameDetailsError.value = true;
       setMsg(res.message, Type.Warning);
     }
   } catch (error) {
+    if (requestId !== detailsRequestId || requestAccount !== account.value) return;
+    gameDetailsError.value = true;
     console.error("Failed to fetch game details:", error);
+  } finally {
+    if (requestId === detailsRequestId && requestAccount === account.value) {
+      isLoadingGameDetails.value = false;
+    }
   }
+};
+
+const refreshGameDetails = async () => {
+  await getGameDetails(true);
 };
 
 // 获取游戏日志
@@ -182,16 +253,16 @@ const getLogs = async () => {
 };
 
 // 监听账号变化
+watch([account, canQueryDetails], () => getGameDetails(), { immediate: true });
+
 watch(
   account,
   (newAccount) => {
     if (newAccount) {
       // 重置状态
-      details.value = null;
       gameLogs.value = { logs: [], hasMore: false };
 
       // 加载数据
-      getGameDetails();
       getLogs();
     }
   },

@@ -94,6 +94,22 @@ describe("APIClient Arkhost game mutations", () => {
     expect(mockPost).toHaveBeenCalledWith("/game/pause/Guser%2Fname");
   });
 
+  test("培养计划提交完整数组并保留 config 外层，清空传 []", async () => {
+    const client = new APIClient(hostServer);
+    const task = {
+      char_id: "char_103_angel",
+      target: { evolve_phase: 2 as const, level: 80, skill_level: 7 as const, masteries: [] },
+    };
+    await client.doUpdateGameConf("Guser/name", { operator_development_tasks: [task] });
+    expect(mockPost).toHaveBeenLastCalledWith("/game/config/Guser%2Fname", {
+      config: { operator_development_tasks: [task] },
+    });
+    await client.doUpdateGameConf("Guser/name", { operator_development_tasks: [] });
+    expect(mockPost).toHaveBeenLastCalledWith("/game/config/Guser%2Fname", {
+      config: { operator_development_tasks: [] },
+    });
+  });
+
   test("干员来自详情中以实例 ID 为 key 的 troop.chars", async () => {
     const char = {
       charId: "char_103_angel",

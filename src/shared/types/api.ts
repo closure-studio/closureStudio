@@ -180,7 +180,7 @@ export interface ApiGameDetail {
   config: ApiGameGameConfig;
   building: ApiGameBuilding;
   consumable?: unknown;
-  inventory?: unknown;
+  inventory?: Record<string, number>;
   lastFreshTs: number;
   screenshot: ApiGameScreenshot[];
   status: ApiGameStatus;
