@@ -1,9 +1,12 @@
 <template>
   <input type="checkbox" class="modal-toggle" v-model="isCheck" />
   <div class="modal" role="dialog">
-    <div ref="dialogContent" class="animate__animated animate__pulse">
-      <component :is="component" v-bind="componentProps" :dialogClose="dialogClose" />
-    </div>
+    <component
+      :is="component"
+      class="animate__animated animate__pulse"
+      v-bind="componentProps"
+      :dialogClose="dialogClose"
+    />
   </div>
 </template>
 
@@ -16,7 +19,6 @@ interface Props {
   componentProps: Record<string, unknown>; // 新增：接收传入的组件 props
 }
 const isCheck = ref(false);
-const dialogContent = ref<HTMLElement | null>(null);
 
 withDefaults(defineProps<Props>(), {
   component: null,
