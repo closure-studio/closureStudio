@@ -62,7 +62,9 @@
 
 <script setup lang="ts">
 import type { LoginParams } from "@/components/home/auth/composables/useAuthForm";
+import { Type } from "@/constants/ui";
 import oauthClient from "@/services/oauthClient";
+import { setMsg } from "@/utils/toast";
 
 defineProps<{
   loginParams: LoginParams;
@@ -78,7 +80,13 @@ defineEmits<{
   (event: "update:agreeTerms", value: boolean): void;
 }>();
 
-const handleLinuxDoLogin = () => {
-  oauthClient.initiateLinuxDoLogin();
+const handleLinuxDoLogin = async () => {
+  try {
+    await oauthClient.initiateLinuxDoLogin(
+      import.meta.env.VITE_OAUTH_LINUXDO_CLIENT_ID,
+    );
+  } catch {
+    setMsg("Linux DO 登录暂时不可用", Type.Error);
+  }
 };
 </script>
