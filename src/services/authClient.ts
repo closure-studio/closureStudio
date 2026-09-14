@@ -4,7 +4,7 @@ import type { ApiUserAuth, ApiUserUser } from "@/shared/types/api";
 
 const LOGIN_PATH = "/login";
 
-class AuthClient extends AxiosServer {
+export class AuthClient extends AxiosServer {
   AuthServer: string;
   constructor(hostServer: IHostServer) {
     super(hostServer);
@@ -66,8 +66,8 @@ class AuthClient extends AxiosServer {
   fetchQQBindCode() {
     return this.get<string>(`/qq`);
   }
-  loginWithLinuxDo(params: { code: string; redirect_uri: string }) {
-    return this.post<ApiUserAuth>(`/oauth/linuxdo/callback`, params);
+  loginWithLinuxDo(params: { code: string; code_verifier: string }) {
+    return this.post<ApiUserAuth>(`/oauth/linuxdo/exchange`, params);
   }
 }
 

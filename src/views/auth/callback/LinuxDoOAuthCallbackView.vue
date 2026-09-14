@@ -37,6 +37,7 @@ import oauthClient from "@/services/oauthClient";
 import { setMsg } from "@/utils/toast";
 import { Type } from "@/constants/ui";
 import { ROUTES } from "@/constants/app";
+import { handleLinuxDoOAuthCallback } from "./linuxDoOAuthCallback";
 
 const router = useRouter();
 const route = useRoute();
@@ -51,50 +52,32 @@ const goToHome = () => {
 
 onMounted(async () => {
   try {
-    // 从 URL 获取 code 和 state
-    // 用户拒绝授权时 Linux.do 返回 error 参数
-    const oauthError = route.query.error as string;
-    if (oauthError) {
-      error.value = oauthError === "access_denied" ? "您已取消授权" : `授权失败：${oauthError}`;
-      isLoading.value = false;
-      return;
-    }
-
-    const code = route.query.code as string;
-    const state = route.query.state as string;
-
-    if (!code || !state) {
-      error.value = "缺少必要的授权参数";
-      isLoading.value = false;
-      return;
-    }
-
-    // 验证 state
-    const oauthState = oauthClient.getAndValidateState(state);
-    if (!oauthState) {
-      error.value = "授权验证失败，请重试";
-      isLoading.value = false;
-      return;
-    }
-
-    // 调用后端 API 交换 token
-    const response = await authClient.loginWithLinuxDo({
-      code,
-      redirect_uri: oauthState.redirectUri,
+    const outcome = await handleLinuxDoOAuthCallback(route.query, {
+      discardCodeVerifier: () => oauthClient.discardCodeVerifier(),
+      exchange: (input) => authClient.loginWithLinuxDo(input),
+      login: (token) => userStore.login(token),
+      replaceDashboard: async () => {
+        await router.replace({ name: ROUTES.DASHBOARD.name });
+      },
+      takeCodeVerifier: () => oauthClient.takeCodeVerifier(),
     });
 
-    if (response.data && response.data.token) {
-      // 登录成功
+    if (outcome.kind === "success") {
       setMsg("登录成功", Type.Success);
-      userStore.login(response.data.token);
-      router.push({ name: ROUTES.DASHBOARD.name });
-    } else {
-      error.value = response.message || "登录失败，请重试";
-      isLoading.value = false;
+      return;
     }
-  } catch (err: unknown) {
-    console.error("OAuth callback error:", err);
-    error.value = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "登录失败，请重试";
+    error.value = outcome.kind === "invalid-params"
+      ? "缺少或包含无效的授权参数"
+      : outcome.kind === "missing-verifier"
+        ? "授权验证失败，请重试"
+        : outcome.kind === "cancelled"
+          ? "您已取消授权"
+          : outcome.kind === "provider-failed"
+            ? "Linux DO 授权失败，请重试"
+            : outcome.message || "登录失败，请重试";
+    isLoading.value = false;
+  } catch {
+    error.value = "登录失败，请重试";
     isLoading.value = false;
   }
 });

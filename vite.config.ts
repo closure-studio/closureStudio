@@ -3,13 +3,11 @@ import { defineConfig, type PluginOption } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { VitePWA } from "vite-plugin-pwa";
 import viteCompression from "vite-plugin-compression";
-import basicSsl from "@vitejs/plugin-basic-ssl";
 // https://vitejs.dev/config/
 export default defineConfig(() => {
   const isProduction = process.env.NODE_ENV === "production";
 
   const plugins: PluginOption[] = [
-    isProduction ? undefined : basicSsl(),
     vue({
       isProduction: true,
     }),
