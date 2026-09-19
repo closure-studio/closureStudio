@@ -25,6 +25,7 @@
         <span class="loading loading-ring loading-lg"></span>
         <span class="loading loading-ring loading-lg"></span>
       </div>
+      <CaptchaStatus />
       <GameList
         :user-game-list="userGameList"
         :can-create-game="canCreateGame"
@@ -47,6 +48,7 @@ import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import type { ApiSystemConfig, GameAccountForm } from "@/shared/types/api";
 import { MAX_GAME_SLOTS } from "@/constants/game";
+import CaptchaStatus from "@/shared/components/captcha/CaptchaStatus.vue";
 import IndexStatus from "@/components/dashboard/VersionStatus.vue";
 import GameList from "@/components/dashboard/GameList.vue";
 import QQBindingStatus from "@/components/dashboard/QQBindingStatus.vue";

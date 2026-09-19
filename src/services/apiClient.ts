@@ -1,6 +1,6 @@
 import { API_HOST_CLOUDFLARE, type IHostServer } from "@/constants/api";
 import { STORAGE_KEYS } from "@/constants/app";
-import { AxiosServer } from "./server";
+import { AxiosServer, type RequestOptions } from "./server";
 import type {
   ApiGameLogs,
   ApiGameGame,
@@ -32,8 +32,8 @@ export class APIClient extends AxiosServer {
   fetchGameLogsAdmin(account: string, uuid: string, id: number) {
     return this.get<ApiGameLogs>(`/game/log/${account}/${id}?uuid=${uuid}`);
   }
-  fetchGameList() {
-    return this.get<ApiGameGame[]>(`/game`);
+  fetchGameList(options?: RequestOptions) {
+    return this.get<ApiGameGame[]>(`/game`, options);
   }
   fetchGameDetails(account: string) {
     return this.get<ApiGameDetail>(`/game/${encodeURIComponent(account)}`);
@@ -86,13 +86,13 @@ export class APIClient extends AxiosServer {
       config: game,
     });
   }
-  doUpdateCaptcha(account: string, captcha: Record<string, unknown>) {
+  doUpdateCaptcha(account: string, captcha: Record<string, unknown>, options?: RequestOptions) {
     if (typeof captcha.challenge !== "string" || !captcha.challenge.trim()) {
       return Promise.reject(new Error("验证码 challenge 不能为空"));
     }
     return this.post(`/game/config/${encodeURIComponent(account)}`, {
       captcha_info: captcha,
-    });
+    }, options);
   }
   getHostServer(): IHostServer {
     return this.hostServer;

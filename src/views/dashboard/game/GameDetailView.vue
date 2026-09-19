@@ -17,6 +17,7 @@
 
     <!-- 顶部账号信息卡片 -->
     <GameDetailHeader :account="account" :game="selectedGame" :details="details" />
+    <CaptchaStatus :account="account" />
 
     <!-- 主内容区 - 垂直堆叠（移动端）/ 2x2 网格（桌面端） -->
     <div class="flex flex-col lg:grid lg:grid-cols-2 gap-1 lg:gap-6">
@@ -99,6 +100,7 @@
 </template>
 
 <script setup lang="ts">
+import CaptchaStatus from "@/shared/components/captcha/CaptchaStatus.vue";
 import CharsPanel from "@/components/dashboard/game/CharsPanel.vue";
 import ConfigPanel from "@/components/dashboard/game/ConfigPanel.vue";
 import GameDetailHeader from "@/components/dashboard/game/GameDetailHeader.vue";

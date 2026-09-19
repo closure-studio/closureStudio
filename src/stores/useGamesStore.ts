@@ -1,7 +1,6 @@
-import { computed, ref } from "vue";
+import { computed, ref, watch, onScopeDispose } from "vue";
 import { defineStore } from "pinia";
 import type {
-  ApiGameCaptchaInfo,
   ApiGameChars,
   ApiGameGame,
   ApiGameLogEvent,
@@ -9,7 +8,8 @@ import type {
   ApiSystemConfig,
 } from "@/shared/types/api";
 import apiClient from "@/services/apiClient";
-import { arknightsGameCaptcha } from "@/services/captcha";
+import { arknightsGameCaptcha, resetCaptchaOperations } from "@/services/captcha";
+import { createCaptchaCoordinator } from "@/services/captcha/coordinator";
 import { setMsg } from "@/utils/toast";
 import { API_RESPONSE_CODE } from "@/constants/api";
 import { MAX_GAME_SLOTS } from "@/constants/game";
@@ -35,7 +35,13 @@ export const useGamesStore = defineStore("games", () => {
   const config = ref<ApiSystemConfig>(initialConfig());
   const gameList = ref<ApiGameGame[]>([]);
   const globalSSR = ref<ApiGameSSR[]>([]);
-  const captchaCache = ref<Record<string, ApiGameCaptchaInfo>>({});
+  const coordinator = createCaptchaCoordinator(arknightsGameCaptcha);
+  const captchaStates = coordinator.states;
+  let session = 0;
+  let requestId = 0;
+  let polling = false;
+  let observationTimer: ReturnType<typeof setTimeout> | undefined;
+  const userStore = useUserStore();
   const charsCache = ref<Record<string, ApiGameChars>>({});
   const isGameListIniting = ref(false);
   const isGameListCompletedInit = ref(false);
@@ -66,69 +72,76 @@ export const useGamesStore = defineStore("games", () => {
     gameList.value = data;
   };
 
-  const updateCaptcha = (data: ApiGameGame[]) => {
-    if (!data || data.length === 0) return;
-    data.forEach((game) => {
-      if (!game || !game.status) return;
-      if (game.captcha_info.challenge || game.captcha_info.geetestId) {
-        if (captchaCache.value[game.status.account]) {
-          const cached = captchaCache.value[game.status.account];
-          if (cached.created === game.captcha_info.created) {
-            return;
-          }
-        }
-        captchaCache.value[game.status.account] = game.captcha_info;
-        arknightsGameCaptcha(game.status.account, game.captcha_info).catch(() => {
-          delete captchaCache.value[game.status.account];
-        });
-      }
-    });
+  const updateCaptcha = (data: ApiGameGame[], readBarrier?: number) => {
+    coordinator.sync(data.filter((game) => game?.status).map((game) => ({
+      account: game.status.account, code: game.status.code,
+      info: game.captcha_info ?? { created: 0, captcha_type: "" },
+    })), readBarrier);
   };
 
   const queryGameList = async () => {
+    const generation = session;
+    const id = ++requestId;
+    const barrier = coordinator.readBarrier();
     isLoadingGameList.value = true;
     try {
-      const resp = await apiClient.fetchGameList();
-      if (resp && resp.code === API_RESPONSE_CODE.SUCCESS) {
+      const resp = await apiClient.fetchGameList({ timeout: 30_000 });
+      if (generation !== session || id !== requestId) return false;
+      if (resp?.code === API_RESPONSE_CODE.SUCCESS && Array.isArray(resp.data)) {
         updateGameList(resp.data);
-        updateCaptcha(resp.data);
+        updateCaptcha(resp.data, barrier);
         return true;
       }
       return false;
-    } catch (error) {
-      console.error("Error during queryGameList:", error);
+    } catch {
       return false;
     } finally {
-      isLoadingGameList.value = false;
+      if (generation === session && id === requestId) isLoadingGameList.value = false;
     }
   };
 
-  const startGameListPolling = () => {
-    const poll = async () => {
-      try {
-        const resp = await apiClient.fetchGameList();
-        if (isLoadingGameList.value) return;
-        if (resp && resp.code === API_RESPONSE_CODE.SUCCESS && resp.data) {
-          updateGameList(resp.data);
-          updateCaptcha(resp.data);
-        }
-      } catch (error) {
-        console.error("Error during polling:", error);
-      } finally {
-        pollingTimeout.value = setTimeout(poll, intervalTime);
+  const retryCaptcha = (account: string) => coordinator.retry(account, queryGameList);
+  const cancelCaptcha = coordinator.cancel;
+  // 仅在提交后的60秒确认窗口兜底GET；SSE没有请求时间，不能作本次提交的确认依据。
+  watch(() => Object.values(captchaStates.value).some((state) => state.phase === "awaiting-status"), (waiting) => {
+    clearTimeout(observationTimer);
+    if (!waiting) return;
+    const generation = session;
+    const observe = async () => {
+      if (generation !== session) return;
+      if (!polling && !isLoadingGameList.value) await queryGameList();
+      if (generation === session && Object.values(captchaStates.value).some((state) => state.phase === "awaiting-status")) {
+        observationTimer = setTimeout(observe, intervalTime);
       }
     };
-    poll();
+    observationTimer = setTimeout(observe, intervalTime);
+  }, { flush: "sync" });
+
+  const startGameListPolling = () => {
+    if (polling) return;
+    polling = true;
+    const generation = session;
+    const poll = async () => {
+      if (!polling || generation !== session) return;
+      if (!isLoadingGameList.value) await queryGameList();
+      if (polling && generation === session) pollingTimeout.value = setTimeout(poll, intervalTime);
+    };
+    void poll();
   };
 
   const stopGameListPolling = () => {
+    polling = false;
     if (pollingTimeout.value) {
       clearTimeout(pollingTimeout.value);
       pollingTimeout.value = null;
     }
   };
 
+  let cancelSSEOpening: (() => void) | undefined;
   const closeSSE = () => {
+    cancelSSEOpening?.();
+    cancelSSEOpening = undefined;
+    if (typeof window !== "undefined") window.removeEventListener("beforeunload", closeSSE);
     if (!sseConnection.value) {
       return;
     }
@@ -148,33 +161,37 @@ export const useGamesStore = defineStore("games", () => {
     }
 
     const connectionTimeout = 5000;
+    const generation = session;
     closeSSE();
     try {
       const event = await new Promise<EventSource>((resolve, reject) => {
         const baseurl = apiClient.getHostServer().baseURL;
         const eventSource = new EventSource(`${baseurl}/sse/games?token=${user.token}`);
-        const timer = setTimeout(() => {
-          eventSource.close();
-          reject(new Error("连接超时"));
-        }, connectionTimeout);
-
-        eventSource.onopen = () => {
+        let settled = false;
+        const finish = (error?: Error) => {
+          if (settled) return;
+          settled = true;
           clearTimeout(timer);
-          resolve(eventSource);
+          cancelSSEOpening = undefined;
+          if (error) { eventSource.close(); reject(error); }
+          else resolve(eventSource);
         };
-        eventSource.onerror = () => {
-          clearTimeout(timer);
-          eventSource.close();
-          reject(new Error("EventSource 连接失败"));
-        };
+        const timer = setTimeout(() => finish(new Error("连接超时")), connectionTimeout);
+        cancelSSEOpening = () => finish(new Error("连接已取消"));
+        eventSource.onopen = () => finish();
+        eventSource.onerror = () => finish(new Error("EventSource 连接失败"));
       });
+      if (generation !== session) { event.close(); return false; }
       sseConnection.value = event;
 
       event.addEventListener("game", (sourceEvent) => {
-        if (!sourceEvent.data || isLoadingGameList.value) return;
-        const data = JSON.parse(sourceEvent.data) as ApiGameGame[];
-        updateGameList(data);
-        updateCaptcha(data);
+        if (generation !== session || sseConnection.value !== event || !sourceEvent.data || isLoadingGameList.value) return;
+        try {
+          const data = JSON.parse(sourceEvent.data) as ApiGameGame[];
+          if (!Array.isArray(data)) return;
+          updateGameList(data);
+          updateCaptcha(data);
+        } catch { /* 保留上次可读状态，不把畸形事件认作空账号列表。 */ }
       });
 
       event.addEventListener("log", (sourceEvent) => {
@@ -202,7 +219,7 @@ export const useGamesStore = defineStore("games", () => {
 
       return true;
     } catch (error) {
-      setMsg(error, Type.Warning);
+      if (generation === session) setMsg(error, Type.Warning);
       return false;
     }
   };
@@ -211,8 +228,10 @@ export const useGamesStore = defineStore("games", () => {
     if (isGameListCompletedInit.value) {
       return;
     }
+    const generation = session;
     isGameListIniting.value = true;
     const gameListResult = await queryGameList();
+    if (generation !== session) return;
     if (!gameListResult) {
       setMsg("初始化失败, 请刷新网页或稍后再尝试", Type.Warning);
       isGameListIniting.value = false;
@@ -221,6 +240,7 @@ export const useGamesStore = defineStore("games", () => {
     isGameListIniting.value = false;
     isGameListCompletedInit.value = true;
     const sseResult = await startSSE();
+    if (generation !== session) return;
     if (sseResult) {
       setMsg("链接到服务器成功", Type.Success);
       return;
@@ -257,10 +277,12 @@ export const useGamesStore = defineStore("games", () => {
   };
 
   const $reset = () => {
+    session++; requestId++;
+    coordinator.reset(); resetCaptchaOperations();
+    clearTimeout(observationTimer);
     config.value = initialConfig();
     gameList.value = [];
     globalSSR.value = [];
-    captchaCache.value = {};
     charsCache.value = {};
     isGameListIniting.value = false;
     isGameListCompletedInit.value = false;
@@ -270,11 +292,16 @@ export const useGamesStore = defineStore("games", () => {
     stopGameListPolling();
   };
 
+  watch(() => userStore.token, () => $reset(), { flush: "sync" });
+  onScopeDispose($reset);
+
   return {
     config,
     gameList,
     globalSSR,
-    captchaCache,
+    captchaStates,
+    retryCaptcha,
+    cancelCaptcha,
     charsCache,
     isGameListIniting,
     isLoadingGameList,

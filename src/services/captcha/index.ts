@@ -1,1 +1,1 @@
-export { arknightsGameCaptcha, startCaptcha } from "./captcha";
+export { arknightsGameCaptcha, startCaptcha, resetCaptchaOperations, operationCaptcha, cancelOperationCaptcha } from "./captcha";

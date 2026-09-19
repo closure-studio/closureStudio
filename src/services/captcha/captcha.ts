@@ -1,141 +1,66 @@
+import { ref } from "vue";
 import type { RequestResult } from "@/shared/types/service";
 import type { ApiGameCaptchaInfo } from "@/shared/types/api";
-import { Type } from "@/constants/ui";
-import { setMsg } from "@/utils/toast";
 import { handleGT3Captcha } from "./geetestV3";
 import { handleGT4Captcha } from "./geetestV4";
+import { captchaDisplayLease } from "./displayLease";
+import { CaptchaError, runSdk, validationFields, gt4Fields, type CaptchaOptions, type CaptchaSdk } from "./sdkLifecycle";
 
 const googleRecaptchaSiteKey = "6LfrMU0mAAAAADoo9vRBTLwrt5mU0HvykuR3l8uN";
+const captchaId = "3d50c20b712aaf5c4390a663f1912941";
+const operations = new Set<AbortController>();
+export const operationCaptcha = ref(false);
+let currentOperation: AbortController | undefined;
+export function cancelOperationCaptcha() { currentOperation?.abort(); }
+export function resetCaptchaOperations() { for (const controller of operations) controller.abort(); }
 
-const captchaConfig = {
-  config: {
-    captchaId: "3d50c20b712aaf5c4390a663f1912941",
-    product: "bind",
-  },
-  handler: () => {},
-};
-
-interface CaptchaObj {
-  verify: () => void;
-  appendTo: (selector: string) => void;
-  onReady: (callback: () => void) => void;
-  onRefresh: (callback: () => void) => void;
-  onSuccess: (callback: () => void) => void;
-  onError: (callback: () => void) => void;
-  getValidate: () => unknown;
-  showCaptcha: () => void;
-  destroy: () => void;
+// 不重放超时或取消的业务请求；服务端可能已经执行，只停止本地等待。
+function bounded<T>(work: () => Promise<T>, signal: AbortSignal, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    let timer: ReturnType<typeof setTimeout> | undefined = undefined;
+    const abort = () => finish(new CaptchaError("cancelled", "已停止本地等待，服务器结果未知，请重新读取状态"));
+    const finish = (error?: unknown, result?: T) => {
+      clearTimeout(timer); signal.removeEventListener("abort", abort);
+      if (error) reject(error); else resolve(result as T);
+    };
+    signal.addEventListener("abort", abort, { once: true });
+    if (signal.aborted) { abort(); return; }
+    timer = setTimeout(() => finish(new CaptchaError("timed-out", "等待超时，结果未知，请重新读取状态")), ms);
+    try { Promise.resolve(work()).then((result) => finish(undefined, result), finish); } catch (error) { finish(error); }
+  });
 }
-export async function startCaptcha<T>(
-  myFunc: (captchaToken: string) => Promise<RequestResult<T>>
-): Promise<RequestResult<T>> {
+export async function startCaptcha<T>(myFunc: (token: string) => Promise<RequestResult<T>>): Promise<RequestResult<T>> {
+  const controller = new AbortController();
+  operations.add(controller);
   try {
-    if (!window.grecaptcha && !window.initGeetest4) {
-      setMsg("Google reCaptcha 和 Geetest 都加载失败了，麻烦你发个工单吧", Type.Warning);
-      throw new Error("人机验证加载失败");
-    }
-    if (window.grecaptcha) {
-      const recaptchaResult = await startRecaptcha(myFunc);
-      if (recaptchaResult.code === -1100) {
-        setMsg("reCaptcha人机验证失败", Type.Warning);
-        setMsg("Geetest人机验证开始", Type.Info);
-        const geetestResult = await startGeeTest(myFunc);
-        if (geetestResult.code === -1100) {
-          throw new Error("Geetest人机验证失败");
+    return await captchaDisplayLease.run(async () => {
+      currentOperation = controller; operationCaptcha.value = true;
+      try {
+        const execute = (token: string) => bounded(() => myFunc(token), controller.signal, 30_000);
+        if (window.grecaptcha) {
+          const token = await bounded(() => window.grecaptcha.execute(googleRecaptchaSiteKey, { action: "submit" }), controller.signal, 15_000);
+          if (!token) throw new Error("reCAPTCHA token is empty");
+          const response = await execute(token);
+          if (response.code !== -1100) return response;
         }
-        return geetestResult;
-      }
-      return recaptchaResult;
-    }
-    if (window.initGeetest === undefined) {
-      setMsg("不知道为什么, Geetest加载失败。麻烦你发个工单吧", Type.Warning);
-      throw new Error("Geetest加载失败");
-    }
-    return await startGeeTest(myFunc);
-  } catch (error) {
-    setMsg("人机验证大失败", Type.Error);
-    throw error;
-  }
+        if (controller.signal.aborted) throw new CaptchaError("cancelled", "已取消验证");
+        if (typeof window.initGeetest4 !== "function") throw new Error("Geetest v4 加载失败，请重试");
+        const response = await runSdk<RequestResult<T>, CaptchaSdk & { showCaptcha: () => void }>(
+          (callback) => window.initGeetest4({ captchaId, product: "bind" }, callback),
+          (sdk) => sdk.showCaptcha(),
+          (value) => execute(JSON.stringify(validationFields(value, gt4Fields))),
+          { signal: controller.signal },
+        );
+        if (response.code === -1100) throw new Error("Geetest人机验证失败");
+        return response;
+      } finally { currentOperation = undefined; operationCaptcha.value = false; }
+    }, controller.signal);
+  } finally { operations.delete(controller); }
 }
 
-async function startRecaptcha<T>(
-  myFunc: (captchaToken: string) => Promise<RequestResult<T>>
-): Promise<RequestResult<T>> {
-  const token = await window.grecaptcha.execute(googleRecaptchaSiteKey, {
-    action: "submit",
-  });
-  if (!token) {
-    throw new Error("reCAPTCHA token is empty");
-  }
-  return await myFunc(token);
-}
-
-async function startGeeTest<T>(
-  myFunc: (captchaToken: string) => Promise<RequestResult<T>>
-): Promise<RequestResult<T>> {
-  // 创建一个新的 Promise 来控制整个 Geetest 流程
-  return new Promise<RequestResult<T>>((resolve, reject) => {
-    let myFuncResult: RequestResult<T> | null = null; // 存储 myFunc 的执行结果
-
-    // 初始化 Geetest 验证组件
-    window.initGeetest4(captchaConfig.config, (obj: CaptchaObj) => {
-      window.captchaObj = obj;
-      obj.appendTo("#captcha");
-
-      // 当验证码组件准备就绪时显示验证码
-      obj.onReady(() => {
-        window.captchaObj.showCaptcha();
-      });
-
-      // 当用户完成验证时处理结果
-      obj.onSuccess(async () => {
-        const result = window.captchaObj.getValidate();
-        if (result) {
-          const geeTestResultStr = JSON.stringify(result); // 将验证结果序列化为字符串
-          try {
-            myFuncResult = await myFunc(geeTestResultStr); // 调用传入的异步函数，并等待其执行完毕
-            resolve(myFuncResult); // 执行成功时，直接 resolve
-          } catch (e) {
-            reject(new Error(`执行 myFunc 时出错: ${(e as Error).message}`)); // 异常时 reject 错误信息
-          } finally {
-            obj.destroy(); // 无论如何，最终都销毁验证码组件
-          }
-        } else {
-          setMsg("请完成验证", Type.Warning);
-          reject(new Error("请完成验证")); // 验证结果为空时，直接 reject
-        }
-      });
-
-      // 监听验证失败
-      obj.onError(() => {
-        reject(new Error("验证码加载失败，请稍后再试")); // 验证码加载失败时，直接 reject 错误信息
-      });
-    });
-  });
-}
-
-export const arknightsGameCaptcha = (account: string, data: ApiGameCaptchaInfo): Promise<void> => {
-  return new Promise<void>((resolve, reject) => {
-    // 判断是 GT3 还是 GT4
-    const isGT3 = data.gt && data.challenge;
-    const isGT4 = data.geetestId;
-
-    if (!isGT3 && !isGT4) {
-      const errorMsg = "验证码参数无效：缺少必要字段";
-      console.error("[Captcha] Invalid captcha data:", data);
-      setMsg(errorMsg, Type.Warning);
-      reject(new Error(errorMsg));
-      return;
-    }
-
-    setMsg("加载验证码中...", Type.Info);
-
-    if (isGT4) {
-      // Geetest v4 验证流程
-      handleGT4Captcha(account, data, resolve, reject);
-    } else if (isGT3) {
-      // Geetest v3 验证流程
-      handleGT3Captcha(account, data, resolve, reject);
-    }
-  });
-};
+export const arknightsGameCaptcha = (account: string, data: ApiGameCaptchaInfo, options: CaptchaOptions = {}): Promise<void> =>
+  captchaDisplayLease.run(() => new Promise<void>((resolve, reject) => {
+    if (data.geetestId) handleGT4Captcha(account, data, resolve, reject, options);
+    else if (data.gt && data.challenge) handleGT3Captcha(account, data, resolve, reject, options);
+    else reject(new CaptchaError("error", "挑战资料不完整，请重新读取状态"));
+  }), options.signal);

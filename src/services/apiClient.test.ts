@@ -27,6 +27,14 @@ const hostServer = {
 };
 
 describe("APIClient Arkhost game mutations", () => {
+  test("验证码请求和列表透传本次请求期限与取消信号", async () => {
+    const client = new APIClient(hostServer);
+    const options = { signal: new AbortController().signal, timeout: 30000 };
+    await client.fetchGameList(options);
+    expect(mockGet).toHaveBeenCalledWith("/game", options);
+    await client.doUpdateCaptcha("A", { challenge: "c" }, options);
+    expect(mockPost).toHaveBeenCalledWith("/game/config/A", { captcha_info: { challenge: "c" } }, options);
+  });
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -180,6 +188,6 @@ describe("APIClient Arkhost game mutations", () => {
     await new APIClient(hostServer).doUpdateCaptcha("G123", captcha);
     expect(mockPost).toHaveBeenCalledWith("/game/config/G123", {
       captcha_info: captcha,
-    });
+    }, undefined);
   });
 });
