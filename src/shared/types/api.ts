@@ -116,6 +116,7 @@ export interface ApiGameConfig {
   accelerate_slot?: AccelerateSlot;
   battle_tasks?: BattleTask[];
   enable_building_arrange?: boolean;
+  enable_workshop?: boolean;
   is_auto_battle?: boolean;
   keeping_ap?: number;
   recruit_ignore_robot?: boolean;
@@ -260,12 +261,12 @@ export interface ApiGameGameConfig {
   battle_tasks: BattleTask[];
   current_map: string;
   enable_building_arrange: boolean;
+  enable_workshop: boolean;
   is_auto_battle: boolean;
   is_stopped: boolean;
   keeping_ap: number;
   recruit_ignore_robot: boolean;
   recruit_reserve: number;
-  allow_login_assist: boolean;
   operator_development_tasks?: OperatorDevelopmentTask[];
 }
 

@@ -73,6 +73,7 @@ describe("APIClient Arkhost game mutations", () => {
       recruit_reserve: 0,
       recruit_ignore_robot: false,
       enable_building_arrange: false,
+      enable_workshop: false,
       is_auto_battle: false,
     };
 
@@ -81,6 +82,16 @@ describe("APIClient Arkhost game mutations", () => {
     );
 
     expect(mockPost).toHaveBeenCalledWith("/game/config/G123456", { config });
+  });
+
+  test("加工站开关显式透传 false", async () => {
+    const client = new APIClient(hostServer);
+
+    await client.doUpdateGameConf("G123", { enable_workshop: false });
+
+    expect(mockPost).toHaveBeenCalledWith("/game/config/G123", {
+      config: { enable_workshop: false },
+    });
   });
 
   test("登录仅提交任务，暂停使用无 Body 的独立接口", async () => {
