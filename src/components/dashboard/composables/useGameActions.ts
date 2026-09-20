@@ -127,7 +127,7 @@ export function useGameActions(options: UseGameActionsOptions) {
       try {
         const loginResp = await captcha.loginGame(account);
         if (loginResp.code === API_RESPONSE_CODE.SUCCESS) {
-          await gamesStore.queryGameList();
+          await gamesStore.retryCaptcha(account);
           setMsg("登录任务已提交", Type.Success);
           showDialog(GeeTestNotify);
         } else {

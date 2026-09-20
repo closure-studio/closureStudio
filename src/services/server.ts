@@ -7,8 +7,7 @@ import type { RequestResult } from "@/shared/types/service";
 const version = import.meta.env.VITE_APP_VERSION;
 
 type RequestMethod = "get" | "post" | "put" | "delete" | "patch";
-export interface RequestOptions { signal?: AbortSignal; timeout?: number }
-interface RequestParam extends RequestOptions {
+interface RequestParam {
   url: string;
   method: RequestMethod;
   data?: unknown;
@@ -75,16 +74,13 @@ export class AxiosServer {
     }
     const method = param.method || "get";
 
-    const options: RequestOptions = {};
-    if (param.signal) options.signal = param.signal;
-    if (param.timeout !== undefined) options.timeout = param.timeout;
     let res: unknown;
     if (method === "get") {
-      res = await this.service.get(url, options);
+      res = await this.service.get(url);
     } else if (method === "delete") {
-      res = await this.service.delete(url, { data: param.data, ...options });
+      res = await this.service.delete(url, { data: param.data });
     } else {
-      res = await this.service[method](url, param.data, options);
+      res = await this.service[method](url, param.data);
     }
 
     return res as RequestResult<T>;
@@ -93,14 +89,14 @@ export class AxiosServer {
   put<T>(url: string, data?: unknown) {
     return this.asyncRequest<T>({ url, method: "put", data });
   }
-  post<T>(url: string, data?: unknown, options?: RequestOptions) {
-    return this.asyncRequest<T>({ url, method: "post", data, ...options });
+  post<T>(url: string, data?: unknown) {
+    return this.asyncRequest<T>({ url, method: "post", data });
   }
   patch<T>(url: string, data?: unknown) {
     return this.asyncRequest<T>({ url, method: "patch", data });
   }
-  get<T>(url: string, options?: RequestOptions) {
-    return this.asyncRequest<T>({ url, method: "get", ...options });
+  get<T>(url: string) {
+    return this.asyncRequest<T>({ url, method: "get" });
   }
   async load<T>(fileName: string): Promise<T> {
     const url = `/data/${fileName}.json?v=${version}`;

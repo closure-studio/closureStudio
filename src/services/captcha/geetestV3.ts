@@ -24,7 +24,7 @@ export function handleGT3Captcha(
     async (value) => {
       const response = await apiClient.doUpdateCaptcha(account, {
         challenge: data.challenge!, ...validationFields(value, gt3Fields),
-      }, { signal: options.signal, timeout: 30_000 }).catch(() => {
+      }).catch(() => {
         throw new CaptchaError("error", "提交未能确认，服务器结果未知，请重新读取状态");
       });
       if (response.code !== API_RESPONSE_CODE.SUCCESS) throw new Error("验证码提交未被接受，请重新读取状态后重试");

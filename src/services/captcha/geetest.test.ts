@@ -64,17 +64,21 @@ describe.each([handleGT3Captcha, handleGT4Captcha])("验证码生命周期 %p", 
     expect(apiClient.doUpdateCaptcha).toHaveBeenCalledTimes(1);
     expect(resolve).toHaveBeenCalledTimes(1); expect(reject).not.toHaveBeenCalled();
   });
-  test("SDK未初始化也会到期，迟到对象只销毁", async () => {
+  test("初始化超过旧15秒期限仍接受SDK，原生错误才清理", async () => {
     init.mockImplementation(() => {}); const { reject } = begin();
     jest.advanceTimersByTime(15_001); await flush();
-    expect(reject).toHaveBeenCalledTimes(1);
-    init.mock.calls[0][1](obj); expect(obj.destroy).toHaveBeenCalledTimes(1);
-    expect(obj.verify).not.toHaveBeenCalled(); expect(obj.showCaptcha).not.toHaveBeenCalled();
+    expect(reject).not.toHaveBeenCalled();
+    init.mock.calls[0][1](obj); events.ready();
+    expect(handler === handleGT3Captcha ? obj.verify : obj.showCaptcha).toHaveBeenCalledTimes(1);
+    events.error(); await flush(); expect(reject).toHaveBeenCalledTimes(1);
+    expect(obj.destroy).toHaveBeenCalledTimes(1);
   });
-  test("人工等待到期并释放定时器", async () => {
+  test("人工等待超过旧5分钟期限不终止，原生关闭才清理", async () => {
     const { reject } = begin(); events.ready(); jest.advanceTimersByTime(300_001); await flush();
-    expect(reject).toHaveBeenCalledTimes(1); expect(obj.destroy).toHaveBeenCalledTimes(1);
+    expect(reject).not.toHaveBeenCalled(); expect(obj.destroy).not.toHaveBeenCalled();
     expect(jest.getTimerCount()).toBe(0);
+    events.close(); await flush(); expect(reject).toHaveBeenCalledTimes(1);
+    expect(obj.destroy).toHaveBeenCalledTimes(1);
   });
   test("SDK缺失不提交", async () => {
     Reflect.deleteProperty(window, "initGeetest"); Reflect.deleteProperty(window, "initGeetest4");
