@@ -32,7 +32,7 @@ import { GAME_PLATFORM_OPTIONS } from "@/constants/game";
  * 使用方法:
  * <ServerSelector v-model="form.platform" />
  *
- * @param modelValue - 当前选中的平台 (0=iOS, 1=安卓, 2=B站服)
+ * @param modelValue - 当前选中的平台 (1=官服, 2=B站服)
  * @emits update:modelValue - 平台选择变更事件
  */
 

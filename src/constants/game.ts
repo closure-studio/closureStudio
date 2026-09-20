@@ -1,7 +1,6 @@
 import type { AccelerateSlot, ApiGameGameConfig } from "@/shared/types/api";
 
 export const GAME_PLATFORM_CODE = {
-  IOS: 0,
   OFFICIAL: 1,
   BILIBILI: 2,
 } as const;
@@ -13,13 +12,11 @@ export const GAME_ACCOUNT_PREFIX = {
 
 export const GAME_PLATFORM_OPTIONS = [
   { value: GAME_PLATFORM_CODE.BILIBILI, label: "BiliBili服" },
-  { value: GAME_PLATFORM_CODE.OFFICIAL, label: "官服(安卓)" },
-  { value: GAME_PLATFORM_CODE.IOS, label: "官服(iOS)" },
+  { value: GAME_PLATFORM_CODE.OFFICIAL, label: "官服（安卓 / IOS）" },
 ] as const;
 
 export const GAME_PLATFORM_LABEL = {
-  [GAME_PLATFORM_CODE.IOS]: "iOS",
-  [GAME_PLATFORM_CODE.OFFICIAL]: "安卓",
+  [GAME_PLATFORM_CODE.OFFICIAL]: "官服",
   [GAME_PLATFORM_CODE.BILIBILI]: "B服",
 } as const;
 
