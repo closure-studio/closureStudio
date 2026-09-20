@@ -1,7 +1,6 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import type {
-  ApiGameCaptchaInfo,
   ApiGameChars,
   ApiGameGame,
   ApiGameLogEvent,
@@ -10,6 +9,8 @@ import type {
 } from "@/shared/types/api";
 import apiClient from "@/services/apiClient";
 import { arknightsGameCaptcha } from "@/services/captcha";
+import { createCaptchaCoordinator } from "@/services/captcha/coordinator";
+import { CaptchaError } from "@/services/captcha/sdkLifecycle";
 import { setMsg } from "@/utils/toast";
 import { API_RESPONSE_CODE } from "@/constants/api";
 import { MAX_GAME_SLOTS } from "@/constants/game";
@@ -35,7 +36,16 @@ export const useGamesStore = defineStore("games", () => {
   const config = ref<ApiSystemConfig>(initialConfig());
   const gameList = ref<ApiGameGame[]>([]);
   const globalSSR = ref<ApiGameSSR[]>([]);
-  const captchaCache = ref<Record<string, ApiGameCaptchaInfo>>({});
+  const coordinator = createCaptchaCoordinator(async (account, info, options) => {
+    try {
+      await arknightsGameCaptcha(account, info, options);
+    } catch (error) {
+      if (!options.signal?.aborted && !(error instanceof CaptchaError && error.kind === "cancelled")) {
+        setMsg(error instanceof Error ? error.message : "验证失败，请重新登录后重试", Type.Warning);
+      }
+      throw error;
+    }
+  });
   const charsCache = ref<Record<string, ApiGameChars>>({});
   const isGameListIniting = ref(false);
   const isGameListCompletedInit = ref(false);
@@ -67,22 +77,10 @@ export const useGamesStore = defineStore("games", () => {
   };
 
   const updateCaptcha = (data: ApiGameGame[]) => {
-    if (!data || data.length === 0) return;
-    data.forEach((game) => {
-      if (!game || !game.status) return;
-      if (game.captcha_info.challenge || game.captcha_info.geetestId) {
-        if (captchaCache.value[game.status.account]) {
-          const cached = captchaCache.value[game.status.account];
-          if (cached.created === game.captcha_info.created) {
-            return;
-          }
-        }
-        captchaCache.value[game.status.account] = game.captcha_info;
-        arknightsGameCaptcha(game.status.account, game.captcha_info).catch(() => {
-          delete captchaCache.value[game.status.account];
-        });
-      }
-    });
+    coordinator.sync((data ?? []).filter((game) => game?.status).map((game) => ({
+      account: game.status.account,
+      info: game.captcha_info ?? { created: 0, captcha_type: "" },
+    })));
   };
 
   const queryGameList = async () => {
@@ -102,6 +100,8 @@ export const useGamesStore = defineStore("games", () => {
       isLoadingGameList.value = false;
     }
   };
+
+  const retryCaptcha = (account: string) => coordinator.retry(account, queryGameList);
 
   const startGameListPolling = () => {
     const poll = async () => {
@@ -260,7 +260,7 @@ export const useGamesStore = defineStore("games", () => {
     config.value = initialConfig();
     gameList.value = [];
     globalSSR.value = [];
-    captchaCache.value = {};
+    coordinator.reset();
     charsCache.value = {};
     isGameListIniting.value = false;
     isGameListCompletedInit.value = false;
@@ -274,7 +274,7 @@ export const useGamesStore = defineStore("games", () => {
     config,
     gameList,
     globalSSR,
-    captchaCache,
+    retryCaptcha,
     charsCache,
     isGameListIniting,
     isLoadingGameList,
