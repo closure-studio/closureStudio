@@ -2,15 +2,12 @@
 name: Deploy Version API
 
 on:
-  pull_request:
+  push:
     branches:
       - master
-    types:
-      - closed
 
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -46,7 +43,6 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
   server_deploy:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: SSH and Deploy
@@ -65,10 +61,10 @@ jobs:
           NOTIFY_API_URL: ${{ secrets.NOTIFY_API_URL }}
           NOTIFY_TOKEN: ${{ secrets.NOTIFY_TOKEN }}
           NOTIFY_UID: ${{ secrets.NOTIFY_UID }}
-          PR_BODY: ${{ github.event.pull_request.body }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           hash="${GITHUB_SHA:0:7}"
-          msg="#${hash} - closureStudio 构建成功"$'\n'"「${PR_BODY}」"
+          msg="#${hash} - closureStudio 构建成功"$'\n'"「${COMMIT_MESSAGE}」"
           payload=$(jq -n \
             --arg token "$NOTIFY_TOKEN" \
             --arg uid "$NOTIFY_UID" \
