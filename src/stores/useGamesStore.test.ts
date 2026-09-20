@@ -63,12 +63,12 @@ function createGame(account: string): ApiGameGame {
       battle_tasks: [],
       current_map: "",
       enable_building_arrange: false,
+      enable_workshop: true,
       is_auto_battle: false,
       is_stopped: false,
       keeping_ap: 0,
       recruit_ignore_robot: false,
       recruit_reserve: 0,
-      allow_login_assist: false,
     },
   };
 }

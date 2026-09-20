@@ -45,10 +45,9 @@
       </label>
 
       <label class="label cursor-pointer mb-4">
-        <span>协助登录</span>
+        <span>自动加工</span>
         <input
-          :disabled="true"
-          v-model="config.allow_login_assist"
+          v-model="config.enable_workshop"
           type="checkbox"
           class="toggle toggle-sm"
         />
@@ -170,6 +169,7 @@ const onSubmit = async () => {
     recruit_reserve: config.value.recruit_reserve,
     recruit_ignore_robot: config.value.recruit_ignore_robot,
     enable_building_arrange: config.value.enable_building_arrange,
+    enable_workshop: config.value.enable_workshop,
     is_auto_battle: config.value.is_auto_battle,
     accelerate_slot: config.value.accelerate_slot,
   };
