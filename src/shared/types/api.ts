@@ -230,7 +230,7 @@ export interface ApiGameGameStatus {
   password: string | null;
   platform: number;
   uuid: string;
-  code: number; // -1=登陆失败 0=未开启/未初始化 1=登录中 2=运行中 3=游戏错误
+  code: number; // -1=登陆失败 0=未开启/未初始化 1=登录中 2=运行中 3=游戏错误 8=已暂停
   text: string;
   nick_name: string;
   level: number;
@@ -263,7 +263,6 @@ export interface ApiGameGameConfig {
   enable_building_arrange: boolean;
   enable_workshop: boolean;
   is_auto_battle: boolean;
-  is_stopped: boolean;
   keeping_ap: number;
   recruit_ignore_robot: boolean;
   recruit_reserve: number;

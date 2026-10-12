@@ -23,7 +23,7 @@ const game = (challenge = "one"): ApiGameGame => ({
     avatar: { type: "", id: "" }, created_at: 0, is_verify: false, ap: 0 },
   captcha_info: { created: 1, captcha_type: "", gt: "gt", challenge },
   game_config: { account: "A", accelerate_slot: "slot_14", battle_tasks: [], current_map: "", enable_building_arrange: false,
-    is_auto_battle: false, is_stopped: false, keeping_ap: 0, recruit_ignore_robot: false, recruit_reserve: 0, allow_login_assist: false },
+    is_auto_battle: false, keeping_ap: 0, recruit_ignore_robot: false, recruit_reserve: 0, allow_login_assist: false },
 });
 const ok = { code: 1, message: "ok", data: undefined };
 let store: ReturnType<typeof useGamesStore>;

@@ -79,7 +79,6 @@ Content-Type: application/json
 | `recruit_ignore_robot` | boolean | 招募是否忽略机器人 |
 | `enable_building_arrange` | boolean | 是否启用基建排班 |
 | `accelerate_slot_cn` | string | 加速位中文名，服务端据此更新加速位 |
-| `is_stopped` | boolean | 是否停止游戏 |
 
 ### 3.3 battle_tasks 前端约定
 
@@ -169,5 +168,5 @@ Content-Type: application/json
 1. 保持现有托管配置和地图配置 UI 不变。
 2. UI 添加的地图使用 `LOOP` 模式，UI 也只展示 `LOOP` 地图。
 3. `ApiGameConfig` 表示内层配置 patch；HTTP adapter 负责包装为 `{ "config": patch }`，调用方不需要了解传输层结构。
-4. 暂停游戏同样通过 `config.is_stopped = true` 提交。
+4. 暂停游戏通过 `POST /game/pause/:account` 提交；暂停状态由游戏状态码 `status.code = 8` 表示。
 5. 保存配置后，通过 `GET /game/:account` 返回的 `data.config` 刷新当前配置。
