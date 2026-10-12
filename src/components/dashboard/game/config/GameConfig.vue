@@ -54,17 +54,14 @@
       </label>
     </div>
     <div class="divider h-2 mt-2">掉线自动登录</div>
-    <div class="flex items-center justify-between gap-4">
-      <span class="text-sm">{{ autoLoginStatusText }}</span>
-      <button
-        class="btn btn-outline btn-info btn-sm"
-        :disabled="isRenewing || !canRenew"
-        @click="onRenewAutoLogin"
-      >
-        <span v-if="isRenewing" class="loading loading-bars loading-xs"></span>
-        {{ renewButtonText }}
-      </button>
-    </div>
+    <button
+      class="btn btn-outline btn-info btn-sm btn-block"
+      :disabled="isRenewing || !canRenew"
+      @click="onRenewAutoLogin"
+    >
+      <span v-if="isRenewing" class="loading loading-bars loading-xs"></span>
+      {{ renewButtonText }}
+    </button>
     <div
       v-if="isPaused"
       role="alert"
@@ -116,10 +113,8 @@ import { DEFAULT_GAME_CONFIG, GAME_STATUS_CODE } from "@/constants/game";
 import { formatTime } from "@/utils/format";
 import {
   AUTO_LOGIN_EXTEND_DAYS,
-  formatDuration,
+  canRenewAutoLogin,
   getNextAutoLoginUntil,
-  getRemainingSeconds,
-  getRenewWaitSeconds,
   isAutoLoginEnabled,
   nowSeconds,
 } from "@/utils/autoLogin";
@@ -192,21 +187,14 @@ const autoLoginUntilText = computed(() => {
   const until = config.value.auto_login_until;
   return isAutoLoginEnabled(until, now.value) ? formatTime(until, "yyyy-MM-dd HH:mm") : "";
 });
-const autoLoginStatusText = computed(() =>
-  autoLoginEnabled.value
-    ? `剩余 ${formatDuration(getRemainingSeconds(config.value.auto_login_until, now.value))}`
-    : "未开启"
-);
-const canRenew = computed(
-  () => getRenewWaitSeconds(config.value.auto_login_until, now.value) === 0
-);
+const canRenew = computed(() => canRenewAutoLogin(config.value.auto_login_until, now.value));
 const isPaused = computed(
   () => gamesStore.findGame(props.account)?.status.code === GAME_STATUS_CODE.PAUSED
 );
 const renewButtonText = computed(() => {
   if (!autoLoginEnabled.value) return `开启 ${AUTO_LOGIN_EXTEND_DAYS} 天`;
   if (!canRenew.value) return `有效期至 ${autoLoginUntilText.value}`;
-  return `续期 ${AUTO_LOGIN_EXTEND_DAYS} 天`;
+  return `续期 ${AUTO_LOGIN_EXTEND_DAYS} 天（有效期至 ${autoLoginUntilText.value}）`;
 });
 
 const onRenewAutoLogin = async () => {
