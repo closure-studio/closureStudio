@@ -53,6 +53,25 @@
         />
       </label>
     </div>
+    <div class="divider h-2 mt-2">掉线自动登录</div>
+    <div class="flex items-center justify-between gap-4">
+      <span class="text-sm">{{ autoLoginStatusText }}</span>
+      <button
+        class="btn btn-outline btn-info btn-sm"
+        :disabled="isRenewing || !canRenew"
+        @click="onRenewAutoLogin"
+      >
+        <span v-if="isRenewing" class="loading loading-bars loading-xs"></span>
+        {{ renewButtonText }}
+      </button>
+    </div>
+    <div
+      v-if="isPaused"
+      role="alert"
+      class="rounded border-s-4 border-warning bg-warning/10 p-3 mt-2 text-sm"
+    >
+      账号已暂停，自动登录暂不生效，请先手动登录一次
+    </div>
     <div class="divider h-2 mt-2">无人机加速</div>
     <BaseDesign
       :slot="config.accelerate_slot"
@@ -93,7 +112,17 @@
 
 <script lang="ts" setup>
 import { computed, ref, watch } from "vue";
-import { DEFAULT_GAME_CONFIG } from "@/constants/game";
+import { DEFAULT_GAME_CONFIG, GAME_STATUS_CODE } from "@/constants/game";
+import { formatTime } from "@/utils/format";
+import {
+  AUTO_LOGIN_EXTEND_DAYS,
+  formatDuration,
+  getNextAutoLoginUntil,
+  getRemainingSeconds,
+  getRenewWaitSeconds,
+  isAutoLoginEnabled,
+  nowSeconds,
+} from "@/utils/autoLogin";
 import type { ApiGameConfig, ApiGameGameConfig } from "@/shared/types/api";
 import { assets } from "@/services/assets";
 import apiClient from "@/services/apiClient";
@@ -151,6 +180,56 @@ const addStageToConfig = (stageCode: string) => {
 
 const removeBattleMap = (battleMap: string) => {
   config.value.battle_tasks = removeLoopBattleTask(config.value.battle_tasks, battleMap);
+};
+
+// --- 掉线自动登录（auto_login_until，Unix 秒）---
+const now = ref(nowSeconds());
+const isRenewing = ref(false);
+const autoLoginEnabled = computed(() =>
+  isAutoLoginEnabled(config.value.auto_login_until, now.value)
+);
+const autoLoginUntilText = computed(() => {
+  const until = config.value.auto_login_until;
+  return isAutoLoginEnabled(until, now.value) ? formatTime(until, "yyyy-MM-dd HH:mm") : "";
+});
+const autoLoginStatusText = computed(() =>
+  autoLoginEnabled.value
+    ? `剩余 ${formatDuration(getRemainingSeconds(config.value.auto_login_until, now.value))}`
+    : "未开启"
+);
+const canRenew = computed(
+  () => getRenewWaitSeconds(config.value.auto_login_until, now.value) === 0
+);
+const isPaused = computed(
+  () => gamesStore.findGame(props.account)?.status.code === GAME_STATUS_CODE.PAUSED
+);
+const renewButtonText = computed(() => {
+  if (!autoLoginEnabled.value) return `开启 ${AUTO_LOGIN_EXTEND_DAYS} 天`;
+  if (!canRenew.value) return `有效期至 ${autoLoginUntilText.value}`;
+  return `续期 ${AUTO_LOGIN_EXTEND_DAYS} 天`;
+});
+
+const onRenewAutoLogin = async () => {
+  now.value = nowSeconds();
+  if (isRenewing.value || !canRenew.value) return;
+  const wasEnabled = autoLoginEnabled.value;
+  const action = wasEnabled ? "续期" : "开启";
+  const until = getNextAutoLoginUntil(now.value);
+  isRenewing.value = true;
+  try {
+    const result = await apiClient.doUpdateGameConf(props.account, { auto_login_until: until });
+    if (result.code === API_RESPONSE_CODE.SUCCESS) {
+      config.value.auto_login_until = until;
+      const untilText = formatTime(until, "yyyy-MM-dd HH:mm");
+      setMsg(`自动登录已${action}，有效期至 ${untilText}`, Type.Success);
+    } else {
+      setMsg(result.message || `${action}失败，请稍后再试`, Type.Error);
+    }
+  } catch (error) {
+    setMsg(String(error), Type.Error);
+  } finally {
+    isRenewing.value = false;
+  }
 };
 
 const onSubmit = async () => {
