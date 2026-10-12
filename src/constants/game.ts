@@ -42,7 +42,6 @@ export const DEFAULT_GAME_CONFIG: ApiGameGameConfig = {
   enable_building_arrange: false,
   enable_workshop: true,
   is_auto_battle: false,
-  is_stopped: false,
   keeping_ap: 0,
   recruit_ignore_robot: false,
   recruit_reserve: 0,
@@ -72,6 +71,7 @@ export const GAME_STATUS_CODE = {
   LOGGING_IN: 1,
   RUNNING: 2,
   GAME_ERROR: 3,
+  PAUSED: 8,
 } as const;
 
 export const GAME_LOG_QUERYABLE_STATUS_CODES: readonly number[] = [

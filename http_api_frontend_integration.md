@@ -38,7 +38,7 @@ POST /game/pause/:account
 Authorization: Bearer <token>
 ```
 
-`POST /game/config/:account` 中的 `is_stopped` 暂时兼容，但已废弃；登录会把停止状态恢复为 `false`。
+`is_stopped` 字段已移除；暂停状态由游戏状态码 `status.code = 8` 表示，重新登录会恢复运行。
 
 ## 游戏配置
 
