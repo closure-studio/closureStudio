@@ -37,6 +37,7 @@ export const ACCELERATE_SLOTS = [
 export const DEFAULT_GAME_CONFIG: ApiGameGameConfig = {
   account: "",
   accelerate_slot: "slot_14",
+  auto_login_until: null,
   battle_tasks: [],
   current_map: "",
   enable_building_arrange: false,

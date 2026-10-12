@@ -114,6 +114,8 @@ export interface ApiUserUser {
 
 export interface ApiGameConfig {
   accelerate_slot?: AccelerateSlot;
+  /** 自动登录恢复截止时间（Unix 秒）。传 0 关闭；不传则保留原值。 */
+  auto_login_until?: number;
   battle_tasks?: BattleTask[];
   enable_building_arrange?: boolean;
   enable_workshop?: boolean;
@@ -258,6 +260,8 @@ export interface ApiGameCaptchaInfo {
 export interface ApiGameGameConfig {
   account: string;
   accelerate_slot: AccelerateSlot;
+  /** 自动登录恢复截止时间（Unix 秒），未开启为 null。 */
+  auto_login_until: number | null;
   battle_tasks: BattleTask[];
   current_map: string;
   enable_building_arrange: boolean;

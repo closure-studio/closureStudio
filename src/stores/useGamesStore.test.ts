@@ -60,6 +60,7 @@ function createGame(account: string): ApiGameGame {
     game_config: {
       account,
       accelerate_slot: "slot_14",
+      auto_login_until: null,
       battle_tasks: [],
       current_map: "",
       enable_building_arrange: false,
