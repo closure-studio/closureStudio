@@ -301,11 +301,6 @@ export interface ApiGameChar {
   }[];
 }
 
-export interface ApiGameChars {
-  chars: ApiGameChar[];
-  total: number;
-}
-
 export interface ApiGameLogEvent extends MessageEvent {
   name: string;
   content: string;

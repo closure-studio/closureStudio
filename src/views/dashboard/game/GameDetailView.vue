@@ -66,7 +66,7 @@
             :key="account"
             :account="account"
             :chars="sixStarChars"
-            :is-loading="isLoadingChars"
+            :is-loading="!details && (isLoadingGameDetails || gamesStore.isGameListIniting)"
             :development-tasks="operatorDevelopmentTasks"
             @development-change="refreshGameDetails"
           />
@@ -105,7 +105,6 @@ import GameDetailHeader from "@/components/dashboard/game/GameDetailHeader.vue";
 import GameSelector from "@/components/game/GameSelector.vue";
 import ItemsPanel from "@/components/dashboard/game/ItemsPanel.vue";
 import LogsPanel from "@/components/dashboard/game/LogsPanel.vue";
-import { useGameChars } from "@/components/dashboard/game/composables/useGameChars";
 import { GAME_LOG_QUERYABLE_STATUS_CODES } from "@/constants/game";
 import { assets } from "@/services/assets";
 import { Type } from "@/constants/ui";
@@ -164,12 +163,11 @@ const gameLogs = ref<ApiGameLogs>({
 });
 const isLoadingGameLogs = ref(false);
 
-// 使用 composable 获取干员数据
-const { chars, isLoading: isLoadingChars } = useGameChars(account);
-
-// 仅展示 6 星（rarity === 5）干员
+// 干员一览以游戏详情的 troop.chars 为唯一数据源，仅展示 6 星（rarity === 5）
 const sixStarChars = computed(() =>
-  chars.value.filter((c) => assets.value.getCharRarity(c.charId) === 5)
+  Object.values(details.value?.troop?.chars ?? {}).filter(
+    (c) => assets.value.getCharRarity(c.charId) === 5,
+  ),
 );
 
 const operatorDevelopmentTasks = computed(
