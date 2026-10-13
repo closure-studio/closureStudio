@@ -60,16 +60,15 @@
         >
       </div>
     </div>
-    <div class="flex flex-col slide-in-bottom delay-75 lg:ml-6 flex-auto">
-      <div class="lg:space-x-2 hidden lg:flex">
+    <div class="mt-4 flex min-w-0 flex-col slide-in-bottom delay-75 lg:ml-6 lg:mt-0 flex-auto">
+      <div class="flex flex-col gap-2 lg:flex-row">
         <div
-          class="mockup-code bg-base-300 text-base-content shadow-lg rounded-lg sm:w-full lg:w-1/2"
+          class="mockup-code min-w-0 bg-base-300 text-base-content shadow-lg rounded-lg w-full lg:w-1/2"
         >
-          <pre class="font-bold text-center mb-2">你站公告</pre>
-          <pre data-prefix=">"><code>无所事事的公告</code></pre>
+          <PublicAnnouncements />
         </div>
         <div
-          class="mockup-code bg-base-300 text-base-content shadow-lg rounded-lg sm:w-full lg:w-1/2"
+          class="mockup-code hidden bg-base-300 text-base-content shadow-lg rounded-lg lg:block lg:w-1/2"
         >
           <APIStatusBoard />
         </div>
@@ -116,6 +115,7 @@ import { isNight } from "@/utils/misc";
 import { API_RESPONSE_CODE } from "@/constants/api";
 import { getGameAvatarUrl, getGameAvatarUrlCandidates } from "@/utils/resource";
 import APIStatusBoard from "@/components/system/api-status/APIStatusBoard.vue";
+import PublicAnnouncements from "@/components/dashboard/PublicAnnouncements.vue";
 import apiClient from "@/services/apiClient";
 const version = import.meta.env.VITE_APP_VERSION;
 const closure = ref(false); // Closure 图标动画
