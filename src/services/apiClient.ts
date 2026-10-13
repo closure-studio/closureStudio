@@ -6,7 +6,6 @@ import type {
   ApiGameGame,
   ApiGameDetail,
   ApiGameConfig,
-  ApiGameChars,
   ApiSystemConfig,
   ApiSystemHall,
   ApiSystemConfigUpdate,
@@ -37,15 +36,6 @@ export class APIClient extends AxiosServer {
   }
   fetchGameDetails(account: string) {
     return this.get<ApiGameDetail>(`/game/${encodeURIComponent(account)}`);
-  }
-
-  async fetchGameChars(account: string) {
-    const response = await this.fetchGameDetails(account);
-    const chars = Object.values(response.data?.troop?.chars ?? {});
-    return {
-      ...response,
-      data: { chars, total: chars.length } satisfies ApiGameChars,
-    };
   }
 
   fetchSystemConfig() {

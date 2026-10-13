@@ -2,7 +2,6 @@ jest.mock("@/services/apiClient", () => ({
   __esModule: true,
   default: {
     fetchGameList: jest.fn(),
-    fetchGameChars: jest.fn(),
     doUpdateGameConf: jest.fn(),
     doGamePause: jest.fn(),
     getHostServer: jest.fn(),
@@ -85,16 +84,6 @@ describe("useGamesStore Arkhost capacity", () => {
     await expect(useGamesStore().gameSuspend("G123")).resolves.toEqual(response);
     expect(apiClient.doGamePause).toHaveBeenCalledWith("G123");
     expect(apiClient.doUpdateGameConf).not.toHaveBeenCalled();
-  });
-
-  test("干员业务失败不缓存伪造的空列表", async () => {
-    jest.mocked(apiClient.fetchGameChars).mockResolvedValue({
-      code: 0, data: { chars: [], total: 0 }, message: "forbidden",
-    });
-    const store = useGamesStore();
-    await expect(store.fetchChars("G123")).resolves.toBeNull();
-    expect(store.charsCache.G123).toBeUndefined();
-    expect(store.isLoadingChars).toBe(false);
   });
 
   test("uses Arkhost game count as occupied slots and keeps games above capacity", () => {

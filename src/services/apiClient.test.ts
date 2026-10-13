@@ -121,49 +121,6 @@ describe("APIClient Arkhost game mutations", () => {
     });
   });
 
-  test("干员来自详情中以实例 ID 为 key 的 troop.chars", async () => {
-    const char = {
-      charId: "char_103_angel",
-      level: 80,
-      evolvePhase: 2,
-      potentialRank: 1,
-      currentTmpl: "template",
-      skills: [{ skillId: "skill", unlock: true, specializeLevel: 3 }],
-    };
-    mockGet.mockResolvedValue({
-      code: 1,
-      data: { troop: { chars: { "42": char } } },
-      message: "ok",
-    });
-    const response = await new APIClient(hostServer).fetchGameChars(
-      "Guser/name",
-    );
-    expect(mockGet).toHaveBeenCalledWith("/game/Guser%2Fname");
-    expect(response).toEqual({
-      code: 1,
-      data: { chars: [char], total: 1 },
-      message: "ok",
-    });
-  });
-
-  test("无干员返回空列表，业务失败保留 code 和 message", async () => {
-    const client = new APIClient(hostServer);
-    mockGet.mockResolvedValue({
-      code: 1,
-      data: { troop: { chars: {} } },
-      message: "ok",
-    });
-    expect((await client.fetchGameChars("G123")).data).toEqual({
-      chars: [],
-      total: 0,
-    });
-    mockGet.mockResolvedValue({ code: 0, data: null, message: "forbidden" });
-    expect(await client.fetchGameChars("G123")).toMatchObject({
-      code: 0,
-      message: "forbidden",
-    });
-  });
-
   test("配置 patch 仅包含传入字段，空作战数组保持清空语义", async () => {
     const client = new APIClient(hostServer);
     await client.doUpdateGameConf("G123", { accelerate_slot: "slot_14" });
