@@ -19,6 +19,7 @@ import { systemConfigApi } from "@/services/systemConfigClient";
 import qqBotClient from "@/services/qqBotClient";
 import {
   API_QQBOT_SPECIAL_NOTIFY_STATUS,
+  type ApiSystemConfig,
   type ApiSystemConfigEditable,
 } from "@/shared/types/api";
 import {
@@ -37,6 +38,7 @@ const originalConfig: ApiSystemConfigEditable = {
   allowGameCreate: true,
   allowGameUpdate: true,
   allowGameDelete: true,
+  battleStartAP: 100,
 };
 
 describe("systemConfigAdmin", () => {
@@ -67,6 +69,53 @@ describe("systemConfigAdmin", () => {
     });
 
     await expect(loadApiSystemConfigEditable()).resolves.toEqual(originalConfig);
+  });
+
+  test("旧配置缺少 battleStartAP 时使用默认值 100", async () => {
+    const legacyConfig: ApiSystemConfig = {
+      ...originalConfig,
+      isUnderMaintenance: false,
+      isDebugMode: false,
+    };
+    delete legacyConfig.battleStartAP;
+    mockedSystemConfigApi.fetchSystemConfig.mockResolvedValue({
+      code: 1,
+      data: legacyConfig,
+      message: "ok",
+    });
+
+    await expect(loadApiSystemConfigEditable()).resolves.toEqual(originalConfig);
+  });
+
+  test.each([0, 50, 200])("读取已配置的 battleStartAP=%s，不覆盖为默认值", async (battleStartAP) => {
+    mockedSystemConfigApi.fetchSystemConfig.mockResolvedValue({
+      code: 1,
+      data: { ...originalConfig, battleStartAP, isUnderMaintenance: false, isDebugMode: false },
+      message: "ok",
+    });
+
+    await expect(loadApiSystemConfigEditable()).resolves.toMatchObject({ battleStartAP });
+  });
+
+  test("修改理智阈值时仅提交 battleStartAP，不触发公告通知", async () => {
+    mockedSystemConfigApi.updateSystemConfig.mockResolvedValue({
+      code: 1,
+      data: undefined,
+      message: "ok",
+    });
+
+    await expect(saveApiSystemConfigEditable({
+      userPermission: Permission.SuperAdmin,
+      originalConfig,
+      draftConfig: { ...originalConfig, battleStartAP: 0 },
+      customQQGroups: [],
+      shouldNotifyAnnouncement: true,
+    })).resolves.toMatchObject({
+      payload: { battleStartAP: 0 },
+      config: { battleStartAP: 0 },
+    });
+    expect(mockedSystemConfigApi.updateSystemConfig).toHaveBeenCalledWith({ battleStartAP: 0 });
+    expect(mockedQQBotClient.specialNotify).not.toHaveBeenCalled();
   });
 
   test("buildApiSystemConfigUpdate 只提交变化字段", () => {

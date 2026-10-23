@@ -15,6 +15,8 @@ export interface ApiSystemConfig {
   allowGameCreate: boolean;
   allowGameUpdate: boolean;
   allowGameDelete: boolean;
+  /** 旧版本配置可能缺少此字段，默认值为 100。 */
+  battleStartAP?: number;
   recaptchaScore?: number | null;
   captcha?: {
     autoPassV3: boolean;
@@ -35,7 +37,7 @@ export type ApiSystemConfigEditable = Pick<
   | "allowGameCreate"
   | "allowGameUpdate"
   | "allowGameDelete"
->;
+> & { battleStartAP: number };
 
 export type ApiSystemConfigUpdate = Partial<ApiSystemConfigEditable>;
 
