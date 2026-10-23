@@ -6,13 +6,17 @@ export const EDITABLE_SYSTEM_CONFIG_KEYS = [
   "allowGameCreate",
   "allowGameUpdate",
   "allowGameDelete",
+  "battleStartAP",
 ] as const satisfies readonly (keyof ApiSystemConfigEditable)[];
+
+export const DEFAULT_BATTLE_START_AP = 100;
 
 export const DEFAULT_QQ_GROUPS = ["1345795", "450555868"] as const;
 
 export const SYSTEM_CONFIG_MESSAGES = {
   LOAD_FAILED: "加载系统配置失败",
   UPDATE_FAILED: "更新系统配置失败",
+  INVALID_BATTLE_START_AP: "作战启动理智阈值必须为非负整数",
   NO_PERMISSION: "无权更新系统配置",
   NO_CHANGES: "配置未变更",
   PUBLISH_SUCCESS: "系统配置已发布",

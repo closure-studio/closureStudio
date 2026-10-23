@@ -41,6 +41,42 @@
         />
       </section>
 
+      <div class="divider mb-3 mt-0">自动作战</div>
+
+      <section class="space-y-3" aria-labelledby="battle-start-ap-label">
+        <div>
+          <label id="battle-start-ap-label" for="battle-start-ap" class="text-base font-bold">
+            作战启动理智阈值
+          </label>
+          <p id="battle-start-ap-help" class="text-xs font-medium text-base-content/60">
+            当前理智严格大于阈值时才启动，等于时不启动。默认值为 100。
+          </p>
+        </div>
+        <input
+          id="battle-start-ap"
+          v-model.number="draftConfig.battleStartAP"
+          type="number"
+          min="0"
+          step="1"
+          required
+          class="input input-bordered w-full border-base-300/55 bg-base-100 text-sm focus:border-info/60 md:max-w-xs"
+          :class="{ 'input-error': !isBattleStartAPValid }"
+          :disabled="isPublishing"
+          :aria-invalid="!isBattleStartAPValid"
+          aria-describedby="battle-start-ap-help battle-start-ap-feedback"
+        />
+        <p
+          id="battle-start-ap-feedback"
+          class="text-xs"
+          :class="isBattleStartAPValid ? 'text-base-content/60' : 'text-error'"
+          aria-live="polite"
+        >
+          {{ isBattleStartAPValid
+            ? `当前理智 > ${draftConfig.battleStartAP} 时可启动；发布后无需重启服务，不改变连刷次数上限和保留理智逻辑。`
+            : SYSTEM_CONFIG_MESSAGES.INVALID_BATTLE_START_AP }}
+        </p>
+      </section>
+
       <div class="divider mb-3 mt-0">QQ 群通知</div>
 
       <section class="space-y-3">
@@ -72,7 +108,7 @@
         </div>
       </section>
 
-      <button class="btn btn-info btn-block" :disabled="isPublishing" @click="handlePublish">
+      <button class="btn btn-info btn-block" :disabled="isPublishing || !isBattleStartAPValid" @click="handlePublish">
         <span v-if="isPublishing" class="loading loading-bars loading-sm"></span>
         发布
       </button>
@@ -101,6 +137,7 @@ import {
   loadApiSystemConfigEditable,
   saveApiSystemConfigEditable,
 } from "@/services/systemConfigAdmin";
+import { isValidBattleStartAP } from "@/services/systemConfigClient";
 import { SYSTEM_CONFIG_MESSAGES, SYSTEM_CONFIG_TEXT } from "@/constants/systemAdmin";
 import { setMsg } from "@/utils/toast";
 import { Type } from "@/constants/ui";
@@ -154,6 +191,8 @@ const isLoadingConfig = ref(false);
 const isPublishing = ref(false);
 const shouldNotifyAnnouncement = ref(false);
 
+const isBattleStartAPValid = computed(() => isValidBattleStartAP(draftConfig.value?.battleStartAP));
+
 const customQQGroups = computed(() => systemAdminStore.customQQGroups);
 
 const cloneConfig = (config: ApiSystemConfigEditable): ApiSystemConfigEditable => ({ ...config });
@@ -177,6 +216,10 @@ const loadConfig = async () => {
 
 const handlePublish = async () => {
   if (!originalConfig.value || !draftConfig.value || isPublishing.value) return;
+  if (!isBattleStartAPValid.value) {
+    setMsg(SYSTEM_CONFIG_MESSAGES.INVALID_BATTLE_START_AP, Type.Warning);
+    return;
+  }
 
   const payload = buildApiSystemConfigUpdate(originalConfig.value, draftConfig.value);
   if (Object.keys(payload).length === 0) {

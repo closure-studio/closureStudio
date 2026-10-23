@@ -9,6 +9,7 @@ import { canAccessSystemAdmin } from "@/utils/permission";
 import { mergeQQGroups } from "@/stores/useSystemAdminStore";
 import { systemConfigApi } from "@/services/systemConfigClient";
 import {
+  DEFAULT_BATTLE_START_AP,
   DEFAULT_QQ_GROUPS,
   EDITABLE_SYSTEM_CONFIG_KEYS,
   SYSTEM_CONFIG_MESSAGES,
@@ -28,6 +29,7 @@ export const pickApiSystemConfigEditable = (config: ApiSystemConfig): ApiSystemC
   allowGameCreate: config.allowGameCreate,
   allowGameUpdate: config.allowGameUpdate,
   allowGameDelete: config.allowGameDelete,
+  battleStartAP: config.battleStartAP ?? DEFAULT_BATTLE_START_AP,
 });
 
 export const buildApiSystemConfigUpdate = (

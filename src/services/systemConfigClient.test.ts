@@ -7,7 +7,8 @@ jest.mock("./apiClient", () => ({
 }));
 
 import apiClient from "./apiClient";
-import { systemConfigApi } from "./systemConfigClient";
+import { isValidBattleStartAP, systemConfigApi } from "./systemConfigClient";
+import { SYSTEM_CONFIG_MESSAGES } from "@/constants/systemAdmin";
 
 const mockedApiClient = apiClient as jest.Mocked<typeof apiClient>;
 
@@ -35,6 +36,22 @@ describe("systemConfigApi", () => {
 
     expect(mockedApiClient.fetchSystemConfig).toHaveBeenCalledTimes(1);
   });
+
+  test.each([0, 100, 101, 1000])("更新非负整数阈值 %s 时原样传递", async (battleStartAP) => {
+    await systemConfigApi.updateSystemConfig({ battleStartAP });
+    expect(mockedApiClient.doUpdateSystemConfig).toHaveBeenCalledWith({ battleStartAP });
+    expect(isValidBattleStartAP(battleStartAP)).toBe(true);
+  });
+
+  test.each([-1, 0.1, 100.5, NaN, Infinity, -Infinity, "100", "", null, undefined, true, Number.MAX_SAFE_INTEGER + 1])(
+    "拒绝非法阈值 %s，不取整、不发送请求",
+    (battleStartAP) => {
+      expect(isValidBattleStartAP(battleStartAP)).toBe(false);
+      expect(() => systemConfigApi.updateSystemConfig({ battleStartAP: battleStartAP as number }))
+        .toThrow(SYSTEM_CONFIG_MESSAGES.INVALID_BATTLE_START_AP);
+      expect(mockedApiClient.doUpdateSystemConfig).not.toHaveBeenCalled();
+    }
+  );
 
   test("updateSystemConfig 通过 /system/config 更新传入字段", async () => {
     mockedApiClient.doUpdateSystemConfig.mockResolvedValue({
