@@ -19,6 +19,7 @@ jest.mock("./server", () => ({
 }));
 
 import { APIClient } from "./apiClient";
+import { ACCELERATE_SLOTS } from "@/constants/game";
 
 const hostServer = {
   label: "Arkhost",
@@ -118,6 +119,21 @@ describe("APIClient Arkhost game mutations", () => {
     await client.doUpdateGameConf("Guser/name", { operator_development_tasks: [] });
     expect(mockPost).toHaveBeenLastCalledWith("/game/config/Guser%2Fname", {
       config: { operator_development_tasks: [] },
+    });
+  });
+
+  test.each([
+    ["底层右", "slot_7"],
+    ["顶层右", "slot_26"],
+    ["中层右", "slot_16"],
+  ])("选择%s时提交对应槽位 %s", async (label, expectedSlot) => {
+    const client = new APIClient(hostServer);
+    const slot = ACCELERATE_SLOTS.find((item) => item.label === label)!.id;
+
+    await client.doUpdateGameConf("G123", { accelerate_slot: slot });
+
+    expect(mockPost).toHaveBeenCalledWith("/game/config/G123", {
+      config: { accelerate_slot: expectedSlot },
     });
   });
 

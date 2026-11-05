@@ -23,15 +23,16 @@ export const GAME_PLATFORM_LABEL = {
 export const MAX_GAME_SLOTS = 3;
 
 export const ACCELERATE_SLOTS = [
-  { id: "slot_5", label: "顶层左" },
-  { id: "slot_6", label: "顶层中" },
-  { id: "slot_7", label: "顶层右" },
+  // 按游戏布局从上到下排列：B1 顶层、B2 中层、B3 底层。
+  { id: "slot_24", label: "顶层左" },
+  { id: "slot_25", label: "顶层中" },
+  { id: "slot_26", label: "顶层右" },
   { id: "slot_14", label: "中层左" },
   { id: "slot_15", label: "中层中" },
   { id: "slot_16", label: "中层右" },
-  { id: "slot_24", label: "底层左" },
-  { id: "slot_25", label: "底层中" },
-  { id: "slot_26", label: "底层右" },
+  { id: "slot_5", label: "底层左" },
+  { id: "slot_6", label: "底层中" },
+  { id: "slot_7", label: "底层右" },
 ] as const satisfies readonly { id: AccelerateSlot; label: string }[];
 
 export const DEFAULT_GAME_CONFIG: ApiGameGameConfig = {
