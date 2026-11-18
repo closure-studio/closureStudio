@@ -53,61 +53,41 @@
         />
       </label>
     </div>
-    <section
-      class="@container mt-4 min-w-0 space-y-3 rounded-lg border border-base-300 bg-base-200/40 p-3 sm:p-4"
-      :aria-labelledby="autoLoginHeadingId"
-      :aria-busy="autoLoginAction !== null"
-    >
-      <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-        <h3 :id="autoLoginHeadingId" class="text-sm font-semibold">自动登录</h3>
-        <span
-          class="badge badge-sm badge-soft"
-          :class="autoLoginEnabled ? 'badge-success' : 'badge-neutral'"
-          role="status"
-        >
-          {{ autoLoginEnabled ? "已开启" : "已关闭" }}
-        </span>
-      </div>
-      <p v-if="autoLoginEnabled" class="text-sm text-base-content/75">
-        <time :datetime="autoLoginUntilDateTime">{{ autoLoginUntilText }}</time> 到期
-        <span v-if="!canRenew" class="block text-xs">到期前 30 天可续期</span>
-      </p>
-      <p v-if="isPaused && autoLoginEnabled" class="rounded-md bg-warning/10 px-3 py-2 text-sm">
-        已暂停，手动登录后恢复
-      </p>
-      <div class="flex flex-wrap gap-2">
+    <section :aria-labelledby="autoLoginHeadingId" :aria-busy="autoLoginAction !== null">
+      <h3 :id="autoLoginHeadingId" class="divider h-2 mt-2">掉线自动登录</h3>
+      <div class="flex min-w-0 items-center gap-2">
         <button
           ref="renewAutoLoginButton"
           type="button"
-          class="btn btn-info min-h-[44px] w-full text-sm aria-disabled:cursor-not-allowed aria-disabled:opacity-60 @xs:w-auto"
+          class="btn btn-outline btn-info btn-sm min-w-0 flex-1 flex-nowrap aria-disabled:cursor-not-allowed aria-disabled:opacity-60"
           :aria-disabled="autoLoginAction !== null || !canRenew"
+          :title="autoLoginTitle"
           @click="onRenewAutoLogin"
         >
           <span
             v-if="autoLoginAction === 'renew'"
-            class="loading loading-spinner loading-xs"
+            class="loading loading-spinner loading-xs shrink-0"
             aria-hidden="true"
           ></span>
-          {{ renewButtonText }}
+          <span class="min-w-0 truncate">{{ renewButtonText }}</span>
         </button>
         <button
           v-if="autoLoginEnabled"
           ref="disableAutoLoginButton"
           type="button"
-          class="btn btn-outline min-h-[44px] w-full text-sm aria-disabled:cursor-not-allowed aria-disabled:opacity-60 @xs:w-auto"
+          class="btn btn-ghost btn-xs min-h-8 shrink-0 aria-disabled:cursor-not-allowed aria-disabled:opacity-60"
           :aria-disabled="autoLoginAction !== null"
-          :aria-label="autoLoginAction === 'disable' ? undefined : '关闭自动登录'"
+          :aria-label="autoLoginAction === 'disable' ? '关闭中' : '关闭自动登录'"
           @click="onDisableAutoLogin"
         >
-          <span
-            v-if="autoLoginAction === 'disable'"
-            class="loading loading-spinner loading-xs"
-            aria-hidden="true"
-          ></span>
-          {{ autoLoginAction === 'disable' ? '关闭中…' : '关闭' }}
+          <span v-if="autoLoginAction === 'disable'" class="loading loading-spinner loading-xs" aria-hidden="true"></span>
+          <span v-else>关闭</span>
         </button>
       </div>
-      <p v-if="autoLoginError" role="alert" class="break-words text-sm text-error">{{ autoLoginError }}</p>
+      <p v-if="isPaused && autoLoginEnabled" class="mt-1 text-xs text-base-content/75">
+        已暂停，手动登录后恢复
+      </p>
+      <p v-if="autoLoginError" role="alert" class="mt-1 break-words text-xs text-error">{{ autoLoginError }}</p>
     </section>
     <div class="divider h-2 mt-2">无人机加速</div>
     <BaseDesign
@@ -252,14 +232,16 @@ const autoLoginEnabled = computed(() => isAutoLoginEnabled(autoLoginUntil.value,
 const autoLoginUntilText = computed(() =>
   autoLoginUntil.value ? formatTime(autoLoginUntil.value, "yyyy-MM-dd HH:mm") : ""
 );
-const autoLoginUntilDateTime = computed(() =>
-  autoLoginUntil.value ? new Date(autoLoginUntil.value * 1000).toISOString() : undefined
-);
 const canRenew = computed(() => canRenewAutoLogin(autoLoginUntil.value, now.value));
 const isPaused = computed(() => game.value?.status.code === GAME_STATUS_CODE.PAUSED);
+const autoLoginTitle = computed(() =>
+  autoLoginEnabled.value ? `有效期至 ${autoLoginUntilText.value}` : undefined
+);
 const renewButtonText = computed(() => {
   if (autoLoginAction.value === "renew") return autoLoginEnabled.value ? "续期中…" : "开启中…";
-  return `${autoLoginEnabled.value ? "续期" : "开启"} ${AUTO_LOGIN_EXTEND_DAYS} 天`;
+  if (!autoLoginEnabled.value) return `开启 ${AUTO_LOGIN_EXTEND_DAYS} 天`;
+  if (!canRenew.value) return autoLoginTitle.value;
+  return `续期 ${AUTO_LOGIN_EXTEND_DAYS} 天（${autoLoginUntilText.value} 到期）`;
 });
 
 const updateAutoLogin = async (action: "renew" | "disable") => {
