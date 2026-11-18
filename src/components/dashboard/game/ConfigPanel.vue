@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col">
-    <GameConfig :account="account" :game-config="details?.config" :inline="true" />
+    <GameConfig :key="account" :account="account" :game-config="details?.config" />
   </div>
 </template>
 

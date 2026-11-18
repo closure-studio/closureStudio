@@ -85,6 +85,16 @@ describe("APIClient Arkhost game mutations", () => {
     expect(mockPost).toHaveBeenCalledWith("/game/config/G123456", { config });
   });
 
+  test("关闭掉线自动登录显式提交截止时间 0", async () => {
+    const client = new APIClient(hostServer);
+
+    await client.doUpdateGameConf("G123", { auto_login_until: 0 });
+
+    expect(mockPost).toHaveBeenCalledWith("/game/config/G123", {
+      config: { auto_login_until: 0 },
+    });
+  });
+
   test("加工站开关显式透传 false", async () => {
     const client = new APIClient(hostServer);
 
