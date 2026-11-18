@@ -53,22 +53,62 @@
         />
       </label>
     </div>
-    <div class="divider h-2 mt-2">掉线自动登录</div>
-    <button
-      class="btn btn-outline btn-info btn-sm btn-block"
-      :disabled="isRenewing || !canRenew"
-      @click="onRenewAutoLogin"
+    <section
+      class="@container mt-4 min-w-0 space-y-3 rounded-lg border border-base-300 bg-base-200/40 p-3 sm:p-4"
+      :aria-labelledby="autoLoginHeadingId"
+      :aria-busy="autoLoginAction !== null"
     >
-      <span v-if="isRenewing" class="loading loading-bars loading-xs"></span>
-      {{ renewButtonText }}
-    </button>
-    <div
-      v-if="isPaused"
-      role="alert"
-      class="rounded border-s-4 border-warning bg-warning/10 p-3 mt-2 text-sm"
-    >
-      账号已暂停，自动登录暂不生效，请先手动登录一次
-    </div>
+      <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+        <h3 :id="autoLoginHeadingId" class="text-sm font-semibold">自动登录</h3>
+        <span
+          class="badge badge-sm badge-soft"
+          :class="autoLoginEnabled ? 'badge-success' : 'badge-neutral'"
+          role="status"
+        >
+          {{ autoLoginEnabled ? "已开启" : "已关闭" }}
+        </span>
+      </div>
+      <p v-if="autoLoginEnabled" class="text-sm text-base-content/75">
+        <time :datetime="autoLoginUntilDateTime">{{ autoLoginUntilText }}</time> 到期
+        <span v-if="!canRenew" class="block text-xs">到期前 30 天可续期</span>
+      </p>
+      <p v-if="isPaused && autoLoginEnabled" class="rounded-md bg-warning/10 px-3 py-2 text-sm">
+        已暂停，手动登录后恢复
+      </p>
+      <div class="flex flex-wrap gap-2">
+        <button
+          ref="renewAutoLoginButton"
+          type="button"
+          class="btn btn-info min-h-[44px] w-full text-sm aria-disabled:cursor-not-allowed aria-disabled:opacity-60 @xs:w-auto"
+          :aria-disabled="autoLoginAction !== null || !canRenew"
+          @click="onRenewAutoLogin"
+        >
+          <span
+            v-if="autoLoginAction === 'renew'"
+            class="loading loading-spinner loading-xs"
+            aria-hidden="true"
+          ></span>
+          {{ renewButtonText }}
+        </button>
+        <button
+          v-if="autoLoginEnabled"
+          ref="disableAutoLoginButton"
+          type="button"
+          class="btn btn-outline min-h-[44px] w-full text-sm aria-disabled:cursor-not-allowed aria-disabled:opacity-60 @xs:w-auto"
+          :aria-disabled="autoLoginAction !== null"
+          :aria-label="autoLoginAction === 'disable' ? undefined : '关闭自动登录'"
+          @click="onDisableAutoLogin"
+        >
+          <span
+            v-if="autoLoginAction === 'disable'"
+            class="loading loading-spinner loading-xs"
+            aria-hidden="true"
+          ></span>
+          {{ autoLoginAction === 'disable' ? '关闭中…' : '关闭' }}
+        </button>
+      </div>
+      <p v-if="autoLoginError" role="alert" class="break-words text-sm text-error">{{ autoLoginError }}</p>
+    </section>
     <div class="divider h-2 mt-2">无人机加速</div>
     <BaseDesign
       :slot="config.accelerate_slot"
@@ -108,7 +148,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, useId, watch } from "vue";
 import { DEFAULT_GAME_CONFIG, GAME_STATUS_CODE } from "@/constants/game";
 import { formatTime } from "@/utils/format";
 import {
@@ -178,47 +218,87 @@ const removeBattleMap = (battleMap: string) => {
 };
 
 // --- 掉线自动登录（auto_login_until，Unix 秒）---
+const autoLoginHeadingId = useId();
 const now = ref(nowSeconds());
-const isRenewing = ref(false);
-const autoLoginEnabled = computed(() =>
-  isAutoLoginEnabled(config.value.auto_login_until, now.value)
+const autoLoginAction = ref<"renew" | "disable" | null>(null);
+const autoLoginError = ref("");
+const renewAutoLoginButton = ref<HTMLButtonElement | null>(null);
+const disableAutoLoginButton = ref<HTMLButtonElement | null>(null);
+const game = computed(() => gamesStore.findGame(props.account));
+const serverAutoLoginUntil = computed(() =>
+  game.value?.game_config
+    ? game.value.game_config.auto_login_until
+    : props.gameConfig?.auto_login_until
 );
-const autoLoginUntilText = computed(() => {
-  const until = config.value.auto_login_until;
-  return isAutoLoginEnabled(until, now.value) ? formatTime(until, "yyyy-MM-dd HH:mm") : "";
-});
-const canRenew = computed(() => canRenewAutoLogin(config.value.auto_login_until, now.value));
-const isPaused = computed(
-  () => gamesStore.findGame(props.account)?.status.code === GAME_STATUS_CODE.PAUSED
-);
-const renewButtonText = computed(() => {
-  if (!autoLoginEnabled.value) return `开启 ${AUTO_LOGIN_EXTEND_DAYS} 天`;
-  if (!canRenew.value) return `有效期至 ${autoLoginUntilText.value}`;
-  return `续期 ${AUTO_LOGIN_EXTEND_DAYS} 天（有效期至 ${autoLoginUntilText.value}）`;
+const autoLoginUntil = ref(serverAutoLoginUntil.value ?? null);
+watch(serverAutoLoginUntil, (until) => {
+  autoLoginUntil.value = until ?? null;
 });
 
-const onRenewAutoLogin = async () => {
+const refreshAutoLoginClock = () => {
   now.value = nowSeconds();
-  if (isRenewing.value || !canRenew.value) return;
-  const wasEnabled = autoLoginEnabled.value;
-  const action = wasEnabled ? "续期" : "开启";
-  const until = getNextAutoLoginUntil(now.value);
-  isRenewing.value = true;
+};
+let clock: ReturnType<typeof setInterval> | undefined;
+onMounted(() => {
+  clock = setInterval(refreshAutoLoginClock, 1000);
+  window.addEventListener("focus", refreshAutoLoginClock);
+});
+onUnmounted(() => {
+  clearInterval(clock);
+  window.removeEventListener("focus", refreshAutoLoginClock);
+});
+
+const autoLoginEnabled = computed(() => isAutoLoginEnabled(autoLoginUntil.value, now.value));
+const autoLoginUntilText = computed(() =>
+  autoLoginUntil.value ? formatTime(autoLoginUntil.value, "yyyy-MM-dd HH:mm") : ""
+);
+const autoLoginUntilDateTime = computed(() =>
+  autoLoginUntil.value ? new Date(autoLoginUntil.value * 1000).toISOString() : undefined
+);
+const canRenew = computed(() => canRenewAutoLogin(autoLoginUntil.value, now.value));
+const isPaused = computed(() => game.value?.status.code === GAME_STATUS_CODE.PAUSED);
+const renewButtonText = computed(() => {
+  if (autoLoginAction.value === "renew") return autoLoginEnabled.value ? "续期中…" : "开启中…";
+  return `${autoLoginEnabled.value ? "续期" : "开启"} ${AUTO_LOGIN_EXTEND_DAYS} 天`;
+});
+
+const updateAutoLogin = async (action: "renew" | "disable") => {
+  refreshAutoLoginClock();
+  if (autoLoginAction.value || (action === "disable" ? !autoLoginEnabled.value : !canRenew.value)) return;
+
+  const account = props.account;
+  const disabling = action === "disable";
+  const label = disabling ? "关闭" : autoLoginEnabled.value ? "续期" : "开启";
+  const until = disabling ? 0 : getNextAutoLoginUntil(now.value);
+  const fallbackError = `${label}失败，请重试`;
+  autoLoginAction.value = action;
+  autoLoginError.value = "";
+
   try {
-    const result = await apiClient.doUpdateGameConf(props.account, { auto_login_until: until });
-    if (result.code === API_RESPONSE_CODE.SUCCESS) {
-      config.value.auto_login_until = until;
-      const untilText = formatTime(until, "yyyy-MM-dd HH:mm");
-      setMsg(`自动登录已${action}，有效期至 ${untilText}`, Type.Success);
-    } else {
-      setMsg(result.message || `${action}失败，请稍后再试`, Type.Error);
+    const result = await apiClient.doUpdateGameConf(account, { auto_login_until: until });
+    if (result.code !== API_RESPONSE_CODE.SUCCESS) {
+      autoLoginError.value = result.message || fallbackError;
+      return;
     }
-  } catch (error) {
-    setMsg(String(error), Type.Error);
+
+    const restoreFocus = disabling && disableAutoLoginButton.value === document.activeElement;
+    autoLoginUntil.value = until;
+    const savedGame = gamesStore.findGame(account);
+    if (savedGame?.game_config) savedGame.game_config.auto_login_until = until;
+    setMsg(`自动登录已${label}`, Type.Success);
+    if (restoreFocus) {
+      await nextTick();
+      renewAutoLoginButton.value?.focus();
+    }
+  } catch {
+    autoLoginError.value = fallbackError;
   } finally {
-    isRenewing.value = false;
+    autoLoginAction.value = null;
   }
 };
+
+const onRenewAutoLogin = () => updateAutoLogin("renew");
+const onDisableAutoLogin = () => updateAutoLogin("disable");
 
 const onSubmit = async () => {
   if (isLoading.value) return;
