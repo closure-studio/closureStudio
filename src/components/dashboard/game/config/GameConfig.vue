@@ -75,7 +75,7 @@
           v-if="autoLoginEnabled"
           ref="disableAutoLoginButton"
           type="button"
-          class="btn btn-outline btn-error btn-xs min-h-8 shrink-0 aria-disabled:cursor-not-allowed aria-disabled:opacity-60"
+          class="btn btn-outline btn-error btn-sm shrink-0 aria-disabled:cursor-not-allowed aria-disabled:opacity-60"
           :aria-disabled="autoLoginAction !== null"
           :aria-label="autoLoginAction === 'disable' ? '关闭中' : '关闭自动登录'"
           @click="onDisableAutoLogin"
